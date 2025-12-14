@@ -180,8 +180,8 @@ canvas.visible { opacity: 1; }
 }
 
 .menu-button, .submenu-item {
-    width: 40px;
-    height: 40px;
+    width: 100px;
+    height: 100px;
     background: rgba(0, 0, 0, 0.6); /* Darker background for physical look */
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px; /* Slightly rounded corners for physical button look */
@@ -217,8 +217,8 @@ canvas.visible { opacity: 1; }
 }
 
 .menu-button img, .submenu-item img {
-    width: 20px;
-    height: 20px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
 }
 
