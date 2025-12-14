@@ -19,7 +19,7 @@
     <script type="x-shader/x-fragment" id="fragmentShader">
     varying vec2 vUv;
     uniform float u_time;
-    uniform vec3 u_color; 
+    uniform vec3 u_color;
 
     float julia(vec2 z, vec2 c) {
         // ... (julia function remains the same) ...
@@ -49,7 +49,7 @@
         c = c + vec2(cos(cycle),sin(cycle))*.01;
         float m = julia(coord, c);
 
-        vec3 baseColor = u_color; 
+        vec3 baseColor = u_color;
         vec3 rgb = baseColor * (0.5 + 0.5*cos(3.0 + 0.15*m + vec3(0.0, 0.6, 2.)));
 
         gl_FragColor = vec4(rgb, 1.0);
@@ -63,7 +63,7 @@
     <div id="star-wars-intro" class="star-wars-overlay"><div class="crawl"><p>Greetings. You have entered the digital coordinates of Juhan. Here, code meets creativity in a universe of infinite possibilities. Prepare to explore a galaxy of projects, skills, and digital experiences.</p></div></div>
     <div id="labels-container"></div>
     <button id="back-button" class="back-button">← Return to Overview</button>
-    
+
     <div id="about-panel" class="content-panel">
         <h2>Code Over Clutter – Building What Plugins Can’t</h2>
         <p>I’m Juhan, a Digital Alchemist and Google Certified Internet Ninja based in South Africa. While other developers are busy shopping for expensive premium plugins to fix their problems, I’m usually busy writing the code to replace them—mostly because I appreciate the performance, but partly because I just really hate paying for things I can build myself.</p>
@@ -75,7 +75,7 @@
 
     <div id="projects-panel" class="content-panel">
         <h2 id="project-title"></h2>
-        
+
         <div id="project-challenge-container">
             <h3>The Challenge</h3>
             <p id="project-challenge"></p>
@@ -96,31 +96,121 @@
     <div id="skill-detail-view"><div id="skill-detail-content"><h2 id="skill-detail-title"></h2><p id="skill-detail-text"></p></div><div id="skill-detail-sidebar"></div></div>
     <nav id="gallery-navigation" class="gallery-nav"></nav>
 
-    <div class="bottom-left-buttons">
-         <a href="mailto:info@codexist.co.za" class="icon-button" title="Email Me">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z"/>
-                <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z"/>
-            </svg>
-        </a>
-         <a href="https://wa.me/27823605374" target="_blank" class="icon-button" title="WhatsApp Me">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                 <path fill-rule="evenodd" d="M18.97 4.582a11.97 11.97 0 0 0-14.735 1.543 12.01 12.01 0 0 0-.11 15.195l-1.3 4.757a.75.75 0 0 0 .914.914l4.757-1.3a12.01 12.01 0 0 0 15.195-.11 11.97 11.97 0 0 0 1.543-14.735A12.03 12.03 0 0 0 12 2.25c-2.454 0-4.78.72-6.735 2.002A11.895 11.895 0 0 0 4.58 18.97a12.03 12.03 0 0 0 14.39-14.388Zm-6.49 11.12c-.156.467-.71.802-1.28.802-.544 0-1.07-.178-1.57-.468-.507-.293-1.46-.88-2.67-1.97-1.4-.98-2.2-2.11-2.43-2.61-.26-.5-.07-1.01.21-1.39.26-.35.6-.46.85-.46.16 0 .33.01.48.03.22.03.35.05.51.34.15.29.51.81.56 1.05.04.24.01.4-.07.56-.16.29-.27.4-.42.59-.15.19-.3.33-.41.46.01.03.11.23.36.46.59.57 1.25 1.1 1.95 1.48.51.27.91.31 1.18.25.27-.06.75-.41.97-.7.22-.29.43-.37.71-.37.31 0 .61.09.84.28.23.19.71.84.82 1 .11.16.19.25.19.43 0 .18-.01.4-.09.56-.08.16-.5.68-.69.88Z" clip-rule="evenodd"/>
-            </svg>
-        </a>
-         <a href="https://www.linkedin.com/in/juhanbadenhorst/" target="_blank" class="icon-button" title="LinkedIn Profile">
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                 <path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2ZM8 19H5v-9h3v9ZM6.5 8.25A1.75 1.75 0 1 1 8.25 6.5 1.75 1.75 0 0 1 6.5 8.25ZM19 19h-3v-4.75c0-1.4-.99-2.5-2.24-2.5A2.26 2.26 0 0 0 11.5 14v5H8.5v-9h3V11c.95-1.62 2.62-2.75 4.5-2.75 3.29 0 5 2.5 5 6.25V19Z"/>
-            </svg>
-        </a>
-        <a href="assets/Juhan-Resume.pdf" download="Juhan-Badenhorst-Resume.pdf" class="icon-button" title="Download CV">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd"/>
-            </svg>
-        </a>
+    <div class="bottom-left-menu">
+        <!-- Help (Bottom in Visual due to column-reverse, so it must be first in HTML) -->
+        <div class="menu-item">
+            <div class="menu-button icon-button" onclick="toggleMenu(this)">
+                <!-- informational icon -->
+                <span style="font-family: serif; font-weight: bold; font-size: 24px;">i</span>
+                 <span class="tooltip">Help</span>
+            </div>
+            <div class="submenu legend-content">
+                <p>Rotate: <span>Left Click + Drag</span></p>
+                <p>Pan: <span>Right Click + Drag</span></p>
+                <p>Zoom: <span>Scroll Wheel</span></p>
+            </div>
+        </div>
+
+        <!-- Portfolios -->
+        <div class="menu-item">
+            <div class="menu-button icon-button" onclick="toggleMenu(this)">
+                <img src="assets/social-icons/portfolio-final.png" alt="Portfolios">
+                 <span class="tooltip">Portfolios</span>
+            </div>
+            <div class="submenu">
+                <div class="submenu-item icon-button">
+                    <img src="assets/social-icons/portfolio-final.png" alt="SEO">
+                     <span class="tooltip">SEO</span>
+                </div>
+                <div class="submenu-item icon-button">
+                    <img src="assets/social-icons/portfolio-final.png" alt="Paid Marketing">
+                     <span class="tooltip">Paid Marketing</span>
+                </div>
+                <div class="submenu-item icon-button">
+                    <img src="assets/social-icons/portfolio-final.png" alt="Graphic Design">
+                     <span class="tooltip">Graphic Design</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="menu-item">
+            <div class="menu-button icon-button" onclick="toggleMenu(this)">
+                <img src="assets/social-icons/mobile-final.png" alt="Contact">
+                 <span class="tooltip">Contact</span>
+            </div>
+            <div class="submenu">
+                <a href="https://wa.me/27823605374" target="_blank" class="submenu-item icon-button">
+                    <img src="assets/social-icons/whatsapp-final.png" alt="WhatsApp">
+                    <span class="tooltip">WhatsApp</span>
+                </a>
+                <a href="mailto:info@codexist.co.za" class="submenu-item icon-button">
+                    <img src="assets/social-icons/email-final.png" alt="Email">
+                     <span class="tooltip">Email</span>
+                </a>
+                <a href="https://www.linkedin.com/in/juhanbadenhorst/" target="_blank" class="submenu-item icon-button">
+                    <img src="assets/social-icons/linkedin-final.png" alt="LinkedIn">
+                     <span class="tooltip">LinkedIn</span>
+                </a>
+                <a href="#" class="submenu-item icon-button">
+                    <img src="assets/social-icons/booking-final.png" alt="Book a Meeting">
+                     <span class="tooltip">Book a Meeting</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Websites (Top) -->
+        <div class="menu-item">
+            <div class="menu-button icon-button" onclick="toggleMenu(this)">
+                <img src="assets/social-icons/website-final.png" alt="Websites">
+                <span class="tooltip">Websites</span>
+            </div>
+            <div class="submenu">
+                <a href="https://codexist.co.za" target="_blank" class="submenu-item icon-button">
+                    <img src="assets/social-icons/url-final.png" alt="Codexist">
+                    <span class="tooltip">Codexist</span>
+                </a>
+                <a href="https://factorlab.co.za" target="_blank" class="submenu-item icon-button">
+                    <img src="assets/social-icons/url-final.png" alt="Factor Lab">
+                    <span class="tooltip">Factor Lab</span>
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="legend-container"><div class="legend-icon">?</div><div class="legend-details"><p>Rotate: <span>Left Click + Drag</span></p><p>Pan: <span>Right Click + Drag</span></p><p>Zoom: <span>Scroll Wheel</span></p></div></div>
+    <script>
+        function toggleMenu(button) {
+            const menuItem = button.closest('.menu-item');
+            const wasExpanded = menuItem.classList.contains('expanded');
+
+            // Close other menus
+            document.querySelectorAll('.menu-item').forEach(item => {
+                if (item !== menuItem) {
+                    item.classList.remove('expanded');
+                    item.querySelector('.menu-button').classList.remove('active');
+                }
+            });
+
+            // Toggle current menu
+            if (wasExpanded) {
+                menuItem.classList.remove('expanded');
+                button.classList.remove('active');
+            } else {
+                menuItem.classList.add('expanded');
+                button.classList.add('active');
+            }
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.bottom-left-menu')) {
+                 document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('expanded');
+                    item.querySelector('.menu-button').classList.remove('active');
+                });
+            }
+        });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/" } }
