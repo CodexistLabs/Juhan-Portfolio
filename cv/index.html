@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juhan Badenhorst - CV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Libraries for Export -->
+    <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #d1d5db;
+        }
+
+        h1, h2, h3, .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Neon Glow Effects */
+        .neon-text {
+            color: #39ff14;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+
+        .neon-border {
+            border-color: #39ff14;
+            box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);
+        }
+
+        .neon-box {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        .page {
+            margin: 2rem auto;
+            max-width: 210mm;
+            padding: 2.5rem;
+            min-height: 297mm;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Timeline styling */
+        .experience-item {
+            position: relative;
+            padding-left: 1.5rem;
+            border-left: 1px dashed rgba(57, 255, 20, 0.3);
+            padding-bottom: 2rem;
+        }
+
+        .experience-item:last-child {
+            border-left: none;
+            padding-bottom: 0;
+        }
+        
+        .experience-item::before {
+            content: '';
+            position: absolute;
+            left: -0.28rem;
+            top: 0.4rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            background: #050505;
+            border: 2px solid #39ff14;
+            box-shadow: 0 0 5px #39ff14;
+            border-radius: 50%;
+        }
+
+        .skill-tag {
+            background-color: rgba(57, 255, 20, 0.1);
+            color: #39ff14;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            padding: 0.25rem 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            background-color: #39ff14;
+            color: #000;
+            box-shadow: 0 0 10px #39ff14;
+        }
+
+        a {
+            transition: color 0.2s;
+        }
+        a:hover {
+            color: #39ff14;
+            text-shadow: 0 0 5px rgba(57, 255, 20, 0.7);
+        }
+
+        /* Print Styling - Clean White */
+        @media print {
+            body { background: white; color: black; }
+            .grid-bg, .no-print { display: none !important; }
+            .page { margin: 0; width: 100%; max-width: none; padding: 0; background: none; box-shadow: none; border: none; }
+            .neon-text { color: black; text-shadow: none; font-weight: bold; }
+            .neon-box { background: none; border: none; box-shadow: none; }
+            .experience-item { border-left: 2px solid #ccc; }
+            .experience-item::before { background: black; border: none; box-shadow: none; }
+            .skill-tag { border: 1px solid #ccc; color: black; background: none; }
+            a { text-decoration: underline; color: black; }
+            h1, h2, h3 { color: black !important; }
+            a[href]:after { content: none !important; }
+        }
+    </style>
+</head>
+<body class="leading-relaxed">
+
+    <div class="grid-bg"></div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-6 right-6 no-print z-50 flex flex-col gap-3">
+        <button onclick="downloadPdf()" class="bg-black border border-[#39ff14] text-[#39ff14] hover:bg-[#39ff14] hover:text-black font-mono font-bold py-3 px-6 shadow-[0_0_15px_rgba(57,255,20,0.3)] transition duration-300 flex items-center justify-center gap-2 uppercase tracking-wider text-sm w-48 cursor-pointer">
+            <i class="fas fa-file-pdf"></i> Save as PDF
+        </button>
+        <button onclick="downloadDocx()" class="bg-black border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-black font-mono font-bold py-3 px-6 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition duration-300 flex items-center justify-center gap-2 uppercase tracking-wider text-sm w-48 cursor-pointer">
+            <i class="fas fa-file-word"></i> Download DOCX
+        </button>
+    </div>
+
+    <!-- Content ID for cloning -->
+    <div id="cv-content" class="page mx-auto neon-box rounded-xl">
+        <!-- Header -->
+        <header class="mb-12 border-b border-gray-800 pb-8 md:flex md:justify-between md:items-center">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter uppercase glitch-effect">
+                    Juhan <span class="neon-text">Badenhorst</span>
+                </h1>
+                <p class="text-sm md:text-base text-gray-400 font-mono mt-2 tracking-widest uppercase">
+                    &lt; Web_Developer /&gt; <span class="text-[#39ff14] mx-2">|</span> Graphic Design <span class="text-[#39ff14] mx-2">|</span> SEO
+                </p>
+            </div>
+            <div class="mt-6 md:mt-0 text-sm space-y-2 font-mono text-gray-400 text-right">
+                <p class="flex items-center justify-end gap-2">
+                    Johannesburg, ZA <i class="fas fa-map-marker-alt text-[#39ff14]"></i>
+                </p>
+                <p class="flex items-center justify-end gap-2">
+                    <a href="tel:+27791199006" class="hover:text-white">+27 79 119 9006</a> <i class="fas fa-phone text-[#39ff14]"></i>
+                </p>
+                <p class="flex items-center justify-end gap-2">
+                    <a href="mailto:juhan@codexist.co.za" class="hover:text-white">juhan@codexist.co.za</a> <i class="fas fa-envelope text-[#39ff14]"></i>
+                </p>
+                <p class="flex items-center justify-end gap-2">
+                    <a href="https://wa.me/27823605374" target="_blank" class="hover:text-white">+27 82 360 5374</a> <i class="fab fa-whatsapp text-[#39ff14]"></i>
+                </p>
+                <p class="flex items-center justify-end gap-2">
+                    <a href="https://linkedin.com/juhanbadenhorst" target="_blank" class="hover:text-white">/juhanbadenhorst</a> <i class="fab fa-linkedin text-[#39ff14]"></i>
+                </p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            
+            <!-- Left Column (Main Content) -->
+            <div class="md:col-span-2">
+                
+                <!-- About Me -->
+                <section class="mb-12">
+                    <h2 class="text-xl neon-text mb-6 uppercase tracking-widest border-b border-gray-800 pb-2 flex items-center gap-2">
+                        <i class="fas fa-user-astronaut text-sm"></i> System_Profile
+                    </h2>
+                    <div class="text-gray-300 text-sm leading-7 space-y-4 text-justify">
+                        <p>
+                            Highly proficient Web Developer and Google Certified Professional with a proven track record of engineering robust, scalable digital solutions. I specialize in bridging the gap between complex backend logic and user-centric frontend design, with a particular mastery in developing custom WordPress plugins and bespoke applications that outperform standard templates.
+                        </p>
+                        <p>
+                            Beyond traditional coding, I am a strategic innovator who leverages cutting-edge AI tools to automate workflows, optimize business processes, and enhance digital performance. My expertise extends to full-stack development, including PHP, React, and TSX, ensuring secure and dynamic web environments.
+                        </p>
+                        <p>
+                            Driven by a commitment to technical excellence and business growth, I combine my deep technical acumen with advanced SEO strategies and data-driven insights (Google Search, Display, & AI Shopping) to deliver impactful results that elevate brand visibility and operational efficiency.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Work Experience -->
+                <section class="mb-10">
+                    <h2 class="text-xl neon-text mb-8 uppercase tracking-widest border-b border-gray-800 pb-2 flex items-center gap-2">
+                        <i class="fas fa-code-branch text-sm"></i> Execution_Log
+                    </h2>
+
+                    <!-- Job 1 -->
+                    <div class="experience-item">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-white">Crowberry Media</h3>
+                            <span class="text-xs font-mono text-[#39ff14] border border-[#39ff14] px-2 py-1 rounded">2024 - PRESENT</span>
+                        </div>
+                        <p class="text-gray-400 font-mono text-xs mb-4 uppercase tracking-wider">Web Development | Graphic Design</p>
+                        <ul class="list-none text-sm space-y-2 text-gray-300">
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Developed and maintained functional websites using WordPress, Elementor Pro, Bricks Builder, WooCommerce, and Shopify.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Designed a custom plugin to replace WooCommerce on eCommerce sites, demonstrating advanced coding skills.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Managed all client Google Ads, Analytics, Search Console, and Business Profiles.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Engaged in advanced tasks including theme and plugin development using JetElements, CSS, HTML, JS, PHP, and ACF.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Job 2 -->
+                    <div class="experience-item">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-white">EMK Links Design Quarter</h3>
+                            <span class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1 rounded">2022 - 2023</span>
+                        </div>
+                        <p class="text-gray-400 font-mono text-xs mb-4 uppercase tracking-wider">Head of Marketing | Web Design</p>
+                        <ul class="list-none text-sm space-y-2 text-gray-300">
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Spearheaded robust online presence and enhanced brand visibility.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Optimized company website for improved UX and search engine rankings.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Set up and monitored Google Ad Campaigns contributing to increased traffic.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Job 3 -->
+                    <div class="experience-item">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-white">Jacris SpraySafeSolutions</h3>
+                            <span class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1 rounded">2022</span>
+                        </div>
+                        <p class="text-gray-400 font-mono text-xs mb-4 uppercase tracking-wider">Web Design | Digital Marketing</p>
+                        <ul class="list-none text-sm space-y-2 text-gray-300">
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Developed comprehensive website utilizing Adobe, WordPress, Elementor Pro, and WooCommerce.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Drove sales achieving nearly R1,000,000 in revenue within the first month.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Job 4 -->
+                    <div class="experience-item">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-white">Redman Art Lounge</h3>
+                            <span class="text-xs font-mono text-gray-500 border border-gray-700 px-2 py-1 rounded">2016 - 2021</span>
+                        </div>
+                        <p class="text-gray-400 font-mono text-xs mb-4 uppercase tracking-wider">Production Management | Graphic Design</p>
+                        <ul class="list-none text-sm space-y-2 text-gray-300">
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Spearheaded production management for efficient workflow.</li>
+                            <li class="flex items-start gap-2"><span class="text-[#39ff14] mt-1">›</span> Managed large format printing operations and custom wallpaper designs.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column (Sidebar) -->
+            <div class="md:col-span-1">
+                
+                <!-- Skills -->
+                <section class="mb-10 bg-gray-900/50 p-6 rounded-lg border border-gray-800">
+                    <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
+                        // Modules_Loaded
+                    </h2>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Dev_Stack</h4>
+                        <div>
+                            <span class="skill-tag">PHP</span>
+                            <span class="skill-tag">HTML5</span>
+                            <span class="skill-tag">CSS3</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">TSX</span>
+                            <span class="skill-tag">WordPress</span>
+                            <span class="skill-tag">Bricks</span>
+                            <span class="skill-tag">Elementor</span>
+                            <span class="skill-tag">API</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Analytics_Protocol</h4>
+                        <div>
+                            <span class="skill-tag">Google Ads</span>
+                            <span class="skill-tag">Analytics</span>
+                            <span class="skill-tag">GSC</span>
+                            <span class="skill-tag">SEMRush</span>
+                            <span class="skill-tag">Yoast</span>
+                            <span class="skill-tag">RankMath</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Visual_Unit</h4>
+                        <div>
+                            <span class="skill-tag">Photoshop</span>
+                            <span class="skill-tag">Illustrator</span>
+                            <span class="skill-tag">InDesign</span>
+                            <span class="skill-tag">Premiere Pro</span>
+                            <span class="skill-tag">After Effects</span>
+                            <span class="skill-tag">Figma</span>
+                            <span class="skill-tag">Adobe XD</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Education -->
+                <section class="mb-10">
+                    <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
+                        // Data_Download
+                    </h2>
+                    
+                    <div class="mb-4 pl-4 border-l border-gray-800">
+                        <h4 class="font-bold text-white text-sm">Google Certifications</h4>
+                        <p class="text-xs text-[#39ff14] font-mono mt-1">Google | 2025</p>
+                        <p class="text-xs text-gray-400 mt-1">Search, Display & AI-Powered Shopping Ads</p>
+                    </div>
+
+                    <div class="mb-4 pl-4 border-l border-gray-800">
+                        <h4 class="font-bold text-white text-sm">Diploma: Business Mgmt</h4>
+                        <p class="text-xs text-[#39ff14] font-mono mt-1">Modimolle FET | 2008</p>
+                    </div>
+                </section>
+
+                <!-- Personal Details -->
+                <section class="mb-10">
+                    <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
+                        // User_Metadata
+                    </h2>
+                    <ul class="text-sm space-y-3 font-mono text-gray-400">
+                        <li><span class="text-white">DOB:</span> 10.04.1990</li>
+                        <li><span class="text-white">NAT:</span> South African</li>
+                        <li><span class="text-white">LANG:</span> EN / AF</li>
+                    </ul>
+                </section>
+
+                <!-- Portfolio -->
+                <section>
+                    <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
+                        // Hyperlinks
+                    </h2>
+                    <ul class="text-sm space-y-2 font-mono">
+                        <li><a href="https://juhan.codexist.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> My Portfolio</a></li>
+                        <li><a href="https://codexist.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> Codexist</a></li>
+                        <li><a href="https://modifiedmonkey.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> Modified Monkey</a></li>
+                        <li><a href="https://adorajewels.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> Adora Jewels</a></li>
+                        <li><a href="https://wellnesshealth.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> Wellness Health</a></li>
+                        <li><a href="https://factorlab.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> Factor Lab</a></li>
+                        <li><a href="https://lumaxenergy.com" target="_blank" class="hover:text-[#39ff14] block truncate">>> Lumax Energy</a></li>
+                        <li><a href="https://entertainmentonfire.com" target="_blank" class="hover:text-[#39ff14] block truncate">>> Ent. on Fire</a></li>
+                        <li><a href="https://thelionsraw.com" target="_blank" class="hover:text-[#39ff14] block truncate">>> The Lion's RAW</a></li>
+                        <li><a href="http://calgan.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> Calgan Recliners</a></li>
+                        <li><a href="https://emklinks.co.za" target="_blank" class="hover:text-[#39ff14] block truncate">>> EMK Links</a></li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PDF Generation Function
+        function downloadPdf() {
+            const element = document.getElementById('cv-content');
+            
+            // Configuration for html2pdf
+            const opt = {
+                margin: [5, 5, 5, 5],
+                filename: 'Juhan_Badenhorst_CV.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // 1. Create a clone to manipulate styles without affecting the screen view
+            const clone = element.cloneNode(true);
+            clone.id = 'cv-clone-for-print';
+            
+            // 2. Hide it from screen but make it available for capture
+            // Using absolute positioning off-screen
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '210mm';
+            container.appendChild(clone);
+            document.body.appendChild(container);
+
+            // 3. Apply "Light Mode" / Corporate Styles to the Clone via JS
+            // Reset main container
+            clone.style.backgroundColor = 'white';
+            clone.style.color = '#1f2937';
+            clone.style.boxShadow = 'none';
+            clone.style.border = 'none';
+            clone.style.borderRadius = '0';
+            clone.style.backdropFilter = 'none';
+
+            // Process all elements inside the clone
+            const allElements = clone.querySelectorAll('*');
+            allElements.forEach(el => {
+                // Reset text colors (remove Tailwind dark classes by overriding with inline style)
+                if (el.classList.contains('text-gray-300') || el.classList.contains('text-gray-400') || el.classList.contains('text-white')) {
+                     el.style.color = '#374151'; // Dark gray
+                }
+                
+                // Fix Headers
+                if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3') {
+                    el.style.color = '#111827'; // Black
+                    el.style.textShadow = 'none';
+                }
+
+                // Fix Neon Text -> Dark Blue for professional print
+                if (el.classList.contains('neon-text') || el.classList.contains('text-[#39ff14]')) {
+                     el.style.color = '#2563eb'; // Blue-600
+                     el.style.textShadow = 'none';
+                }
+                
+                // Fix Neon Borders -> Light Gray
+                if (el.classList.contains('border-gray-800') || el.style.borderColor) {
+                    el.style.borderColor = '#e5e7eb';
+                }
+
+                // Fix Skill Tags
+                if (el.classList.contains('skill-tag')) {
+                    el.style.backgroundColor = '#eff6ff'; // Light blue bg
+                    el.style.color = '#1e40af'; // Dark blue text
+                    el.style.border = '1px solid #bfdbfe';
+                    el.style.boxShadow = 'none';
+                }
+
+                // Fix Timelines
+                if (el.classList.contains('experience-item')) {
+                    el.style.borderLeft = '2px solid #e5e7eb';
+                }
+                
+                // Fix Links
+                if (el.tagName === 'A') {
+                    el.style.color = '#2563eb';
+                    el.style.textDecoration = 'none';
+                }
+            });
+
+            // 4. Generate PDF
+            html2pdf().set(opt).from(clone).save().then(() => {
+                // Cleanup
+                document.body.removeChild(container);
+            });
+        }
+
+        // DOCX Generation Function
+        function downloadDocx() {
+            const originalContent = document.getElementById('cv-content');
+            const clone = originalContent.cloneNode(true);
+
+            // CSS to force light mode in Word
+            const css = `
+                <style>
+                    body { font-family: 'Arial', sans-serif; color: #000000; background-color: #ffffff; }
+                    .page { width: 100%; padding: 20px; }
+                    h1, h2, h3 { color: #000000 !important; font-family: 'Courier New', monospace; border-bottom: 1px solid #ccc; }
+                    p, li, span, div { color: #333333 !important; }
+                    a { color: #0000EE !important; text-decoration: underline; }
+                    .neon-text { color: #000000 !important; text-shadow: none !important; font-weight: bold; }
+                    .skill-tag { border: 1px solid #000; padding: 2px 5px; margin: 2px; display: inline-block; font-size: 10pt; }
+                    .experience-item { border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 20px; }
+                    .no-print { display: none; }
+                </style>
+            `;
+
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    ${css}
+                </head>
+                <body>
+                    ${clone.innerHTML}
+                </body>
+                </html>
+            `;
+
+            try {
+                const converted = htmlDocx.asBlob(htmlContent);
+                saveAs(converted, 'Juhan_Badenhorst_CV.docx');
+            } catch (e) {
+                alert("Error generating DOCX. Please try the PDF option.");
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
