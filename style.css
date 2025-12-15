@@ -180,8 +180,8 @@ canvas.visible { opacity: 1; }
 }
 
 .menu-button, .submenu-item {
-    width: 100px;
-    height: 100px;
+    width: 50px;
+    height: 50px;
     /* Removed background, border, backdrop-filter for transparent look */
     background: transparent;
     border: none;
@@ -238,8 +238,8 @@ canvas.visible { opacity: 1; }
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 80px;
-    height: 80px;
+    width: 40px;
+    height: 40px;
     border: 2px solid white;
     border-radius: 50%;
     background: rgba(0,0,0,0.4);

@@ -423,12 +423,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         gltfLoader.load(
-            'assets/3dmodels/moon.glb', 
+            'assets/3dmodels/moon.gltf',
             (gltf) => { 
                 moonModel = gltf.scene; 
             }, 
             undefined, 
-            (err) => console.error('Error loading moon.glb', err)
+            (err) => console.error('Error loading moon.gltf', err)
         );
 
         const particlesGeometry = new THREE.BufferGeometry();
