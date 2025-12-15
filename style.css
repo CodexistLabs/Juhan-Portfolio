@@ -180,53 +180,82 @@ canvas.visible { opacity: 1; }
 }
 
 .menu-button, .submenu-item {
-    width: 100px;
-    height: 100px;
-    background: rgba(0, 0, 0, 0.6); /* Darker background for physical look */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px; /* Slightly rounded corners for physical button look */
+    width: 50px;
+    height: 50px;
+    /* Removed background, border, backdrop-filter for transparent look */
+    background: transparent;
+    border: none;
+    border-radius: 8px; /* Slightly rounded corners if needed, but no border */
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    backdrop-filter: blur(5px);
     transition: all 0.2s ease;
-    box-shadow:
-        0 4px 6px rgba(0,0,0,0.5),
-        inset 0 1px 0 rgba(255,255,255,0.2),
-        inset 0 -1px 0 rgba(0,0,0,0.4);
+    box-shadow: none; /* Removed box shadow */
     color: white;
     text-decoration: none;
     position: relative; /* For tooltip positioning */
 }
 
 .menu-button:hover, .submenu-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-    box-shadow:
-        0 5px 8px rgba(0,0,0,0.6),
-        inset 0 1px 0 rgba(255,255,255,0.3);
-    border-color: #6fdd7a; /* Green accent on hover */
+    background: transparent;
+    transform: translateY(-2px); /* Slightly increased lift */
+    /* No border or box shadow on hover */
+    border-color: transparent;
 }
 
 .menu-button:active, .submenu-item:active {
     transform: translateY(1px);
-    box-shadow:
-        0 1px 2px rgba(0,0,0,0.5),
-        inset 0 2px 4px rgba(0,0,0,0.4); /* Inset shadow for pressed effect */
+    box-shadow: none;
 }
 
 .menu-button img, .submenu-item img {
-    width: 50px;
-    height: 50px;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); /* Shadow on the image itself */
+    transition: transform 0.2s ease;
+}
+
+.menu-button:hover img, .submenu-item:hover img {
+    transform: scale(1.1); /* Scale up image on hover */
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.8));
 }
 
 .menu-button.active {
-    border-color: #6fdd7a;
-    background: rgba(111, 221, 122, 0.1);
-    box-shadow: inset 0 0 10px rgba(111, 221, 122, 0.2);
+    /* No border or background changes for active state, maybe scale? */
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
 }
+.menu-button.active img {
+     transform: scale(1.1); /* Keep scaled if active */
+     filter: drop-shadow(0 0 10px rgba(111, 221, 122, 0.5)); /* Glow effect */
+}
+
+/* Special styling for the Help button "i" text to make it look like a button */
+.menu-button span[style*="font-family: serif"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid white;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+}
+
+.menu-button:hover span[style*="font-family: serif"] {
+    background: rgba(255,255,255,0.1);
+    border-color: #6fdd7a;
+    color: #6fdd7a;
+    box-shadow: 0 0 15px rgba(111, 221, 122, 0.4);
+    transform: scale(1.05);
+}
+
 
 /* Submenu */
 .submenu {

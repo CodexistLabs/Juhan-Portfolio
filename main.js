@@ -94,8 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
+    // Fix color space for textures
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     document.body.appendChild(renderer.domElement);
-    
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; controls.dampingFactor = 0.05;
     controls.minDistance = 5; controls.maxDistance = 30;
@@ -103,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let composer, bloomPass;
     const DEFAULT_BLOOM_STRENGTH = 0.35;
     let particles = null;
-    
+
     const labelsContainer = document.getElementById('labels-container');
     const aboutPanel = document.getElementById('about-panel');
     const projectsPanel = document.getElementById('projects-panel');
@@ -117,17 +119,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Button Event Listeners for Project Flow
     document.getElementById('view-solution-btn').addEventListener('click', () => {
-        gsap.to(projectChallengeContainer, { 
-            duration: 0.5, 
-            opacity: 0, 
-            scale: 1.1, 
-            filter: 'blur(10px)', 
+        gsap.to(projectChallengeContainer, {
+            duration: 0.5,
+            opacity: 0,
+            scale: 1.1,
+            filter: 'blur(10px)',
             ease: 'power2.in',
             onComplete: () => {
                 projectChallengeContainer.style.display = 'none';
                 projectSolutionContainer.style.display = 'block';
-                gsap.fromTo(projectSolutionContainer, 
-                    { opacity: 0, y: 20 }, 
+                gsap.fromTo(projectSolutionContainer,
+                    { opacity: 0, y: 20 },
                     { duration: 0.8, opacity: 1, y: 0, ease: 'power3.out' }
                 );
             }
@@ -153,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingManager = new THREE.LoadingManager();
     const gltfLoader = new GLTFLoader(loadingManager);
     const rgbeLoader = new RGBELoader(loadingManager);
-    
+
     loadingManager.onLoad = () => {
         if (loaderOverlay) {
             loaderOverlay.classList.add('collapsing');
@@ -172,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, { once: true });
         }
     };
-    
+
     function initPostprocessing() {
         composer = new EffectComposer(renderer);
         const renderPass = new RenderPass(scene, camera);
@@ -204,18 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.geometry && (target.geometry.type === 'TorusKnotGeometry' || target.geometry.type === 'IcosahedronGeometry')) {
              const materials = collectMaterials(target);
              materials.forEach(m => {
-                 if (m.color) { 
+                 if (m.color) {
                      if (!m.userData.originalColor) m.userData.originalColor = m.color.clone();
                      m.color.copy(enabled ? HOVER_GLOW_COLOR : m.userData.originalColor);
                  }
              });
         }
     }
-    
+
     function dimNonHovered(targetMesh) {
         nodeObjects.forEach(item => {
             if (item.mesh === targetMesh) return;
-            if (item.visual) { 
+            if (item.visual) {
                 const materials = collectMaterials(item.visual);
                 materials.forEach(mat => {
                     if (mat.color && !mat.userData.originalColor) {
@@ -239,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         });
     }
-    
+
     const nodes = [ { name: 'About', position: new THREE.Vector3(0, 4, 0) }, { name: 'Projects', position: new THREE.Vector3(-5, -3, 0) }, { name: 'Skills', position: new THREE.Vector3(5, -3, 0) } ];
     const nodeObjects = [];
     let appReady = false;
@@ -248,27 +250,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let skillsSystemGroup, skillsPlanets = [], projectLogos = [], projectsSystemGroup;
     let baseSkillPlanetUniforms;
     let moonModel = null;
-    
+
     let currentView = 'main';
     let activePlanet = null;
     let activeProject = null;
-    let shouldRotateProject = false; 
+    let shouldRotateProject = false;
     const mixers = []; // Store animation mixers
 
     function initialize() {
         createWorld();
     }
-    
+
     function createProjectsSystem() {
         const system = new THREE.Group();
         const planetRadius = 7;
         const angleStep = (Math.PI * 2) / PROJECT_DATA.length;
-        
+
         gltfLoader.load('assets/3dmodels/sun.glb', (gltf) => {
             const sunModel = gltf.scene;
-            sunModel.scale.set(0.2, 0.2, 0.2); 
-            sunModel.position.set(0, 0, 0); 
-            
+            sunModel.scale.set(0.2, 0.2, 0.2);
+            sunModel.position.set(0, 0, 0);
+
             sunModel.traverse((child) => {
                 if (child.isMesh && child.material) {
                     const oldMaterial = child.material;
@@ -280,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             system.add(sunModel);
         },
-        undefined, 
+        undefined,
         (error) => { console.error('An error happened loading the sun:', error); }
         );
 
@@ -288,16 +290,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const angle = angleStep * i;
             const x = planetRadius * Math.cos(angle);
             const z = planetRadius * Math.sin(angle);
-            
+
             gltfLoader.load(project.modelUrl, (gltf) => {
                 const model = gltf.scene;
-                
+
                 const box = new THREE.Box3().setFromObject(model);
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
                 const scale = 2.0 / maxDim;
                 model.scale.set(scale, scale, scale);
-                model.userData.originalScale = new THREE.Vector3(scale, scale, scale); 
+                model.userData.originalScale = new THREE.Vector3(scale, scale, scale);
                 new THREE.Box3().setFromObject(model).getCenter(model.position).multiplyScalar(-1);
                 model.position.add(new THREE.Vector3(x, 0, z));
 
@@ -311,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 projectLogos.push(projectObj);
                 system.add(model);
             },
-            undefined, 
+            undefined,
             (error) => { console.error(`An error happened loading ${project.modelUrl}:`, error); }
             );
         });
@@ -323,17 +325,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function createSkillsSystem() {
         const system = new THREE.Group();
         const categories = Object.keys(SKILLS_DATA);
-        
+
         gltfLoader.load('assets/3dmodels/sun.glb', (gltf) => {
             const sunModel = gltf.scene;
-            sunModel.scale.set(0.2, 0.2, 0.2); 
-            sunModel.position.set(0, 0, 0); 
-            
+            sunModel.scale.set(0.2, 0.2, 0.2);
+            sunModel.position.set(0, 0, 0);
+
             sunModel.traverse((child) => {
                 if (child.isMesh && child.material) {
                     const oldMaterial = child.material;
                     child.material = new THREE.MeshBasicMaterial({
-                        map: oldMaterial.map, 
+                        map: oldMaterial.map,
                     });
                 }
             });
@@ -357,55 +359,55 @@ document.addEventListener('DOMContentLoaded', () => {
             new THREE.Color("#F6FF33")  // Graphic Design
         ];
 
-        const orbitRingMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0xffffff, 
-            side: THREE.DoubleSide, 
-            transparent: true, 
-            opacity: 0.3 
+        const orbitRingMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.3
         });
 
         categories.forEach((category, i) => {
             const planetUniforms = THREE.UniformsUtils.clone(baseSkillPlanetUniforms);
-            planetUniforms.u_color = { type: "v3", value: planetColors[i % planetColors.length] }; 
-            
+            planetUniforms.u_color = { type: "v3", value: planetColors[i % planetColors.length] };
+
             const skillMaterial = new THREE.ShaderMaterial({
                 uniforms: planetUniforms,
                 vertexShader: document.getElementById('vertexShader').textContent,
                 fragmentShader: document.getElementById('fragmentShader').textContent,
             });
-            
+
             const orbitGroup = new THREE.Group();
-            orbitGroup.rotation.y = Math.random() * Math.PI * 2; 
-            const planetOrbitRadius = 6 + i * 3.5; 
-            const orbitSpeed = 0.0005 + Math.random() * 0.001; 
+            orbitGroup.rotation.y = Math.random() * Math.PI * 2;
+            const planetOrbitRadius = 6 + i * 3.5;
+            const orbitSpeed = 0.0005 + Math.random() * 0.001;
 
             const orbitRingGeometry = new THREE.TorusGeometry(planetOrbitRadius, 0.01, 8, 100);
             const orbitRingMesh = new THREE.Mesh(orbitRingGeometry, orbitRingMaterial);
-            orbitRingMesh.rotation.x = Math.PI / 2; 
-            orbitRingMesh.visible = false; 
-            system.add(orbitRingMesh); 
+            orbitRingMesh.rotation.x = Math.PI / 2;
+            orbitRingMesh.visible = false;
+            system.add(orbitRingMesh);
 
             const planet = new THREE.Mesh( planetGeometry, skillMaterial );
-            planet.position.set(planetOrbitRadius, 0, 0); 
+            planet.position.set(planetOrbitRadius, 0, 0);
             planet.name = category;
-            
-            orbitGroup.add(planet); 
-            system.add(orbitGroup); 
+
+            orbitGroup.add(planet);
+            system.add(orbitGroup);
 
             const label = document.createElement('div');
             label.textContent = category;
             label.className = 'label hidden';
             labelsContainer.appendChild(label);
-            
-            const planetObj = { 
-                mesh: planet, 
-                label, 
-                orbitGroup: orbitGroup, 
-                orbitSpeed: orbitSpeed, 
-                material: skillMaterial, 
-                orbitRing: orbitRingMesh 
+
+            const planetObj = {
+                mesh: planet,
+                label,
+                orbitGroup: orbitGroup,
+                orbitSpeed: orbitSpeed,
+                material: skillMaterial,
+                orbitRing: orbitRingMesh
             };
-            planet.userData.parentObj = planetObj; 
+            planet.userData.parentObj = planetObj;
             skillsPlanets.push(planetObj);
         });
 
@@ -423,12 +425,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         gltfLoader.load(
-            'assets/3dmodels/moon.glb', 
-            (gltf) => { 
-                moonModel = gltf.scene; 
-            }, 
-            undefined, 
-            (err) => console.error('Error loading moon.glb', err)
+            'assets/3dmodels/moon.gltf',
+            (gltf) => {
+                moonModel = gltf.scene;
+                // Fix for color/material issues if any
+                moonModel.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                         // Ensure maps use SRGB encoding
+                         if (child.material.map) child.material.map.colorSpace = THREE.SRGBColorSpace;
+                         if (child.material.emissiveMap) child.material.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+                    }
+                });
+            },
+            undefined,
+            (err) => {
+                 console.error('Error loading moon.gltf, falling back to moon.glb if available or handling error', err);
+                 // Fallback attempt or robust handling
+                 gltfLoader.load('assets/3dmodels/moon.glb', (gltf) => {
+                     moonModel = gltf.scene;
+                 }, undefined, (e) => console.error('Fallback moon.glb also failed', e));
+            }
         );
 
         const particlesGeometry = new THREE.BufferGeometry();
@@ -438,14 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         particles = new THREE.Points(particlesGeometry, new THREE.PointsMaterial({ color: '#6fdd7a', size: 0.05, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.8 }));
         scene.add(particles);
-        
+
         projectsSystemGroup = createProjectsSystem();
         skillsSystemGroup = createSkillsSystem();
 
         nodes.forEach((nodeInfo, index) => {
             const label = document.createElement('div');
             label.textContent = nodeInfo.name;
-            label.className = 'label hidden'; 
+            label.className = 'label hidden';
             labelsContainer.appendChild(label);
 
             let hitbox;
@@ -453,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 hitbox = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.8, 1.8), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }));
             } else if (nodeInfo.name === 'Projects') {
                  hitbox = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 16), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }));
-             } else { 
+             } else {
                  hitbox = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4, 0), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }));
              }
              hitbox.visible = false;
@@ -461,33 +477,41 @@ document.addEventListener('DOMContentLoaded', () => {
              hitbox.name = nodeInfo.name;
              scene.add(hitbox);
 
-            const nodeObj = { mesh: hitbox, label, visual: null }; 
+            const nodeObj = { mesh: hitbox, label, visual: null };
             nodeObjects.push(nodeObj);
 
             let modelPath;
-            let scaleFactor = 1.0; 
+            let scaleFactor = 1.0;
 
             if (nodeInfo.name === 'About') {
-                modelPath = 'assets/3dmodels/about/scene.gltf'; 
-                scaleFactor = 1.0; 
+                modelPath = 'assets/3dmodels/about/scene.gltf';
+                scaleFactor = 1.0;
             } else if (nodeInfo.name === 'Projects') {
-                modelPath = 'assets/3dmodels/projects/scene.gltf'; 
-                scaleFactor = 1.0; 
-            } else { 
-                modelPath = 'assets/3dmodels/skills/scene.gltf'; 
-                scaleFactor = 1.0; 
+                modelPath = 'assets/3dmodels/projects/scene.gltf';
+                scaleFactor = 1.0;
+            } else {
+                modelPath = 'assets/3dmodels/skills/scene.gltf';
+                scaleFactor = 1.0;
             }
 
             gltfLoader.load(modelPath, (gltf) => {
                 const modelVisual = gltf.scene;
-                
+
+                // Fix for color/material issues - Projects node specifically mentioned
+                modelVisual.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                         if (child.material.map) child.material.map.colorSpace = THREE.SRGBColorSpace;
+                         if (child.material.emissiveMap) child.material.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+                    }
+                });
+
                 const box = new THREE.Box3().setFromObject(modelVisual);
                 const center = box.getCenter(new THREE.Vector3());
-                modelVisual.position.sub(center); 
+                modelVisual.position.sub(center);
                 modelVisual.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                
-                modelVisual.position.copy(nodeInfo.position); 
-                modelVisual.visible = false; 
+
+                modelVisual.position.copy(nodeInfo.position);
+                modelVisual.visible = false;
                 scene.add(modelVisual);
 
                 if (gltf.animations && gltf.animations.length > 0) {
@@ -500,8 +524,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     mixers.push(mixer);
                 }
 
-                nodeObj.visual = modelVisual; 
-                hitbox.userData.visuals = modelVisual; 
+                nodeObj.visual = modelVisual;
+                hitbox.userData.visuals = modelVisual;
 
             }, undefined, (error) => {
                 console.error(`Error loading model for ${nodeInfo.name}:`, error);
@@ -514,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function finishIntro() {
         if (appReady) return;
         gsap.to(introOverlay, { duration: 1.5, opacity: 0, onComplete: () => { if (introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay); } });
-        
+
         nodeObjects.forEach((item, i) => {
              if (item.visual) {
                  const visual = item.visual;
@@ -522,20 +546,20 @@ document.addEventListener('DOMContentLoaded', () => {
                  const delay = 0.5 + (i * 0.2);
                  visual.visible = true;
                  const finalPos = mesh.position.clone();
-                 visual.position.z += 15; 
-                 visual.position.x += (Math.random() - 0.5) * 10; 
-                 visual.scale.set(0, 0, 0); 
+                 visual.position.z += 15;
+                 visual.position.x += (Math.random() - 0.5) * 10;
+                 visual.scale.set(0, 0, 0);
 
                  let initialScale = 1.0;
                  if (mesh.name === 'About') initialScale = 1.0;
                  else if (mesh.name === 'Projects') initialScale = 1.0;
                  else if (mesh.name === 'Skills') initialScale = 1.0;
-                 
+
                  gsap.to(visual.scale, { duration: 1.5, x: initialScale, y: initialScale, z: initialScale, ease: 'back.out(1.7)', delay });
                  gsap.to(visual.position, {
                      duration: 2.5, x: finalPos.x, y: finalPos.y, z: finalPos.z, ease: 'power3.out', delay,
                      onComplete: () => {
-                         mesh.visible = true; 
+                         mesh.visible = true;
                      }
                  });
             } else {
@@ -546,10 +570,10 @@ document.addEventListener('DOMContentLoaded', () => {
         appReady = true;
     }
 
-    let hoveredParentObj = null; 
+    let hoveredParentObj = null;
     const mouse = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
-    
+
     window.addEventListener('mousemove', e => {
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
@@ -558,21 +582,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function showProjectDetail(projectObj) {
         currentView = 'project';
         activeProject = projectObj;
-        shouldRotateProject = true; 
+        shouldRotateProject = true;
 
         projectLogos.forEach(p => {
             if(p !== projectObj) gsap.to(p.mesh.scale, { duration: 0.5, x: 0, y: 0, z: 0, ease: 'power3.in' });
-            p.label.classList.add('hidden'); 
+            p.label.classList.add('hidden');
         });
-        
+
         const targetPos = new THREE.Vector3();
         activeProject.mesh.getWorldPosition(targetPos);
-        gsap.to(camera.position, { 
-            duration: 1.5, 
-            x: targetPos.x, 
-            y: targetPos.y + 1, 
-            z: targetPos.z + 4, 
-            ease: 'power3.inOut' 
+        gsap.to(camera.position, {
+            duration: 1.5,
+            x: targetPos.x,
+            y: targetPos.y + 1,
+            z: targetPos.z + 4,
+            ease: 'power3.inOut'
         });
         gsap.to(controls.target, { duration: 1.5, x: targetPos.x, y: targetPos.y, z: targetPos.z, ease: 'power3.inOut' });
 
@@ -580,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsPanel.classList.add('visible');
         const project = PROJECT_DATA[activeProject.projectIndex];
         document.getElementById('project-title').textContent = project.title;
-        
+
         // Populate content
         document.getElementById('project-challenge').innerHTML = project.challenge;
         document.getElementById('project-solution').innerHTML = project.solution;
@@ -605,54 +629,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!activePlanet.moonsGroup) {
-            if (!moonModel) {
-                console.error("Moon model is not loaded yet!");
-                return; 
+            // Check if moon model is loaded. If not, maybe use a placeholder or wait?
+            // Since we implemented fallback and error handling, let's just log if still missing.
+            // But importantly, DO NOT RETURN early if it means getting stuck.
+            // If moonModel is null, we should probably just not add moons, but still move camera.
+
+            if (moonModel) {
+                const moonsGroup = new THREE.Group();
+                const skills = SKILLS_DATA[activePlanet.mesh.name].skills;
+                const moonOrbitRadius = 2.5;
+                const angleStep = (Math.PI * 2) / skills.length;
+
+                skills.forEach((skill, i) => {
+                    const angle = angleStep * i;
+
+                    const moon = moonModel.clone();
+                    moon.scale.set(1, 1, 1);
+                    moon.position.set(moonOrbitRadius * Math.cos(angle), 0, moonOrbitRadius * Math.sin(angle));
+
+                    const ring = new THREE.Mesh( new THREE.TorusGeometry(0.5, 0.02, 8, 48, Math.PI * 2 * skill.level), new THREE.MeshBasicMaterial({ color: HOVER_GLOW_COLOR, side: THREE.DoubleSide }) );
+                    ring.position.set(0, 0, 0);
+                    ring.rotation.x = Math.PI / 2;
+                    moon.add(ring);
+
+                    const label = document.createElement('div');
+                    label.textContent = skill.name;
+                    label.className = 'label hidden';
+                    label.style.fontSize = '12px';
+                    labelsContainer.appendChild(label);
+
+                    const moonParentObj = { mesh: moon, label: label, ring: ring };
+                    moon.userData.parentObj = moonParentObj;
+
+                    moonsGroup.add(moon);
+                    label.classList.remove('hidden');
+                });
+                activePlanet.moonsGroup = moonsGroup;
+                activePlanet.mesh.add(moonsGroup);
+
+                // Animate moons appearance
+                gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
+
+            } else {
+                console.warn("Moon model missing, skipping moons creation.");
             }
-
-            const moonsGroup = new THREE.Group();
-            const skills = SKILLS_DATA[activePlanet.mesh.name].skills;
-            const moonOrbitRadius = 2.5;
-            const angleStep = (Math.PI * 2) / skills.length;
-
-            skills.forEach((skill, i) => {
-                const angle = angleStep * i;
-
-                const moon = moonModel.clone();
-                moon.scale.set(1, 1, 1); 
-                moon.position.set(moonOrbitRadius * Math.cos(angle), 0, moonOrbitRadius * Math.sin(angle));
-
-                const ring = new THREE.Mesh( new THREE.TorusGeometry(0.5, 0.02, 8, 48, Math.PI * 2 * skill.level), new THREE.MeshBasicMaterial({ color: HOVER_GLOW_COLOR, side: THREE.DoubleSide }) );
-                ring.position.set(0, 0, 0); 
-                ring.rotation.x = Math.PI / 2; 
-                moon.add(ring); 
-
-                const label = document.createElement('div');
-                label.textContent = skill.name;
-                label.className = 'label hidden'; 
-                label.style.fontSize = '12px';
-                labelsContainer.appendChild(label);
-                
-                const moonParentObj = { mesh: moon, label: label, ring: ring }; 
-                moon.userData.parentObj = moonParentObj;
-
-                moonsGroup.add(moon); 
-                 label.classList.remove('hidden');
-            });
-            activePlanet.moonsGroup = moonsGroup;
-            activePlanet.mesh.add(moonsGroup);
+        } else {
+             // Moons already exist, animate appearance
+             gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
-        
-        gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
-        
+
         const targetPos = new THREE.Vector3();
         activePlanet.mesh.getWorldPosition(targetPos);
 
         gsap.to(camera.position, {
             duration: 1.5,
             x: targetPos.x,
-            y: targetPos.y + 2, 
-            z: targetPos.z + 5, 
+            y: targetPos.y + 2,
+            z: targetPos.z + 5,
             ease: 'power3.inOut'
         });
         gsap.to(controls.target, {
@@ -666,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillData = SKILLS_DATA[activePlanet.mesh.name];
         document.getElementById('skill-detail-title').textContent = activePlanet.mesh.name;
         document.getElementById('skill-detail-text').textContent = skillData.copy;
-        
+
         const sidebarEl = document.getElementById('skill-detail-sidebar');
         sidebarEl.innerHTML = '';
         skillData.tools.forEach(toolName => {
@@ -687,40 +720,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         skillDetailView.classList.add('visible');
-    } 
+    }
 
     window.addEventListener('click', () => {
         if (!appReady || gsap.isTweening(camera.position)) return;
 
-        if (hoveredParentObj) { 
+        if (hoveredParentObj) {
             if (currentView === 'main') {
-                
-                nodeObjects.forEach(item => { if(item.mesh !== hoveredParentObj.mesh) item.visual.visible = false; }); 
-                
+
+                nodeObjects.forEach(item => { if(item.mesh !== hoveredParentObj.mesh) item.visual.visible = false; });
+
                 if (hoveredParentObj.label) {
                     hoveredParentObj.label.classList.add('hidden');
                 }
-                
-                if (hoveredParentObj.mesh.name === 'About') { 
+
+                if (hoveredParentObj.mesh.name === 'About') {
                     currentView = 'about';
-                    hoveredParentObj.visual.visible = false; 
+                    hoveredParentObj.visual.visible = false;
                     gsap.to(camera.position, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z + 5, ease: 'power3.inOut'});
                     gsap.to(controls.target, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
                         aboutPanel.classList.add('visible');
                         backButton.classList.add('visible');
                     }});
-                } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') { 
+                } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     currentView = isSkills ? 'skills' : 'projects';
-                    const systemNode = hoveredParentObj.visual; 
+                    const systemNode = hoveredParentObj.visual;
                     systemNode.visible = false;
-                    
+
                     gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
 
                     if (isSkills) {
-                        gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' }); 
+                        gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' });
                     } else {
-                        gsap.to(camera.position, { duration: 1.6, x: 0, y: 8, z: 9, ease: 'power3.inOut' }); 
+                        gsap.to(camera.position, { duration: 1.6, x: 0, y: 8, z: 9, ease: 'power3.inOut' });
                     }
 
                     gsap.to(systemNode.position, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut', onComplete: () => {
@@ -733,24 +766,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     }});
                 }
             } else if (currentView === 'skills') {
-                if (hoveredParentObj) showSkillsDetail(hoveredParentObj); 
+                if (hoveredParentObj) showSkillsDetail(hoveredParentObj);
             } else if (currentView === 'projects') {
-                if (hoveredParentObj) showProjectDetail(hoveredParentObj); 
+                if (hoveredParentObj) showProjectDetail(hoveredParentObj);
             }
         }
     });
 
     backButton.addEventListener('click', () => {
         const targetView = currentView;
-        
+
         aboutPanel.classList.remove('visible');
         projectsPanel.classList.remove('visible');
         skillDetailView.classList.remove('visible');
 
         if (targetView === 'planet') {
-            const groupToDestroy = activePlanet.moonsGroup;
+            const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
-            
+
             currentView = 'skills';
             activePlanet = null;
 
@@ -761,7 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 gsap.to(groupToDestroy.scale, { duration: 0.5, x: 0, y: 0, z: 0, ease: 'power3.in', onComplete: () => {
-                    groupToDestroy.children.forEach(moon => { 
+                    groupToDestroy.children.forEach(moon => {
                         if (moon.userData.parentObj) {
                             // Dispose of the ring
                             if (moon.userData.parentObj.ring) {
@@ -770,24 +803,26 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             // Remove label
                             if (moon.userData.parentObj.label) {
-                                moon.userData.parentObj.label.remove(); 
+                                moon.userData.parentObj.label.remove();
                             }
                         }
                     });
-                    planetToReset.mesh.remove(groupToDestroy);
-                    planetToReset.moonsGroup = null; 
+                    if (planetToReset) {
+                        planetToReset.mesh.remove(groupToDestroy);
+                        planetToReset.moonsGroup = null;
+                    }
                 }});
             }
-            
+
             gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
             gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' });
             skillsPlanets.forEach(p => {
                 gsap.to(p.mesh.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
             });
-            
+
         } else if (targetView === 'project') {
-            shouldRotateProject = false; 
-            activeProject = null; 
+            shouldRotateProject = false;
+            activeProject = null;
 
             projectLogos.forEach(p => {
                 gsap.to(p.mesh.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
@@ -795,18 +830,18 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
             gsap.to(camera.position, { duration: 1.6, x: 0, y: 8, z: 9, ease: 'power3.inOut' });
             currentView = 'projects';
-            
+
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;
              projectsSystemGroup.visible = false;
-             
+
              if (particles) {
-                gsap.to(particles.material, { 
-                    duration: 1.5, 
-                    opacity: 0.8, 
-                    ease: 'power3.out', 
-                    delay: 1.0 
+                gsap.to(particles.material, {
+                    duration: 1.5,
+                    opacity: 0.8,
+                    ease: 'power3.out',
+                    delay: 1.0
                 });
              }
 
@@ -871,7 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
                      } else if (item.mesh.name === 'Projects') {
                          item.visual.rotation.y -= 0.0015;
                          item.visual.rotation.z += 0.001;
-                     } else { 
+                     } else {
                          item.visual.rotation.x += 0.001;
                          item.visual.rotation.z -= 0.002;
                      }
@@ -895,11 +930,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (currentView === 'project' && activeProject && shouldRotateProject) {
-            activeProject.mesh.rotation.y += 0.005; 
+            activeProject.mesh.rotation.y += 0.005;
             const targetPos = new THREE.Vector3();
             activeProject.mesh.getWorldPosition(targetPos);
-            camera.position.set(targetPos.x, targetPos.y + 1, targetPos.z + 4); 
-            controls.target.copy(targetPos); 
+            camera.position.set(targetPos.x, targetPos.y + 1, targetPos.z + 4);
+            controls.target.copy(targetPos);
         }
 
         controls.update();
@@ -911,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'skills': return skillsPlanets;
                     case 'projects': return projectLogos;
                     case 'planet':
-                         const labels = [activePlanet]; 
+                         const labels = [activePlanet];
                          if (activePlanet && activePlanet.moonsGroup) {
                             activePlanet.moonsGroup.children.forEach(moon => {
                                 if (moon.userData.parentObj && moon.userData.parentObj.label) {
@@ -924,15 +959,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
             getActiveLabels().forEach(item => {
-                const mesh = isMainView ? item.mesh : (item.mesh || item); 
+                const mesh = isMainView ? item.mesh : (item.mesh || item);
                 const label = item.label;
                  const isHovered = item === hoveredParentObj;
                  const isStaticLabel = (currentView === 'planet' && (item === activePlanet || (item.mesh && item.mesh.parent === activePlanet.moonsGroup)));
                  const shouldBeVisible = isStaticLabel || isHovered;
 
 
-                 if (!mesh || !mesh.visible || mesh.scale.x === 0 || !label) { 
-                    if (label) label.classList.add('hidden'); 
+                 if (!mesh || !mesh.visible || mesh.scale.x === 0 || !label) {
+                    if (label) label.classList.add('hidden');
                     return;
                  }
 
@@ -975,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
-            let newHoveredParentObj = null; 
+            let newHoveredParentObj = null;
 
             if (intersects.length > 0) {
                 let intersectRoot = intersects[0].object;
@@ -986,39 +1021,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
             }
 
-            if (hoveredParentObj !== newHoveredParentObj) { 
+            if (hoveredParentObj !== newHoveredParentObj) {
                 if (hoveredParentObj) {
-                    const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh; 
+                    const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
                     const originalScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
-                     if ( visual && 
+                     if ( visual &&
                          !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
-                         !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup) 
+                         !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
                         ) {
                      }
-                    if (visual) setGlow(visual, false); 
+                    if (visual) setGlow(visual, false);
                     if (isMainView) restoreNonHovered();
 
 
-                    if (hoveredParentObj.orbitRing) { 
+                    if (hoveredParentObj.orbitRing) {
                         hoveredParentObj.orbitRing.visible = false;
                     }
                 }
 
-                hoveredParentObj = newHoveredParentObj; 
+                hoveredParentObj = newHoveredParentObj;
 
                 if (hoveredParentObj) {
-                    const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh; 
+                    const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
                     const baseScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
-                     if ( visual && 
+                     if ( visual &&
                          !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
-                         !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup) 
+                         !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
                         ) {
                          gsap.to(visual.scale, { duration: 0.3, x: baseScale.x * 1.2, y: baseScale.y * 1.2, z: baseScale.z * 1.2 });
                      }
-                    if (visual) setGlow(visual, true); 
-                    if (isMainView) dimNonHovered(hoveredParentObj.mesh); 
+                    if (visual) setGlow(visual, true);
+                    if (isMainView) dimNonHovered(hoveredParentObj.mesh);
 
-                    if (hoveredParentObj.orbitRing) { 
+                    if (hoveredParentObj.orbitRing) {
                         hoveredParentObj.orbitRing.visible = true;
                     }
                 }
