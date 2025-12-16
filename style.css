@@ -182,6 +182,7 @@ canvas.visible { opacity: 1; }
 .menu-button, .submenu-item {
     width: 50px;
     height: 50px;
+    padding: 0; /* Ensure no default padding on button elements */
     /* Removed background, border, backdrop-filter for transparent look */
     background: transparent;
     border: none;
@@ -195,6 +196,11 @@ canvas.visible { opacity: 1; }
     color: white;
     text-decoration: none;
     position: relative; /* For tooltip positioning */
+}
+
+.menu-button:focus-visible, .submenu-item:focus-visible {
+    outline: 2px solid #6fdd7a;
+    outline-offset: 4px;
 }
 
 .menu-button:hover, .submenu-item:hover {
@@ -365,10 +371,18 @@ canvas.visible { opacity: 1; }
     margin-top: -5px;
     border-color: transparent #6fdd7a transparent transparent;
 }
-.menu-button:hover .tooltip {
+.menu-button:hover .tooltip,
+.menu-button:focus-visible .tooltip {
     opacity: 1;
     visibility: visible;
     transform: translateY(-50%) translateX(10px);
+}
+
+.submenu-item:hover .tooltip,
+.submenu-item:focus-visible .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 /* Hide main button tooltip if menu is expanded */

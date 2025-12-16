@@ -99,12 +99,12 @@
     <div class="bottom-left-menu">
         <!-- Help (Bottom in Visual due to column-reverse, so it must be first in HTML) -->
         <div class="menu-item">
-            <div class="menu-button icon-button" onclick="toggleMenu(this)">
+            <button type="button" class="menu-button icon-button" aria-label="Help" aria-expanded="false" aria-controls="help-submenu">
                 <!-- informational icon -->
-                <span style="font-family: serif; font-weight: bold; font-size: 24px;">i</span>
+                <span style="font-family: serif; font-weight: bold; font-size: 24px;" aria-hidden="true">i</span>
                  <span class="tooltip">Help</span>
-            </div>
-            <div class="submenu legend-content">
+            </button>
+            <div id="help-submenu" class="submenu legend-content">
                 <p>Rotate: <span>Left Click + Drag</span></p>
                 <p>Pan: <span>Right Click + Drag</span></p>
                 <p>Zoom: <span>Scroll Wheel</span></p>
@@ -113,21 +113,21 @@
 
         <!-- Portfolios -->
         <div class="menu-item">
-            <div class="menu-button icon-button" onclick="toggleMenu(this)">
-                <img src="assets/social-icons/portfolio-final.png" alt="Portfolios">
+            <button type="button" class="menu-button icon-button" aria-label="Portfolios" aria-expanded="false" aria-controls="portfolios-submenu">
+                <img src="assets/social-icons/portfolio-final.png" alt="" aria-hidden="true">
                  <span class="tooltip">Portfolios</span>
-            </div>
-            <div class="submenu">
-                <div class="submenu-item icon-button">
-                    <img src="assets/social-icons/portfolio-final.png" alt="SEO">
+            </button>
+            <div id="portfolios-submenu" class="submenu">
+                <div class="submenu-item icon-button" role="img" aria-label="SEO">
+                    <img src="assets/social-icons/portfolio-final.png" alt="">
                      <span class="tooltip">SEO</span>
                 </div>
-                <div class="submenu-item icon-button">
-                    <img src="assets/social-icons/portfolio-final.png" alt="Paid Marketing">
+                <div class="submenu-item icon-button" role="img" aria-label="Paid Marketing">
+                    <img src="assets/social-icons/portfolio-final.png" alt="">
                      <span class="tooltip">Paid Marketing</span>
                 </div>
-                <div class="submenu-item icon-button">
-                    <img src="assets/social-icons/portfolio-final.png" alt="Graphic Design">
+                <div class="submenu-item icon-button" role="img" aria-label="Graphic Design">
+                    <img src="assets/social-icons/portfolio-final.png" alt="">
                      <span class="tooltip">Graphic Design</span>
                 </div>
             </div>
@@ -135,25 +135,25 @@
 
         <!-- Contact -->
         <div class="menu-item">
-            <div class="menu-button icon-button" onclick="toggleMenu(this)">
-                <img src="assets/social-icons/mobile-final.png" alt="Contact">
+            <button type="button" class="menu-button icon-button" aria-label="Contact" aria-expanded="false" aria-controls="contact-submenu">
+                <img src="assets/social-icons/mobile-final.png" alt="" aria-hidden="true">
                  <span class="tooltip">Contact</span>
-            </div>
-            <div class="submenu">
-                <a href="https://wa.me/27823605374" target="_blank" class="submenu-item icon-button">
-                    <img src="assets/social-icons/whatsapp-final.png" alt="WhatsApp">
+            </button>
+            <div id="contact-submenu" class="submenu">
+                <a href="https://wa.me/27823605374" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="WhatsApp">
+                    <img src="assets/social-icons/whatsapp-final.png" alt="">
                     <span class="tooltip">WhatsApp</span>
                 </a>
-                <a href="mailto:info@codexist.co.za" class="submenu-item icon-button">
-                    <img src="assets/social-icons/email-final.png" alt="Email">
+                <a href="mailto:info@codexist.co.za" class="submenu-item icon-button" aria-label="Email">
+                    <img src="assets/social-icons/email-final.png" alt="">
                      <span class="tooltip">Email</span>
                 </a>
-                <a href="https://www.linkedin.com/in/juhanbadenhorst/" target="_blank" class="submenu-item icon-button">
-                    <img src="assets/social-icons/linkedin-final.png" alt="LinkedIn">
+                <a href="https://www.linkedin.com/in/juhanbadenhorst/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="LinkedIn">
+                    <img src="assets/social-icons/linkedin-final.png" alt="">
                      <span class="tooltip">LinkedIn</span>
                 </a>
-                <a href="#" class="submenu-item icon-button">
-                    <img src="assets/social-icons/booking-final.png" alt="Book a Meeting">
+                <a href="#" class="submenu-item icon-button" aria-label="Book a Meeting">
+                    <img src="assets/social-icons/booking-final.png" alt="">
                      <span class="tooltip">Book a Meeting</span>
                 </a>
             </div>
@@ -161,17 +161,17 @@
 
         <!-- Websites (Top) -->
         <div class="menu-item">
-            <div class="menu-button icon-button" onclick="toggleMenu(this)">
-                <img src="assets/social-icons/website-final.png" alt="Websites">
+            <button type="button" class="menu-button icon-button" aria-label="Websites" aria-expanded="false" aria-controls="websites-submenu">
+                <img src="assets/social-icons/website-final.png" alt="" aria-hidden="true">
                 <span class="tooltip">Websites</span>
-            </div>
-            <div class="submenu">
-                <a href="https://codexist.co.za" target="_blank" class="submenu-item icon-button">
-                    <img src="assets/social-icons/url-final.png" alt="Codexist">
+            </button>
+            <div id="websites-submenu" class="submenu">
+                <a href="https://codexist.co.za" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Codexist">
+                    <img src="assets/social-icons/url-final.png" alt="">
                     <span class="tooltip">Codexist</span>
                 </a>
-                <a href="https://factorlab.co.za" target="_blank" class="submenu-item icon-button">
-                    <img src="assets/social-icons/url-final.png" alt="Factor Lab">
+                <a href="https://factorlab.co.za" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Factor Lab">
+                    <img src="assets/social-icons/url-final.png" alt="">
                     <span class="tooltip">Factor Lab</span>
                 </a>
             </div>
@@ -185,9 +185,13 @@
 
             // Close other menus
             document.querySelectorAll('.menu-item').forEach(item => {
+                const btn = item.querySelector('.menu-button');
                 if (item !== menuItem) {
                     item.classList.remove('expanded');
-                    item.querySelector('.menu-button').classList.remove('active');
+                    if (btn) {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-expanded', 'false');
+                    }
                 }
             });
 
@@ -195,18 +199,31 @@
             if (wasExpanded) {
                 menuItem.classList.remove('expanded');
                 button.classList.remove('active');
+                button.setAttribute('aria-expanded', 'false');
             } else {
                 menuItem.classList.add('expanded');
                 button.classList.add('active');
+                button.setAttribute('aria-expanded', 'true');
             }
         }
+
+        // Attach event listeners to buttons
+        document.querySelectorAll('.menu-button').forEach(button => {
+            button.addEventListener('click', function() {
+                toggleMenu(this);
+            });
+        });
 
         // Close menus when clicking outside
         document.addEventListener('click', function(event) {
             if (!event.target.closest('.bottom-left-menu')) {
                  document.querySelectorAll('.menu-item').forEach(item => {
                     item.classList.remove('expanded');
-                    item.querySelector('.menu-button').classList.remove('active');
+                    const btn = item.querySelector('.menu-button');
+                    if (btn) {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-expanded', 'false');
+                    }
                 });
             }
         });
