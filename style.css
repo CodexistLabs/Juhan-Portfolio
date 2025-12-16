@@ -199,6 +199,11 @@ canvas.visible { opacity: 1; }
     position: relative; /* For tooltip positioning */
 }
 
+.menu-button:focus-visible, .submenu-item:focus-visible {
+    outline: 2px solid #6fdd7a;
+    outline-offset: 4px;
+}
+
 .menu-button:hover, .submenu-item:hover {
     background: transparent;
     transform: translateY(-2px); /* Slightly increased lift */
@@ -367,10 +372,18 @@ canvas.visible { opacity: 1; }
     margin-top: -5px;
     border-color: transparent #6fdd7a transparent transparent;
 }
-.menu-button:hover .tooltip {
+.menu-button:hover .tooltip,
+.menu-button:focus-visible .tooltip {
     opacity: 1;
     visibility: visible;
     transform: translateY(-50%) translateX(10px);
+}
+
+.submenu-item:hover .tooltip,
+.submenu-item:focus-visible .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 /* Hide main button tooltip if menu is expanded */
