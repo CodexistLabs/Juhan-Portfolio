@@ -182,7 +182,8 @@ canvas.visible { opacity: 1; }
 .menu-button, .submenu-item {
     width: 50px;
     height: 50px;
-    padding: 0; /* Ensure no default padding on button elements */
+    padding: 0;
+    margin: 0;
     /* Removed background, border, backdrop-filter for transparent look */
     background: transparent;
     border: none;

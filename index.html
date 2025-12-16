@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juhan's 3D Portfolio</title>
-    <!-- Link to external CSS -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Shader Code -->
     <script type="x-shader/x-vertex" id="vertexShader">
     varying vec2 vUv;
     void main() {
@@ -24,13 +22,13 @@
     float julia(vec2 z, vec2 c) {
         // ... (julia function remains the same) ...
         for(float i = 0.0; i < 1e2; i++) {
-			float xx = z.x*z.x, yy = z.y*z.y, zz = xx + yy;
-			if (zz > 10.0){return 100.0;}
-			float re = c.x*z.x + c.y*z.y + xx*xx - yy*yy ;
-			float im = c.y*z.x - c.x*z.y + 2.0*z.x*z.y*zz ;
-			z = vec2(re, im)/zz;
-		}
-		return 0.0 ;
+            float xx = z.x*z.x, yy = z.y*z.y, zz = xx + yy;
+            if (zz > 10.0){return 100.0;}
+            float re = c.x*z.x + c.y*z.y + xx*xx - yy*yy ;
+            float im = c.y*z.x - c.x*z.y + 2.0*z.x*z.y*zz ;
+            z = vec2(re, im)/zz;
+        }
+        return 0.0 ;
     }
 
     void main() {
@@ -88,7 +86,7 @@
             <h3>The Outcome</h3>
             <p id="project-outcome"></p>
             <div class="project-actions">
-                <a id="project-link" href="#" target="_blank" class="cta-button">Visit Website</a>
+                <a id="project-link" href="#" target="_blank" rel="noopener noreferrer" class="cta-button">Visit Website</a>
                 <button id="back-to-project-btn" class="cta-button secondary">Back</button>
             </div>
         </div>
@@ -97,10 +95,8 @@
     <nav id="gallery-navigation" class="gallery-nav"></nav>
 
     <div class="bottom-left-menu">
-        <!-- Help (Bottom in Visual due to column-reverse, so it must be first in HTML) -->
         <div class="menu-item">
             <button type="button" class="menu-button icon-button" aria-label="Help" aria-expanded="false" aria-controls="help-submenu">
-                <!-- informational icon -->
                 <span style="font-family: serif; font-weight: bold; font-size: 24px;" aria-hidden="true">i</span>
                  <span class="tooltip">Help</span>
             </button>
@@ -111,7 +107,6 @@
             </div>
         </div>
 
-        <!-- Portfolios -->
         <div class="menu-item">
             <button type="button" class="menu-button icon-button" aria-label="Portfolios" aria-expanded="false" aria-controls="portfolios-submenu">
                 <img src="assets/social-icons/portfolio-final.png" alt="" aria-hidden="true">
@@ -133,7 +128,6 @@
             </div>
         </div>
 
-        <!-- Contact -->
         <div class="menu-item">
             <button type="button" class="menu-button icon-button" aria-label="Contact" aria-expanded="false" aria-controls="contact-submenu">
                 <img src="assets/social-icons/mobile-final.png" alt="" aria-hidden="true">
@@ -159,7 +153,6 @@
             </div>
         </div>
 
-        <!-- Websites (Top) -->
         <div class="menu-item">
             <button type="button" class="menu-button icon-button" aria-label="Websites" aria-expanded="false" aria-controls="websites-submenu">
                 <img src="assets/social-icons/website-final.png" alt="" aria-hidden="true">
