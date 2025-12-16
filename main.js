@@ -254,6 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sceneCenter = new THREE.Vector3(0, 0, 0);
 
     let skillsSystemGroup, skillsPlanets = [], projectLogos = [], projectsSystemGroup;
+    // Optimization: Pre-allocate arrays for raycasting to avoid GC pressure in animate loop
+    const skillMeshes = [];
+    const projectMeshes = [];
+    const mainNodeMeshes = [];
+
     let baseSkillPlanetUniforms;
     let moonModel = null;
 
@@ -317,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const projectObj = { mesh: model, label, projectIndex: i };
                 model.userData.parentObj = projectObj;
                 projectLogos.push(projectObj);
+                projectMeshes.push(model); // Cache for raycasting
                 system.add(model);
             },
             undefined,
@@ -354,7 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
         baseSkillPlanetUniforms = {
             u_time: { type: "f", value: 1.0 },
         };
-        const planetGeometry = new THREE.SphereGeometry(0.8, 200, 100);
+        // Optimization: Reduce geometry segments from 200,100 to 64,32.
+        // 40k tris -> 4k tris per planet. Raycasting performance boost.
+        const planetGeometry = new THREE.SphereGeometry(0.8, 64, 32);
 
         const planetColors = [
             new THREE.Color("#FF5733"), // Web Design
@@ -415,6 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             planet.userData.parentObj = planetObj;
             skillsPlanets.push(planetObj);
+            skillMeshes.push(planet); // Cache for raycasting
         });
 
         system.visible = false;
@@ -485,6 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nodeObj = { mesh: hitbox, label, visual: null };
             nodeObjects.push(nodeObj);
+            mainNodeMeshes.push(hitbox); // Cache for raycasting
 
             let modelPath;
             let scaleFactor = 1.0;
@@ -995,11 +1005,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let objectsToTest = [];
             if (isMainView) {
-                objectsToTest = nodeObjects.map(i => i.mesh);
+                objectsToTest = mainNodeMeshes;
             } else if (currentView === 'skills') {
-                objectsToTest = skillsPlanets.map(p => p.mesh);
+                objectsToTest = skillMeshes;
             } else if (currentView === 'projects') {
-                objectsToTest = projectLogos.map(p => p.mesh);
+                objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
                 objectsToTest = [activePlanet.mesh];
                 if (activePlanet.moonsGroup) {
