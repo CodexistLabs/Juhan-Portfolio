@@ -592,6 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let hoveredParentObj = null;
     const mouse = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
+    const tempVec = new THREE.Vector3();
 
     window.addEventListener('mousemove', e => {
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -950,10 +951,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentView === 'project' && activeProject && shouldRotateProject) {
             activeProject.mesh.rotation.y += 0.005;
-            const targetPos = new THREE.Vector3();
-            activeProject.mesh.getWorldPosition(targetPos);
-            camera.position.set(targetPos.x, targetPos.y + 1, targetPos.z + 4);
-            controls.target.copy(targetPos);
+            activeProject.mesh.getWorldPosition(tempVec);
+            camera.position.set(tempVec.x, tempVec.y + 1, tempVec.z + 4);
+            controls.target.copy(tempVec);
         }
 
         controls.update();
@@ -997,7 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  }
 
                  if (shouldBeVisible) {
-                    const screenPosition = mesh.getWorldPosition(new THREE.Vector3()).project(camera);
+                    const screenPosition = mesh.getWorldPosition(tempVec).project(camera);
                     const x = (screenPosition.x + 1) * window.innerWidth / 2;
                     const y = (-screenPosition.y + 1) * window.innerHeight / 2;
                     label.style.transform = `translate(-50%, 150%) translate(${x}px, ${y}px)`;
