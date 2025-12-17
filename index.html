@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; object-src 'none'; base-uri 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Juhan's 3D Portfolio</title>
     <link rel="stylesheet" href="style.css">
 
@@ -171,56 +173,7 @@
         </div>
     </div>
 
-    <script>
-        function toggleMenu(button) {
-            const menuItem = button.closest('.menu-item');
-            const wasExpanded = menuItem.classList.contains('expanded');
-
-            // Close other menus
-            document.querySelectorAll('.menu-item').forEach(item => {
-                const btn = item.querySelector('.menu-button');
-                if (item !== menuItem) {
-                    item.classList.remove('expanded');
-                    if (btn) {
-                        btn.classList.remove('active');
-                        btn.setAttribute('aria-expanded', 'false');
-                    }
-                }
-            });
-
-            // Toggle current menu
-            if (wasExpanded) {
-                menuItem.classList.remove('expanded');
-                button.classList.remove('active');
-                button.setAttribute('aria-expanded', 'false');
-            } else {
-                menuItem.classList.add('expanded');
-                button.classList.add('active');
-                button.setAttribute('aria-expanded', 'true');
-            }
-        }
-
-        // Attach event listeners to buttons
-        document.querySelectorAll('.menu-button').forEach(button => {
-            button.addEventListener('click', function() {
-                toggleMenu(this);
-            });
-        });
-
-        // Close menus when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.bottom-left-menu')) {
-                 document.querySelectorAll('.menu-item').forEach(item => {
-                    item.classList.remove('expanded');
-                    const btn = item.querySelector('.menu-button');
-                    if (btn) {
-                        btn.classList.remove('active');
-                        btn.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="assets/js/menu.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/" } }
