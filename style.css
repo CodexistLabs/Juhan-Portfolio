@@ -2,6 +2,7 @@
 body { margin: 0; background-color: #111111; overflow: hidden; }
 canvas { display: block; opacity: 0; transition: opacity 1s ease-in; }
 canvas.visible { opacity: 1; }
+canvas:focus-visible { outline: 2px solid #6fdd7a; outline-offset: 4px; }
 
 /* UPDATED: Label transform to position it below the object */
 .label {

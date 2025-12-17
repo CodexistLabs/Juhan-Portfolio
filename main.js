@@ -97,9 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.toneMappingExposure = 1.0;
     // Fix color space for textures
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.tabIndex = 0;
+    renderer.domElement.ariaLabel = "Interactive 3D Scene";
     document.body.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.listenToKeyEvents(renderer.domElement);
     controls.enableDamping = true; controls.dampingFactor = 0.05;
     controls.minDistance = 5; controls.maxDistance = 30;
     const clock = new THREE.Clock();
