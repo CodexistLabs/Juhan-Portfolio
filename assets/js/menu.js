@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close menus when clicking outside
     document.addEventListener('click', function(event) {
         if (!event.target.closest('.bottom-left-menu')) {
-                document.querySelectorAll('.menu-item').forEach(item => {
+            document.querySelectorAll('.menu-item').forEach(item => {
                 item.classList.remove('expanded');
                 const btn = item.querySelector('.menu-button');
                 if (btn) {

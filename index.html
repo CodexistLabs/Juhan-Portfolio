@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://dl.polyhaven.org https://www.gstatic.com blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Juhan's 3D Portfolio</title>
     <link rel="stylesheet" href="style.css">
@@ -61,6 +61,7 @@
         <div class="loader"><div class="cube-scene"><div class="cube" aria-hidden="true"><div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div></div><div class="orbit" aria-hidden="true"><div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div></div></div><div class="loader-text">Loading the Miniverse...</div><div class="loader-sub">Hang tight — assembling tiny worlds ✨</div></div>
     </div>
     <div id="star-wars-intro" class="star-wars-overlay"><div class="crawl"><p>Greetings. You have entered the digital coordinates of Juhan. Here, code meets creativity in a universe of infinite possibilities. Prepare to explore a galaxy of projects, skills, and digital experiences.</p></div></div>
+    <div id="a11y-announcer" class="sr-only" aria-live="polite"></div>
     <div id="labels-container"></div>
     <button id="back-button" class="back-button">← Return to Overview</button>
 

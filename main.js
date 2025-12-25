@@ -9,6 +9,52 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    function sanitizeHTML(str) {
+        const temp = document.createElement('div');
+        temp.innerHTML = str;
+
+        function robustSanitize(root) {
+            const children = Array.from(root.childNodes);
+            for (const child of children) {
+                robustSanitize(child);
+            }
+
+            if (root === temp) return;
+
+            if (root.nodeType === 3) return; // Text
+            if (root.nodeType !== 1) { // Remove comments etc
+                root.remove();
+                return;
+            }
+
+            const tagName = root.tagName.toLowerCase();
+            const allowedTags = ['b', 'strong', 'i', 'em', 'br', 'p', 'span', 'div', 'ul', 'li'];
+            const blockedTags = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'img', 'svg', 'form', 'input', 'button', 'textarea'];
+
+            if (blockedTags.includes(tagName)) {
+                root.remove();
+                return;
+            }
+
+            if (!allowedTags.includes(tagName)) {
+                // Unwrap
+                while (root.firstChild) {
+                    root.parentNode.insertBefore(root.firstChild, root);
+                }
+                root.remove();
+                return;
+            }
+
+            // Remove attributes
+            while (root.attributes.length > 0) {
+                root.removeAttribute(root.attributes[0].name);
+            }
+        }
+
+        robustSanitize(temp);
+        return temp.innerHTML;
+    }
+
     const PROJECT_DATA = [
         {
             title: "The Lions Raw",
@@ -120,6 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const introOverlay = document.getElementById('star-wars-intro');
     const introCrawl = document.querySelector('.star-wars-overlay .crawl');
     const backButton = document.getElementById('back-button');
+    const announcer = document.getElementById('a11y-announcer');
+
+    function announce(message) {
+        if (announcer) {
+            announcer.textContent = message;
+        }
+    }
 
     // Button Event Listeners for Project Flow
     document.getElementById('view-solution-btn').addEventListener('click', () => {
@@ -261,6 +314,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillMeshes = [];
     const projectMeshes = [];
     const mainNodeMeshes = [];
+    // Bolt: Cache for planet view to avoid per-frame traversal and allocation
+    let cachedPlanetMeshes = [];
+    let cachedPlanetLabels = [];
 
     let baseSkillPlanetUniforms;
     let moonModel = null;
@@ -558,6 +614,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appReady) return;
         gsap.to(introOverlay, { duration: 1.5, opacity: 0, onComplete: () => { if (introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay); } });
 
+        renderer.domElement.focus();
+        announce("Intro finished. Main scene loaded. Use arrow keys to navigate the 3D space, or tab to access the menu.");
+
         nodeObjects.forEach((item, i) => {
              if (item.visual) {
                  const visual = item.visual;
@@ -624,11 +683,12 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsPanel.classList.add('visible');
         const project = PROJECT_DATA[activeProject.projectIndex];
         document.getElementById('project-title').textContent = project.title;
+        announce(`Viewing project: ${project.title}`);
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = project.challenge;
-        document.getElementById('project-solution').innerHTML = project.solution;
-        document.getElementById('project-outcome').innerHTML = project.outcome;
+        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
+        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
+        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
         document.getElementById('project-link').href = project.liveUrl;
 
         // Reset View State
@@ -638,6 +698,29 @@ document.addEventListener('DOMContentLoaded', () => {
         projectChallengeContainer.style.opacity = 1;
         projectChallengeContainer.style.transform = 'scale(1)';
         projectChallengeContainer.style.filter = 'blur(0px)';
+    }
+
+    function updatePlanetViewCache() {
+        cachedPlanetMeshes = [activePlanet.mesh];
+        cachedPlanetLabels = [activePlanet];
+
+        if (activePlanet && activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moon => {
+                if (moon.children.length > 0) {
+                     moon.traverse((child) => {
+                         if (child.isMesh) {
+                             cachedPlanetMeshes.push(child);
+                         }
+                     });
+                } else if (moon.isMesh) {
+                    cachedPlanetMeshes.push(moon);
+                }
+
+                if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                    cachedPlanetLabels.push(moon.userData.parentObj);
+                }
+            });
+        }
     }
 
     function showSkillsDetail(planetObj) {
@@ -698,6 +781,8 @@ document.addEventListener('DOMContentLoaded', () => {
              gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
 
+        updatePlanetViewCache();
+
         const targetPos = new THREE.Vector3();
         activePlanet.mesh.getWorldPosition(targetPos);
 
@@ -719,6 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillData = SKILLS_DATA[activePlanet.mesh.name];
         document.getElementById('skill-detail-title').textContent = activePlanet.mesh.name;
         document.getElementById('skill-detail-text').textContent = skillData.copy;
+        announce(`Viewing details for: ${activePlanet.mesh.name}`);
 
         const sidebarEl = document.getElementById('skill-detail-sidebar');
         sidebarEl.innerHTML = '';
@@ -757,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (hoveredParentObj.mesh.name === 'About') {
                     currentView = 'about';
                     hoveredParentObj.visual.visible = false;
+                    announce("Entering About section");
                     gsap.to(camera.position, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z + 5, ease: 'power3.inOut'});
                     gsap.to(controls.target, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
                         aboutPanel.classList.add('visible');
@@ -765,6 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     currentView = isSkills ? 'skills' : 'projects';
+                    announce(isSkills ? "Entering Skills system" : "Entering Projects system");
                     const systemNode = hoveredParentObj.visual;
                     systemNode.visible = false;
 
@@ -801,8 +889,13 @@ document.addEventListener('DOMContentLoaded', () => {
         skillDetailView.classList.remove('visible');
 
         if (targetView === 'planet') {
+            announce("Returning to Skills overview");
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
+
+            // Clear cache
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
 
             currentView = 'skills';
             activePlanet = null;
@@ -841,6 +934,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else if (targetView === 'project') {
+            announce("Returning to Projects overview");
             shouldRotateProject = false;
             activeProject = null;
 
@@ -852,6 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentView = 'projects';
 
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
+             announce("Returning to main view");
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;
              projectsSystemGroup.visible = false;
@@ -964,16 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'main': return nodeObjects;
                     case 'skills': return skillsPlanets;
                     case 'projects': return projectLogos;
-                    case 'planet':
-                         const labels = [activePlanet];
-                         if (activePlanet && activePlanet.moonsGroup) {
-                            activePlanet.moonsGroup.children.forEach(moon => {
-                                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                                    labels.push(moon.userData.parentObj);
-                                }
-                            });
-                         }
-                        return labels;
+                    case 'planet': return cachedPlanetLabels;
                     default: return [];
                 }
             };
@@ -1014,18 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'projects') {
                 objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
-                objectsToTest = [activePlanet.mesh];
-                if (activePlanet.moonsGroup) {
-                    activePlanet.moonsGroup.children.forEach(moonGroup => {
-                         if (moonGroup.isObject3D && moonGroup.children.length > 0) {
-                             moonGroup.traverse((child) => {
-                                 if (child.isMesh) {
-                                     objectsToTest.push(child);
-                                 }
-                             });
-                         }
-                    });
-                }
+                objectsToTest = cachedPlanetMeshes;
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
