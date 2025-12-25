@@ -261,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillMeshes = [];
     const projectMeshes = [];
     const mainNodeMeshes = [];
+    const cachedPlanetMeshes = [];
+    const cachedPlanetLabels = [];
 
     let baseSkillPlanetUniforms;
     let moonModel = null;
@@ -270,6 +272,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeProject = null;
     let shouldRotateProject = false;
     const mixers = []; // Store animation mixers
+
+    function updatePlanetViewCache() {
+        cachedPlanetMeshes.length = 0;
+        cachedPlanetLabels.length = 0;
+
+        if (!activePlanet) return;
+
+        // Meshes
+        cachedPlanetMeshes.push(activePlanet.mesh);
+        if (activePlanet.moonsGroup) {
+             activePlanet.moonsGroup.traverse((child) => {
+                 if (child.isMesh) {
+                     cachedPlanetMeshes.push(child);
+                 }
+             });
+        }
+
+        // Labels
+        cachedPlanetLabels.push(activePlanet);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moon => {
+                if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                    cachedPlanetLabels.push(moon.userData.parentObj);
+                }
+            });
+        }
+    }
 
     function initialize() {
         createWorld();
@@ -698,6 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
              gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
 
+        updatePlanetViewCache();
+
         const targetPos = new THREE.Vector3();
         activePlanet.mesh.getWorldPosition(targetPos);
 
@@ -806,6 +837,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentView = 'skills';
             activePlanet = null;
+            cachedPlanetMeshes.length = 0;
+            cachedPlanetLabels.length = 0;
 
             if (groupToDestroy) {
                  groupToDestroy.children.forEach(moon => {
@@ -964,16 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'main': return nodeObjects;
                     case 'skills': return skillsPlanets;
                     case 'projects': return projectLogos;
-                    case 'planet':
-                         const labels = [activePlanet];
-                         if (activePlanet && activePlanet.moonsGroup) {
-                            activePlanet.moonsGroup.children.forEach(moon => {
-                                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                                    labels.push(moon.userData.parentObj);
-                                }
-                            });
-                         }
-                        return labels;
+                    case 'planet': return cachedPlanetLabels;
                     default: return [];
                 }
             };
@@ -1006,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             raycaster.setFromCamera(mouse, camera);
 
-            let objectsToTest = [];
+            let objectsToTest;
             if (isMainView) {
                 objectsToTest = mainNodeMeshes;
             } else if (currentView === 'skills') {
@@ -1014,18 +1038,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'projects') {
                 objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
-                objectsToTest = [activePlanet.mesh];
-                if (activePlanet.moonsGroup) {
-                    activePlanet.moonsGroup.children.forEach(moonGroup => {
-                         if (moonGroup.isObject3D && moonGroup.children.length > 0) {
-                             moonGroup.traverse((child) => {
-                                 if (child.isMesh) {
-                                     objectsToTest.push(child);
-                                 }
-                             });
-                         }
-                    });
-                }
+                objectsToTest = cachedPlanetMeshes;
+            } else {
+                objectsToTest = [];
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
