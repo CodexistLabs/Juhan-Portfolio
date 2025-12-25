@@ -7,6 +7,34 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
+function sanitizeHTML(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const allowedTags = ['BR', 'STRONG', 'B', 'I', 'EM', 'SPAN', 'P', 'DIV'];
+
+    function walk(node) {
+        const children = Array.from(node.childNodes);
+        children.forEach(child => walk(child));
+
+        if (node.nodeType === 1) { // Element
+            if (!allowedTags.includes(node.tagName)) {
+                // Not allowed: replace with text content (or children)
+                while (node.firstChild) {
+                    node.parentNode.insertBefore(node.firstChild, node);
+                }
+                node.parentNode.removeChild(node);
+            } else {
+                // Allowed: strip attributes
+                while (node.attributes.length > 0) {
+                    node.removeAttribute(node.attributes[0].name);
+                }
+            }
+        }
+    }
+    Array.from(doc.body.childNodes).forEach(child => walk(child));
+    return doc.body.innerHTML;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
     const PROJECT_DATA = [
@@ -626,9 +654,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('project-title').textContent = project.title;
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = project.challenge;
-        document.getElementById('project-solution').innerHTML = project.solution;
-        document.getElementById('project-outcome').innerHTML = project.outcome;
+        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
+        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
+        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
         document.getElementById('project-link').href = project.liveUrl;
 
         // Reset View State
