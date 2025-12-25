@@ -253,6 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const nodes = [ { name: 'About', position: new THREE.Vector3(0, 4, 0) }, { name: 'Projects', position: new THREE.Vector3(-5, -3, 0) }, { name: 'Skills', position: new THREE.Vector3(5, -3, 0) } ];
     const nodeObjects = [];
+    // Optimization: Cache planet view objects to avoid reallocation in animate loop
+    let cachedPlanetMeshes = [];
+    let cachedPlanetLabels = [];
     let appReady = false;
     const sceneCenter = new THREE.Vector3(0, 0, 0);
 
@@ -599,6 +602,28 @@ document.addEventListener('DOMContentLoaded', () => {
         mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
     });
 
+    function updatePlanetViewCache() {
+        if (!activePlanet) return;
+        cachedPlanetLabels = [activePlanet];
+        cachedPlanetMeshes = [activePlanet.mesh];
+
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moon => {
+                // Add meshes: The moon itself is a Group/Object3D from clone(), it has children.
+                // We need to traverse it to find meshes, like the original code did.
+                moon.traverse((child) => {
+                    if (child.isMesh) {
+                        cachedPlanetMeshes.push(child);
+                    }
+                });
+
+                if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                    cachedPlanetLabels.push(moon.userData.parentObj);
+                }
+            });
+        }
+    }
+
     function showProjectDetail(projectObj) {
         currentView = 'project';
         activeProject = projectObj;
@@ -740,6 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         skillDetailView.classList.add('visible');
+        updatePlanetViewCache();
     }
 
     window.addEventListener('click', () => {
@@ -965,15 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'skills': return skillsPlanets;
                     case 'projects': return projectLogos;
                     case 'planet':
-                         const labels = [activePlanet];
-                         if (activePlanet && activePlanet.moonsGroup) {
-                            activePlanet.moonsGroup.children.forEach(moon => {
-                                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                                    labels.push(moon.userData.parentObj);
-                                }
-                            });
-                         }
-                        return labels;
+                         return cachedPlanetLabels;
                     default: return [];
                 }
             };
@@ -1014,18 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'projects') {
                 objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
-                objectsToTest = [activePlanet.mesh];
-                if (activePlanet.moonsGroup) {
-                    activePlanet.moonsGroup.children.forEach(moonGroup => {
-                         if (moonGroup.isObject3D && moonGroup.children.length > 0) {
-                             moonGroup.traverse((child) => {
-                                 if (child.isMesh) {
-                                     objectsToTest.push(child);
-                                 }
-                             });
-                         }
-                    });
-                }
+                objectsToTest = cachedPlanetMeshes;
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
