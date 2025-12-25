@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             outcome: "The result is a powerful, interconnected digital ecosystem. The custom frontend tools reduced administrative training time and streamlined daily operations. The cross-site integration successfully drives revenue for both businesses, creating an automated sales loop that converts jewellery buyers into piercing clients and vice versa. Adora Jewels now operates efficiently for both B2B and B2C markets on a single, fast platform.",
             imageUrl: "assets/thelionsraw.png", // Keeping placeholder image path as none was provided, but logic updated
             liveUrl: 'https://adorajewels.co.za',
-            modelUrl: 'assets/3dmodels/aj.gltf'
+            modelUrl: 'assets/3dmodels/aj/aj.gltf'
         }
     ];
 
