@@ -262,6 +262,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectMeshes = [];
     const mainNodeMeshes = [];
 
+    // Optimization: Cache arrays for planet view to avoid GC in animate loop
+    let cachedPlanetMeshes = [];
+    let cachedPlanetLabels = [];
+
+    function updatePlanetViewCache() {
+        cachedPlanetMeshes = [];
+        cachedPlanetLabels = [];
+        if (!activePlanet) return;
+
+        // Labels
+        cachedPlanetLabels.push(activePlanet);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moon => {
+                if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                    cachedPlanetLabels.push(moon.userData.parentObj);
+                }
+            });
+        }
+
+        // Raycast Meshes
+        cachedPlanetMeshes.push(activePlanet.mesh);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.traverse((child) => {
+                if (child.isMesh) {
+                    cachedPlanetMeshes.push(child);
+                }
+            });
+        }
+    }
+
     let baseSkillPlanetUniforms;
     let moonModel = null;
 
@@ -698,6 +728,8 @@ document.addEventListener('DOMContentLoaded', () => {
              gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
 
+        updatePlanetViewCache();
+
         const targetPos = new THREE.Vector3();
         activePlanet.mesh.getWorldPosition(targetPos);
 
@@ -834,6 +866,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }});
             }
 
+            // Clear cached planet meshes/labels to free memory
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
+
             gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
             gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' });
             skillsPlanets.forEach(p => {
@@ -964,16 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'main': return nodeObjects;
                     case 'skills': return skillsPlanets;
                     case 'projects': return projectLogos;
-                    case 'planet':
-                         const labels = [activePlanet];
-                         if (activePlanet && activePlanet.moonsGroup) {
-                            activePlanet.moonsGroup.children.forEach(moon => {
-                                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                                    labels.push(moon.userData.parentObj);
-                                }
-                            });
-                         }
-                        return labels;
+                    case 'planet': return cachedPlanetLabels;
                     default: return [];
                 }
             };
@@ -1014,18 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'projects') {
                 objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
-                objectsToTest = [activePlanet.mesh];
-                if (activePlanet.moonsGroup) {
-                    activePlanet.moonsGroup.children.forEach(moonGroup => {
-                         if (moonGroup.isObject3D && moonGroup.children.length > 0) {
-                             moonGroup.traverse((child) => {
-                                 if (child.isMesh) {
-                                     objectsToTest.push(child);
-                                 }
-                             });
-                         }
-                    });
-                }
+                objectsToTest = cachedPlanetMeshes;
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
