@@ -120,6 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const introOverlay = document.getElementById('star-wars-intro');
     const introCrawl = document.querySelector('.star-wars-overlay .crawl');
     const backButton = document.getElementById('back-button');
+    const announcer = document.getElementById('a11y-announcer');
+
+    function announce(message) {
+        if (announcer) {
+            announcer.textContent = message;
+        }
+    }
 
     // Button Event Listeners for Project Flow
     document.getElementById('view-solution-btn').addEventListener('click', () => {
@@ -558,6 +565,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appReady) return;
         gsap.to(introOverlay, { duration: 1.5, opacity: 0, onComplete: () => { if (introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay); } });
 
+        renderer.domElement.focus();
+        announce("Intro finished. Main scene loaded. Use arrow keys to navigate the 3D space, or tab to access the menu.");
+
         nodeObjects.forEach((item, i) => {
              if (item.visual) {
                  const visual = item.visual;
@@ -624,6 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsPanel.classList.add('visible');
         const project = PROJECT_DATA[activeProject.projectIndex];
         document.getElementById('project-title').textContent = project.title;
+        announce(`Viewing project: ${project.title}`);
 
         // Populate content
         document.getElementById('project-challenge').innerHTML = project.challenge;
@@ -719,6 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillData = SKILLS_DATA[activePlanet.mesh.name];
         document.getElementById('skill-detail-title').textContent = activePlanet.mesh.name;
         document.getElementById('skill-detail-text').textContent = skillData.copy;
+        announce(`Viewing details for: ${activePlanet.mesh.name}`);
 
         const sidebarEl = document.getElementById('skill-detail-sidebar');
         sidebarEl.innerHTML = '';
@@ -757,6 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (hoveredParentObj.mesh.name === 'About') {
                     currentView = 'about';
                     hoveredParentObj.visual.visible = false;
+                    announce("Entering About section");
                     gsap.to(camera.position, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z + 5, ease: 'power3.inOut'});
                     gsap.to(controls.target, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
                         aboutPanel.classList.add('visible');
@@ -765,6 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     currentView = isSkills ? 'skills' : 'projects';
+                    announce(isSkills ? "Entering Skills system" : "Entering Projects system");
                     const systemNode = hoveredParentObj.visual;
                     systemNode.visible = false;
 
@@ -801,6 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
         skillDetailView.classList.remove('visible');
 
         if (targetView === 'planet') {
+            announce("Returning to Skills overview");
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
 
@@ -841,6 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else if (targetView === 'project') {
+            announce("Returning to Projects overview");
             shouldRotateProject = false;
             activeProject = null;
 
@@ -852,6 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentView = 'projects';
 
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
+             announce("Returning to main view");
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;
              projectsSystemGroup.visible = false;
