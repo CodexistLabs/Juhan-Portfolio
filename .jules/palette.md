@@ -1,3 +1,3 @@
-## 2024-05-23 - [Keyboard Access for OrbitControls]
-**Learning:** `OrbitControls` listens to keys on `window` by default, which can hijack page scrolling. Using `controls.listenToKeyEvents(renderer.domElement)` combined with `tabIndex="0"` on the canvas provides a more robust and accessible experience, allowing users to explicitly "enter" the 3D context.
-**Action:** When implementing 3D controls alongside scrollable HTML content, always bind key events to the specific DOM element and ensure it is focusable.
+## 2024-05-23 - [Keyboard Access for Menus]
+**Learning:** Adding a global `Escape` key listener to close expanded menus and return focus to the trigger button is a critical "micro-interaction" that significantly improves accessibility for keyboard users.
+**Action:** Always ensure disclosure widgets (like dropdowns) can be dismissed with Escape and properly manage focus return.

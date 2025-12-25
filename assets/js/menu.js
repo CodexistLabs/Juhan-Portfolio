@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close menus when clicking outside
     document.addEventListener('click', function(event) {
         if (!event.target.closest('.bottom-left-menu')) {
-                document.querySelectorAll('.menu-item').forEach(item => {
+            document.querySelectorAll('.menu-item').forEach(item => {
                 item.classList.remove('expanded');
                 const btn = item.querySelector('.menu-button');
                 if (btn) {
@@ -45,6 +45,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.setAttribute('aria-expanded', 'false');
                 }
             });
+        }
+    });
+
+    // Close menus on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const expandedItem = document.querySelector('.menu-item.expanded');
+            if (expandedItem) {
+                expandedItem.classList.remove('expanded');
+                const btn = expandedItem.querySelector('.menu-button');
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.focus(); // Return focus to the button
+                }
+            }
         }
     });
 });
