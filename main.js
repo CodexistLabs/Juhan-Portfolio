@@ -318,37 +318,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillMeshes = [];
     const projectMeshes = [];
     const mainNodeMeshes = [];
+    
     // Bolt: Cache for planet view to avoid per-frame traversal and allocation
-    let cachedPlanetMeshes = [];
-    let cachedPlanetLabels = [];
-
-    // Optimization: Cache arrays for planet view to avoid GC in animate loop
     let cachedPlanetMeshes = [];
     let cachedPlanetLabels = [];
 
     function updatePlanetViewCache() {
         cachedPlanetMeshes = [];
         cachedPlanetLabels = [];
-        if (!activePlanet) return;
+        if (activePlanet) {
+            cachedPlanetMeshes.push(activePlanet.mesh);
+            cachedPlanetLabels.push(activePlanet);
 
-        // Labels
-        cachedPlanetLabels.push(activePlanet);
-        if (activePlanet.moonsGroup) {
-            activePlanet.moonsGroup.children.forEach(moon => {
-                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                    cachedPlanetLabels.push(moon.userData.parentObj);
-                }
-            });
-        }
-
-        // Raycast Meshes
-        cachedPlanetMeshes.push(activePlanet.mesh);
-        if (activePlanet.moonsGroup) {
-            activePlanet.moonsGroup.traverse((child) => {
-                if (child.isMesh) {
-                    cachedPlanetMeshes.push(child);
-                }
-            });
+            if (activePlanet.moonsGroup) {
+                 activePlanet.moonsGroup.children.forEach(moon => {
+                      if (moon.isObject3D) {
+                           // For raycasting: get the mesh children
+                           moon.traverse(child => {
+                               if (child.isMesh) cachedPlanetMeshes.push(child);
+                           });
+                           // For labels: the moon itself (which is the parentObj holder)
+                           if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                               cachedPlanetLabels.push(moon.userData.parentObj);
+                           }
+                      }
+                 });
+            }
         }
     }
 
@@ -735,29 +730,6 @@ document.addEventListener('DOMContentLoaded', () => {
         projectChallengeContainer.style.filter = 'blur(0px)';
     }
 
-    function updatePlanetViewCache() {
-        cachedPlanetMeshes = [activePlanet.mesh];
-        cachedPlanetLabels = [activePlanet];
-
-        if (activePlanet && activePlanet.moonsGroup) {
-            activePlanet.moonsGroup.children.forEach(moon => {
-                if (moon.children.length > 0) {
-                     moon.traverse((child) => {
-                         if (child.isMesh) {
-                             cachedPlanetMeshes.push(child);
-                         }
-                     });
-                } else if (moon.isMesh) {
-                    cachedPlanetMeshes.push(moon);
-                }
-
-                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                    cachedPlanetLabels.push(moon.userData.parentObj);
-                }
-            });
-        }
-    }
-
     function showSkillsDetail(planetObj) {
         currentView = 'planet';
         activePlanet = planetObj;
@@ -936,6 +908,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentView = 'skills';
             activePlanet = null;
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
 
             if (groupToDestroy) {
                  groupToDestroy.children.forEach(moon => {
