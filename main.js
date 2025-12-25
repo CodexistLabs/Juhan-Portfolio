@@ -9,6 +9,52 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    function sanitizeHTML(str) {
+        const temp = document.createElement('div');
+        temp.innerHTML = str;
+
+        function robustSanitize(root) {
+            const children = Array.from(root.childNodes);
+            for (const child of children) {
+                robustSanitize(child);
+            }
+
+            if (root === temp) return;
+
+            if (root.nodeType === 3) return; // Text
+            if (root.nodeType !== 1) { // Remove comments etc
+                root.remove();
+                return;
+            }
+
+            const tagName = root.tagName.toLowerCase();
+            const allowedTags = ['b', 'strong', 'i', 'em', 'br', 'p', 'span', 'div', 'ul', 'li'];
+            const blockedTags = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'img', 'svg', 'form', 'input', 'button', 'textarea'];
+
+            if (blockedTags.includes(tagName)) {
+                root.remove();
+                return;
+            }
+
+            if (!allowedTags.includes(tagName)) {
+                // Unwrap
+                while (root.firstChild) {
+                    root.parentNode.insertBefore(root.firstChild, root);
+                }
+                root.remove();
+                return;
+            }
+
+            // Remove attributes
+            while (root.attributes.length > 0) {
+                root.removeAttribute(root.attributes[0].name);
+            }
+        }
+
+        robustSanitize(temp);
+        return temp.innerHTML;
+    }
+
     const PROJECT_DATA = [
         {
             title: "The Lions Raw",
@@ -120,6 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const introOverlay = document.getElementById('star-wars-intro');
     const introCrawl = document.querySelector('.star-wars-overlay .crawl');
     const backButton = document.getElementById('back-button');
+    const announcer = document.getElementById('a11y-announcer');
+
+    function announce(message) {
+        if (announcer) {
+            announcer.textContent = ''; // Clear first to ensure repeat announcements work
+            setTimeout(() => { announcer.textContent = message; }, 50);
+        }
+    }
 
     // Button Event Listeners for Project Flow
     document.getElementById('view-solution-btn').addEventListener('click', () => {
@@ -136,6 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     { opacity: 0, y: 20 },
                     { duration: 0.8, opacity: 1, y: 0, ease: 'power3.out' }
                 );
+                const header = document.getElementById('project-solution-header');
+                if (header) header.focus();
             }
         });
     });
@@ -151,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 projectChallengeContainer.style.display = 'block';
                 // Reset challenge container state
                 gsap.set(projectChallengeContainer, { opacity: 1, scale: 1, filter: 'blur(0px)' });
+                document.getElementById('view-solution-btn').focus();
             }
         });
     });
@@ -261,8 +318,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillMeshes = [];
     const projectMeshes = [];
     const mainNodeMeshes = [];
+    
+    // Bolt: Cache for planet view to avoid per-frame traversal and allocation
     let cachedPlanetMeshes = [];
     let cachedPlanetLabels = [];
+
+    function updatePlanetViewCache() {
+        cachedPlanetMeshes = [];
+        cachedPlanetLabels = [];
+        if (activePlanet) {
+            cachedPlanetMeshes.push(activePlanet.mesh);
+            cachedPlanetLabels.push(activePlanet);
+
+            if (activePlanet.moonsGroup) {
+                 activePlanet.moonsGroup.children.forEach(moon => {
+                      if (moon.isObject3D) {
+                           // For raycasting: get the mesh children
+                           moon.traverse(child => {
+                               if (child.isMesh) cachedPlanetMeshes.push(child);
+                           });
+                           // For labels: the moon itself (which is the parentObj holder)
+                           if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                               cachedPlanetLabels.push(moon.userData.parentObj);
+                           }
+                      }
+                 });
+            }
+        }
+    }
 
     let baseSkillPlanetUniforms;
     let moonModel = null;
@@ -558,7 +641,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishIntro() {
         if (appReady) return;
+        announce("Intro complete. Main 3D view active. Use arrow keys to rotate.");
         gsap.to(introOverlay, { duration: 1.5, opacity: 0, onComplete: () => { if (introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay); } });
+
+        renderer.domElement.focus();
+        announce("Intro finished. Main scene loaded. Use arrow keys to navigate the 3D space, or tab to access the menu.");
 
         nodeObjects.forEach((item, i) => {
              if (item.visual) {
@@ -626,11 +713,12 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsPanel.classList.add('visible');
         const project = PROJECT_DATA[activeProject.projectIndex];
         document.getElementById('project-title').textContent = project.title;
+        announce("Showing project details for " + project.title);
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = project.challenge;
-        document.getElementById('project-solution').innerHTML = project.solution;
-        document.getElementById('project-outcome').innerHTML = project.outcome;
+        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
+        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
+        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
         document.getElementById('project-link').href = project.liveUrl;
 
         // Reset View State
@@ -640,30 +728,6 @@ document.addEventListener('DOMContentLoaded', () => {
         projectChallengeContainer.style.opacity = 1;
         projectChallengeContainer.style.transform = 'scale(1)';
         projectChallengeContainer.style.filter = 'blur(0px)';
-    }
-
-    function updatePlanetViewCache() {
-        cachedPlanetMeshes = [];
-        cachedPlanetLabels = [];
-        if (activePlanet) {
-            cachedPlanetMeshes.push(activePlanet.mesh);
-            cachedPlanetLabels.push(activePlanet);
-
-            if (activePlanet.moonsGroup) {
-                 activePlanet.moonsGroup.children.forEach(moon => {
-                      if (moon.isObject3D) {
-                           // For raycasting: get the mesh children
-                           moon.traverse(child => {
-                               if (child.isMesh) cachedPlanetMeshes.push(child);
-                           });
-                           // For labels: the moon itself (which is the parentObj holder)
-                           if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                               cachedPlanetLabels.push(moon.userData.parentObj);
-                           }
-                      }
-                 });
-            }
-        }
     }
 
     function showSkillsDetail(planetObj) {
@@ -747,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillData = SKILLS_DATA[activePlanet.mesh.name];
         document.getElementById('skill-detail-title').textContent = activePlanet.mesh.name;
         document.getElementById('skill-detail-text').textContent = skillData.copy;
+        announce("Showing details for " + activePlanet.mesh.name);
 
         const sidebarEl = document.getElementById('skill-detail-sidebar');
         sidebarEl.innerHTML = '';
@@ -784,7 +849,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (hoveredParentObj.mesh.name === 'About') {
                     currentView = 'about';
+                    announce("Opened About section.");
                     hoveredParentObj.visual.visible = false;
+                    announce("Entering About section");
                     gsap.to(camera.position, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z + 5, ease: 'power3.inOut'});
                     gsap.to(controls.target, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
                         aboutPanel.classList.add('visible');
@@ -792,7 +859,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }});
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
+                    announce("Entering " + hoveredParentObj.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
+                    announce(isSkills ? "Entering Skills system" : "Entering Projects system");
                     const systemNode = hoveredParentObj.visual;
                     systemNode.visible = false;
 
@@ -829,8 +898,13 @@ document.addEventListener('DOMContentLoaded', () => {
         skillDetailView.classList.remove('visible');
 
         if (targetView === 'planet') {
+            announce("Returning to Skills overview");
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
+
+            // Clear cache
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
 
             currentView = 'skills';
             activePlanet = null;
@@ -864,6 +938,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }});
             }
 
+            // Clear cached planet meshes/labels to free memory
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
+
             gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
             gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' });
             skillsPlanets.forEach(p => {
@@ -871,6 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else if (targetView === 'project') {
+            announce("Returning to Projects overview");
             shouldRotateProject = false;
             activeProject = null;
 
@@ -882,6 +961,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentView = 'projects';
 
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
+             announce("Returning to main view");
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;
              projectsSystemGroup.visible = false;
@@ -916,6 +996,8 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.to(controls.target, { duration: 1.6, x: sceneCenter.x, y: sceneCenter.y, z: sceneCenter.z, ease: "power3.inOut" });
             gsap.to(camera.position, { duration: 1.6, x: initialCameraPosition.x, y: initialCameraPosition.y, z: initialCameraPosition.z, ease: "power3.inOut"});
             currentView = 'main';
+            announce("Returned to Overview.");
+            renderer.domElement.focus();
         }
     });
 
@@ -989,13 +1071,16 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.update();
 
         if (appReady) {
-            let labels = [];
-            if (currentView === 'main') labels = nodeObjects;
-            else if (currentView === 'skills') labels = skillsPlanets;
-            else if (currentView === 'projects') labels = projectLogos;
-            else if (currentView === 'planet') labels = cachedPlanetLabels;
-
-            labels.forEach(item => {
+            const getActiveLabels = () => {
+                switch(currentView) {
+                    case 'main': return nodeObjects;
+                    case 'skills': return skillsPlanets;
+                    case 'projects': return projectLogos;
+                    case 'planet': return cachedPlanetLabels;
+                    default: return [];
+                }
+            };
+            getActiveLabels().forEach(item => {
                 const mesh = isMainView ? item.mesh : (item.mesh || item);
                 const label = item.label;
                  const isHovered = item === hoveredParentObj;
