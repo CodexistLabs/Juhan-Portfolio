@@ -88,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
             challenge: "Adora Jewels needed a brand-new e-commerce platform built from the ground up to serve two distinct markets: general public shoppers and wholesale retailers. Beyond standard sales, the business required a seamless way to bridge the gap between product sales and their service-based sister company, Modified Monkey. They also needed a simplified way for staff to manage inventory and track performance without navigating the technical complexities of the WordPress backend.",
             solution: "I developed a custom WordPress site using Bricks Builder to ensure high performance. The core innovation lies in the custom-coded solutions:<br><br><strong>Frontend Stock Management:</strong> I built a secure dashboard allowing Shop Managers to add, edit, and delete products entirely from the frontend. It includes real-time analytics on site visits, product performance, and sales data.<br><br><strong>Unified Booking Engine:</strong> I engineered a custom booking system that syncs a single database between Adora Jewels and Modified Monkey. This manages real-time slot availability and syncs directly to the user's personal calendar.<br><br><strong>Smart Cross-Promotion:</strong> I implemented logic where spending a specific threshold on Adora unlocks discounted bookings at the piercing studio, while paid bookings on Modified Monkey trigger exclusive jewellery discounts on Adora.",
             outcome: "The result is a powerful, interconnected digital ecosystem. The custom frontend tools reduced administrative training time and streamlined daily operations. The cross-site integration successfully drives revenue for both businesses, creating an automated sales loop that converts jewellery buyers into piercing clients and vice versa. Adora Jewels now operates efficiently for both B2B and B2C markets on a single, fast platform.",
-            imageUrl: "assets/zetara.png", // Keeping placeholder image path as none was provided, but logic updated
+            imageUrl: "assets/thelionsraw.png", // Keeping placeholder image path as none was provided, but logic updated
             liveUrl: 'https://adorajewels.co.za',
-            modelUrl: 'assets/3dmodels/aj.gltf'
+            modelUrl: 'assets/3dmodels/aj/aj.gltf'
         }
     ];
 
@@ -250,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bloomPass.radius = 0.5;
         composer.addPass(renderPass);
         composer.addPass(bloomPass);
+        composer.setPixelRatio(renderer.getPixelRatio());
     }
 
     const HOVER_GLOW_COLOR = new THREE.Color(0xefc75e);
@@ -1007,6 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         if (composer) {
             composer.setSize(window.innerWidth, window.innerHeight);
+            composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             if (bloomPass && bloomPass.resolution) bloomPass.resolution.set(window.innerWidth, window.innerHeight);
         }
     });
