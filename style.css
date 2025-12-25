@@ -6,22 +6,38 @@ canvas:focus-visible { outline: 2px solid #6fdd7a; outline-offset: 4px; }
 
 /* UPDATED: Label transform to position it below the object */
 .label {
-    position: absolute; top: 0; left: 0; color: #6fdd7a; font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 14px; padding: 6px 12px; background: rgba(0, 20, 0, 0.6);
-    border: 1px solid #6fdd7a; border-radius: 0;
+    position: absolute; top: 0; left: 0;
+    color: #efc75e; /* Gold theme */
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px; padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #efc75e; border-radius: 0;
     backdrop-filter: blur(2px); pointer-events: none; user-select: none; text-align: center;
     opacity: 1; transition: opacity 0.5s;
-    transform: translate(-50%, 150%);
+    /* transform removed, handled by JS */
     z-index: 10;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 0 0 10px rgba(111, 221, 122, 0.3);
-}
-.label::before {
-    content: ''; position: absolute; bottom: 100%; left: 50%; width: 1px; height: 20px;
-    background-color: #6fdd7a; transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(239, 199, 94, 0.3);
 }
 .label.hidden { opacity: 0; pointer-events: none; }
+
+#label-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9;
+    overflow: visible;
+}
+.label-connector {
+    stroke: #efc75e;
+    stroke-width: 1.5;
+    fill: none;
+    filter: drop-shadow(0 0 4px #efc75e);
+}
 .back-button {
     position: absolute; top: 25px; left: 25px; background: rgba(0, 0, 0, 0.3); color: white;
     border: 1px solid rgba(255, 255, 255, 0.5); padding: 10px 20px; font-family: 'Trebuchet MS', sans-serif;
