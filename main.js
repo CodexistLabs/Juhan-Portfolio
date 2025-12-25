@@ -261,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillMeshes = [];
     const projectMeshes = [];
     const mainNodeMeshes = [];
+    let cachedPlanetMeshes = [];
+    let cachedPlanetLabels = [];
 
     let baseSkillPlanetUniforms;
     let moonModel = null;
@@ -640,6 +642,30 @@ document.addEventListener('DOMContentLoaded', () => {
         projectChallengeContainer.style.filter = 'blur(0px)';
     }
 
+    function updatePlanetViewCache() {
+        cachedPlanetMeshes = [];
+        cachedPlanetLabels = [];
+        if (activePlanet) {
+            cachedPlanetMeshes.push(activePlanet.mesh);
+            cachedPlanetLabels.push(activePlanet);
+
+            if (activePlanet.moonsGroup) {
+                 activePlanet.moonsGroup.children.forEach(moon => {
+                      if (moon.isObject3D) {
+                           // For raycasting: get the mesh children
+                           moon.traverse(child => {
+                               if (child.isMesh) cachedPlanetMeshes.push(child);
+                           });
+                           // For labels: the moon itself (which is the parentObj holder)
+                           if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                               cachedPlanetLabels.push(moon.userData.parentObj);
+                           }
+                      }
+                 });
+            }
+        }
+    }
+
     function showSkillsDetail(planetObj) {
         currentView = 'planet';
         activePlanet = planetObj;
@@ -697,6 +723,8 @@ document.addEventListener('DOMContentLoaded', () => {
              // Moons already exist, animate appearance
              gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
+
+        updatePlanetViewCache();
 
         const targetPos = new THREE.Vector3();
         activePlanet.mesh.getWorldPosition(targetPos);
@@ -806,6 +834,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentView = 'skills';
             activePlanet = null;
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
 
             if (groupToDestroy) {
                  groupToDestroy.children.forEach(moon => {
@@ -959,25 +989,13 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.update();
 
         if (appReady) {
-            const getActiveLabels = () => {
-                switch(currentView) {
-                    case 'main': return nodeObjects;
-                    case 'skills': return skillsPlanets;
-                    case 'projects': return projectLogos;
-                    case 'planet':
-                         const labels = [activePlanet];
-                         if (activePlanet && activePlanet.moonsGroup) {
-                            activePlanet.moonsGroup.children.forEach(moon => {
-                                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                                    labels.push(moon.userData.parentObj);
-                                }
-                            });
-                         }
-                        return labels;
-                    default: return [];
-                }
-            };
-            getActiveLabels().forEach(item => {
+            let labels = [];
+            if (currentView === 'main') labels = nodeObjects;
+            else if (currentView === 'skills') labels = skillsPlanets;
+            else if (currentView === 'projects') labels = projectLogos;
+            else if (currentView === 'planet') labels = cachedPlanetLabels;
+
+            labels.forEach(item => {
                 const mesh = isMainView ? item.mesh : (item.mesh || item);
                 const label = item.label;
                  const isHovered = item === hoveredParentObj;
@@ -1014,18 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'projects') {
                 objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
-                objectsToTest = [activePlanet.mesh];
-                if (activePlanet.moonsGroup) {
-                    activePlanet.moonsGroup.children.forEach(moonGroup => {
-                         if (moonGroup.isObject3D && moonGroup.children.length > 0) {
-                             moonGroup.traverse((child) => {
-                                 if (child.isMesh) {
-                                     objectsToTest.push(child);
-                                 }
-                             });
-                         }
-                    });
-                }
+                objectsToTest = cachedPlanetMeshes;
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
