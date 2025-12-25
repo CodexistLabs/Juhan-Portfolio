@@ -8,6 +8,8 @@
     <title>Juhan's 3D Portfolio</title>
     <link rel="stylesheet" href="style.css">
 
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
     <script type="x-shader/x-vertex" id="vertexShader">
     varying vec2 vUv;
     void main() {
@@ -84,7 +86,7 @@
         </div>
 
         <div id="project-solution-container" style="display: none; opacity: 0;">
-            <h3>The Solution</h3>
+            <h3 id="project-solution-header" tabindex="-1">The Solution</h3>
             <p id="project-solution"></p>
             <h3>The Outcome</h3>
             <p id="project-outcome"></p>
