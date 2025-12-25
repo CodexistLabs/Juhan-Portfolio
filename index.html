@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; style-src 'self' https: 'unsafe-inline'; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://dl.polyhaven.org https://www.gstatic.com blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Juhan's 3D Portfolio</title>
     <link rel="stylesheet" href="style.css">
+
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <script type="x-shader/x-vertex" id="vertexShader">
     varying vec2 vUv;
@@ -61,6 +63,7 @@
         <div class="loader"><div class="cube-scene"><div class="cube" aria-hidden="true"><div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div></div><div class="orbit" aria-hidden="true"><div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div></div></div><div class="loader-text">Loading the Miniverse...</div><div class="loader-sub">Hang tight — assembling tiny worlds ✨</div></div>
     </div>
     <div id="star-wars-intro" class="star-wars-overlay"><div class="crawl"><p>Greetings. You have entered the digital coordinates of Juhan. Here, code meets creativity in a universe of infinite possibilities. Prepare to explore a galaxy of projects, skills, and digital experiences.</p></div></div>
+    <div id="a11y-announcer" class="sr-only" aria-live="polite"></div>
     <div id="labels-container"></div>
     <button id="back-button" class="back-button">← Return to Overview</button>
 
@@ -83,7 +86,7 @@
         </div>
 
         <div id="project-solution-container" style="display: none; opacity: 0;">
-            <h3>The Solution</h3>
+            <h3 id="project-solution-header" tabindex="-1">The Solution</h3>
             <p id="project-solution"></p>
             <h3>The Outcome</h3>
             <p id="project-outcome"></p>
@@ -175,7 +178,9 @@
     </div>
 
     <script src="assets/js/menu.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+    <!-- Preload Three.js core with SRI for security -->
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js" integrity="sha384-c1WSdrtrvLWoZQC5zBcuCBhTpWvCcKFvUPFkF9wsEestdGUyCxZPiVXzYCZEPRzJ" crossorigin="anonymous">
     <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/" } }
     </script>
