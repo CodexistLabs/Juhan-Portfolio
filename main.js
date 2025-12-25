@@ -261,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillMeshes = [];
     const projectMeshes = [];
     const mainNodeMeshes = [];
+    const cachedPlanetMeshes = [];
+    const cachedPlanetLabels = [];
 
     let baseSkillPlanetUniforms;
     let moonModel = null;
@@ -640,6 +642,34 @@ document.addEventListener('DOMContentLoaded', () => {
         projectChallengeContainer.style.filter = 'blur(0px)';
     }
 
+    function updatePlanetViewCache() {
+        if (!activePlanet) return;
+
+        cachedPlanetLabels.length = 0;
+        cachedPlanetLabels.push(activePlanet);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moon => {
+                if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                    cachedPlanetLabels.push(moon.userData.parentObj);
+                }
+            });
+        }
+
+        cachedPlanetMeshes.length = 0;
+        cachedPlanetMeshes.push(activePlanet.mesh);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moonGroup => {
+                if (moonGroup.isObject3D) {
+                    moonGroup.traverse((child) => {
+                        if (child.isMesh) {
+                            cachedPlanetMeshes.push(child);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
     function showSkillsDetail(planetObj) {
         currentView = 'planet';
         activePlanet = planetObj;
@@ -740,6 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         skillDetailView.classList.add('visible');
+        updatePlanetViewCache();
     }
 
     window.addEventListener('click', () => {
@@ -833,6 +864,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }});
             }
+
+            cachedPlanetMeshes.length = 0;
+            cachedPlanetLabels.length = 0;
 
             gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
             gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' });
@@ -964,16 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'main': return nodeObjects;
                     case 'skills': return skillsPlanets;
                     case 'projects': return projectLogos;
-                    case 'planet':
-                         const labels = [activePlanet];
-                         if (activePlanet && activePlanet.moonsGroup) {
-                            activePlanet.moonsGroup.children.forEach(moon => {
-                                if (moon.userData.parentObj && moon.userData.parentObj.label) {
-                                    labels.push(moon.userData.parentObj);
-                                }
-                            });
-                         }
-                        return labels;
+                    case 'planet': return cachedPlanetLabels;
                     default: return [];
                 }
             };
@@ -1014,18 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'projects') {
                 objectsToTest = projectMeshes;
             } else if (currentView === 'planet') {
-                objectsToTest = [activePlanet.mesh];
-                if (activePlanet.moonsGroup) {
-                    activePlanet.moonsGroup.children.forEach(moonGroup => {
-                         if (moonGroup.isObject3D && moonGroup.children.length > 0) {
-                             moonGroup.traverse((child) => {
-                                 if (child.isMesh) {
-                                     objectsToTest.push(child);
-                                 }
-                             });
-                         }
-                    });
-                }
+                objectsToTest = cachedPlanetMeshes;
             }
 
             const intersects = raycaster.intersectObjects(objectsToTest, true);
