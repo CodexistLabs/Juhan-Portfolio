@@ -322,6 +322,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let cachedPlanetMeshes = [];
     let cachedPlanetLabels = [];
 
+    // Optimization: Cache arrays for planet view to avoid GC in animate loop
+    let cachedPlanetMeshes = [];
+    let cachedPlanetLabels = [];
+
+    function updatePlanetViewCache() {
+        cachedPlanetMeshes = [];
+        cachedPlanetLabels = [];
+        if (!activePlanet) return;
+
+        // Labels
+        cachedPlanetLabels.push(activePlanet);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.children.forEach(moon => {
+                if (moon.userData.parentObj && moon.userData.parentObj.label) {
+                    cachedPlanetLabels.push(moon.userData.parentObj);
+                }
+            });
+        }
+
+        // Raycast Meshes
+        cachedPlanetMeshes.push(activePlanet.mesh);
+        if (activePlanet.moonsGroup) {
+            activePlanet.moonsGroup.traverse((child) => {
+                if (child.isMesh) {
+                    cachedPlanetMeshes.push(child);
+                }
+            });
+        }
+    }
+
     let baseSkillPlanetUniforms;
     let moonModel = null;
 
@@ -933,6 +963,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }});
             }
+
+            // Clear cached planet meshes/labels to free memory
+            cachedPlanetMeshes = [];
+            cachedPlanetLabels = [];
 
             gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
             gsap.to(camera.position, { duration: 1.6, x: 0, y: 10, z: 18, ease: 'power3.inOut' });
