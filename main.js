@@ -120,6 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const introOverlay = document.getElementById('star-wars-intro');
     const introCrawl = document.querySelector('.star-wars-overlay .crawl');
     const backButton = document.getElementById('back-button');
+    const announcer = document.getElementById('a11y-announcer');
+
+    function announce(message) {
+        if (announcer) {
+            announcer.textContent = ''; // Clear first to ensure repeat announcements work
+            setTimeout(() => { announcer.textContent = message; }, 50);
+        }
+    }
 
     // Button Event Listeners for Project Flow
     document.getElementById('view-solution-btn').addEventListener('click', () => {
@@ -136,6 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     { opacity: 0, y: 20 },
                     { duration: 0.8, opacity: 1, y: 0, ease: 'power3.out' }
                 );
+                const header = document.getElementById('project-solution-header');
+                if (header) header.focus();
             }
         });
     });
@@ -151,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 projectChallengeContainer.style.display = 'block';
                 // Reset challenge container state
                 gsap.set(projectChallengeContainer, { opacity: 1, scale: 1, filter: 'blur(0px)' });
+                document.getElementById('view-solution-btn').focus();
             }
         });
     });
@@ -556,6 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishIntro() {
         if (appReady) return;
+        announce("Intro complete. Main 3D view active. Use arrow keys to rotate.");
         gsap.to(introOverlay, { duration: 1.5, opacity: 0, onComplete: () => { if (introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay); } });
 
         nodeObjects.forEach((item, i) => {
@@ -624,6 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsPanel.classList.add('visible');
         const project = PROJECT_DATA[activeProject.projectIndex];
         document.getElementById('project-title').textContent = project.title;
+        announce("Showing project details for " + project.title);
 
         // Populate content
         document.getElementById('project-challenge').innerHTML = project.challenge;
@@ -719,6 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skillData = SKILLS_DATA[activePlanet.mesh.name];
         document.getElementById('skill-detail-title').textContent = activePlanet.mesh.name;
         document.getElementById('skill-detail-text').textContent = skillData.copy;
+        announce("Showing details for " + activePlanet.mesh.name);
 
         const sidebarEl = document.getElementById('skill-detail-sidebar');
         sidebarEl.innerHTML = '';
@@ -756,6 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (hoveredParentObj.mesh.name === 'About') {
                     currentView = 'about';
+                    announce("Opened About section.");
                     hoveredParentObj.visual.visible = false;
                     gsap.to(camera.position, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z + 5, ease: 'power3.inOut'});
                     gsap.to(controls.target, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
@@ -764,6 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }});
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
+                    announce("Entering " + hoveredParentObj.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
                     const systemNode = hoveredParentObj.visual;
                     systemNode.visible = false;
@@ -886,6 +902,8 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.to(controls.target, { duration: 1.6, x: sceneCenter.x, y: sceneCenter.y, z: sceneCenter.z, ease: "power3.inOut" });
             gsap.to(camera.position, { duration: 1.6, x: initialCameraPosition.x, y: initialCameraPosition.y, z: initialCameraPosition.z, ease: "power3.inOut"});
             currentView = 'main';
+            announce("Returned to Overview.");
+            renderer.domElement.focus();
         }
     });
 
