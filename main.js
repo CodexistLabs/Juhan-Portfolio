@@ -9,6 +9,35 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    function sanitizeHTML(str) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(str, 'text/html');
+        const allowedTags = ['BR', 'STRONG', 'B', 'I', 'EM', 'SPAN', 'P', 'DIV'];
+
+        const cleanContainer = document.createElement('div');
+
+        function copySafe(source, target) {
+            source.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    target.appendChild(document.createTextNode(node.textContent));
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (allowedTags.includes(node.tagName)) {
+                        const newEl = document.createElement(node.tagName);
+                        // Intentionally not copying attributes to prevent XSS vectors
+                        copySafe(node, newEl);
+                        target.appendChild(newEl);
+                    } else {
+                        // For disallowed tags, unwrap content
+                        copySafe(node, target);
+                    }
+                }
+            });
+        }
+
+        copySafe(doc.body, cleanContainer);
+        return cleanContainer.innerHTML;
+    }
+
     const PROJECT_DATA = [
         {
             title: "The Lions Raw",
@@ -626,9 +655,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('project-title').textContent = project.title;
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = project.challenge;
-        document.getElementById('project-solution').innerHTML = project.solution;
-        document.getElementById('project-outcome').innerHTML = project.outcome;
+        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
+        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
+        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
         document.getElementById('project-link').href = project.liveUrl;
 
         // Reset View State
