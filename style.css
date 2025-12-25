@@ -200,9 +200,16 @@ canvas:focus-visible { outline: 2px solid #6fdd7a; outline-offset: 4px; }
     position: relative; /* For tooltip positioning */
 }
 
-.menu-button:focus-visible, .submenu-item:focus-visible {
+.menu-button:focus-visible, .submenu-item:focus-visible, .cta-button:focus-visible, .back-button:focus-visible {
     outline: 2px solid #6fdd7a;
     outline-offset: 4px;
+}
+
+#portfolios-submenu .submenu-item {
+    cursor: default;
+}
+#portfolios-submenu .submenu-item:hover {
+    transform: none;
 }
 
 .menu-button:hover, .submenu-item:hover {
