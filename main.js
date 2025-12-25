@@ -9,6 +9,38 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    /**
+     * Sanitizes HTML string to prevent XSS.
+     * Allows only safe tags: BR, STRONG, B, I, EM, SPAN, P, DIV.
+     * Strips all attributes.
+     */
+    function sanitizeHTML(str) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(str, 'text/html');
+        const allowedTags = ['BR', 'STRONG', 'B', 'I', 'EM', 'SPAN', 'P', 'DIV'];
+
+        function clean(node) {
+            for (let i = node.childNodes.length - 1; i >= 0; i--) {
+                const child = node.childNodes[i];
+                if (child.nodeType === 1) { // Element
+                    if (!allowedTags.includes(child.tagName)) {
+                        // Replace with text content
+                        const text = document.createTextNode(child.textContent);
+                        child.parentNode.replaceChild(text, child);
+                    } else {
+                        // Remove all attributes
+                        while (child.attributes.length > 0) {
+                            child.removeAttribute(child.attributes[0].name);
+                        }
+                        clean(child);
+                    }
+                }
+            }
+        }
+        clean(doc.body);
+        return doc.body.innerHTML;
+    }
+
     const PROJECT_DATA = [
         {
             title: "The Lions Raw",
@@ -626,9 +658,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('project-title').textContent = project.title;
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = project.challenge;
-        document.getElementById('project-solution').innerHTML = project.solution;
-        document.getElementById('project-outcome').innerHTML = project.outcome;
+        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
+        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
+        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
         document.getElementById('project-link').href = project.liveUrl;
 
         // Reset View State
