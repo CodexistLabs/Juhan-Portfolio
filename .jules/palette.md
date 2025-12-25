@@ -1,3 +1,7 @@
 ## 2024-05-23 - [Keyboard Access for OrbitControls]
 **Learning:** `OrbitControls` listens to keys on `window` by default, which can hijack page scrolling. Using `controls.listenToKeyEvents(renderer.domElement)` combined with `tabIndex="0"` on the canvas provides a more robust and accessible experience, allowing users to explicitly "enter" the 3D context.
 **Action:** When implementing 3D controls alongside scrollable HTML content, always bind key events to the specific DOM element and ensure it is focusable.
+
+## 2024-05-24 - [Phantom Interactivity]
+**Learning:** Elements with `cursor: pointer` or hover transforms that perform no action (like static list items in a menu) create "Phantom Interactivity," confusing users who expect a click to do something.
+**Action:** Always ensure static elements explicitly use `cursor: default` and do not have hover lift/scale effects unless they are actionable. For purely informational lists inside menus, rely on tooltips or static layouts without interaction cues.
