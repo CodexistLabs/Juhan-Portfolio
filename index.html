@@ -65,6 +65,7 @@
     <div id="star-wars-intro" class="star-wars-overlay"><div class="crawl"><p>Greetings. You have entered the digital coordinates of Juhan. Here, code meets creativity in a universe of infinite possibilities. Prepare to explore a galaxy of projects, skills, and digital experiences.</p></div></div>
     <div id="a11y-announcer" class="sr-only" aria-live="polite"></div>
     <div id="labels-container"></div>
+    <svg id="label-lines" xmlns="http://www.w3.org/2000/svg"></svg>
     <button id="back-button" class="back-button">← Return to Overview</button>
 
     <div id="about-panel" class="content-panel">
@@ -82,17 +83,21 @@
         <div id="project-challenge-container">
             <h3>The Challenge</h3>
             <p id="project-challenge"></p>
-            <button id="view-solution-btn" class="cta-button">View Solution</button>
+            <button id="view-solution-btn" class="cta-button">See Solution</button>
         </div>
 
         <div id="project-solution-container" style="display: none; opacity: 0;">
             <h3 id="project-solution-header" tabindex="-1">The Solution</h3>
             <p id="project-solution"></p>
-            <h3>The Outcome</h3>
+            <button id="view-outcome-btn" class="cta-button">View Outcome</button>
+        </div>
+
+        <div id="project-outcome-container" style="display: none; opacity: 0;">
+            <h3 id="project-outcome-header" tabindex="-1">The Outcome</h3>
             <p id="project-outcome"></p>
             <div class="project-actions">
                 <a id="project-link" href="#" target="_blank" rel="noopener noreferrer" class="cta-button">Visit Website</a>
-                <button id="back-to-project-btn" class="cta-button secondary">Back</button>
+                <button id="back-to-project-btn" class="cta-button secondary">Back to Projects</button>
             </div>
         </div>
     </div>
