@@ -902,6 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (hoveredParentObj.mesh.name === 'About') {
                     clearActiveLabels();
+                    playShiftSound();
                     currentView = 'about';
                     announce("Opened About section.");
                     hoveredParentObj.visual.visible = false;
@@ -913,6 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }});
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
                     clearActiveLabels();
+                    playShiftSound();
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     announce("Entering " + hoveredParentObj.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
@@ -940,11 +942,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentView === 'skills') {
                 if (hoveredParentObj) {
                     clearActiveLabels();
+                    playClickSound();
                     showSkillsDetail(hoveredParentObj);
                 }
             } else if (currentView === 'projects') {
                 if (hoveredParentObj) {
                     clearActiveLabels();
+                    playClickSound();
                     showProjectDetail(hoveredParentObj);
                 }
             }
@@ -952,6 +956,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     backButton.addEventListener('click', () => {
+        playBackSound();
         const targetView = currentView;
 
         aboutPanel.classList.remove('visible');
@@ -1090,18 +1095,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function clearActiveLabels() {
-        const labels = getActiveLabels();
-        labels.forEach(item => {
-            if (item.label) {
-                item.label.classList.add('hidden');
-                item.label.style.opacity = 0;
-            }
-            if (item.lineElement) {
-                item.lineElement.style.display = 'none';
-                item.lineElement.style.strokeDashoffset = '100';
-            }
-            item.isAnimatingOut = false;
+        // Force hide ALL labels and lines directly via DOM to ensure nothing sticks
+        const allLabels = document.querySelectorAll('.label');
+        allLabels.forEach(l => {
+            l.classList.add('hidden');
+            l.style.opacity = 0;
+            gsap.killTweensOf(l);
         });
+
+        const allLines = document.querySelectorAll('.label-connector');
+        allLines.forEach(line => {
+            line.style.display = 'none';
+            line.style.strokeDashoffset = '100';
+            gsap.killTweensOf(line);
+            gsap.killTweensOf(line.style);
+        });
+
+        // Reset flags on all potential objects to prevent logic desync
+        const allObjects = [...nodeObjects, ...skillsPlanets, ...projectLogos, ...cachedPlanetLabels];
+        allObjects.forEach(obj => { obj.isAnimatingOut = false; });
     }
 
     function animate() {
