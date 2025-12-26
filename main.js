@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_BLOOM_STRENGTH = 0.35;
     let particles = null;
     let hoverSound = null;
+    let backSound = null, clickSound = null, shiftSound = null, visitSound = null;
 
     const labelsContainer = document.getElementById('labels-container');
     const labelLinesSvg = document.getElementById('label-lines');
@@ -377,21 +378,34 @@ document.addEventListener('DOMContentLoaded', () => {
         hoverSound = new THREE.Audio(listener);
         const audioLoader = new THREE.AudioLoader();
         
-        // FIXED: Resolved merge conflict - using mp3
-        audioLoader.load('assets/sounds/hover.mp3', function(buffer) {
-            hoverSound.setBuffer(buffer);
-            hoverSound.setVolume(0.5);
-        }, undefined, function(err) {
-            console.warn('Hover sound not found, skipping audio.', err);
-        });
+        const loadSound = (file, soundObj, volume = 0.5) => {
+            audioLoader.load(file, function(buffer) {
+                soundObj.setBuffer(buffer);
+                soundObj.setVolume(volume);
+            }, undefined, function(err) {
+                console.warn(`Sound ${file} not found.`, err);
+            });
+        };
+
+        loadSound('assets/sounds/hover.wav', hoverSound);
+        loadSound('assets/sounds/back-button-click.wav', backSound);
+        loadSound('assets/sounds/portfolio-link-click.wav', clickSound);
+        loadSound('assets/sounds/shift-nodes.wav', shiftSound);
+        loadSound('assets/sounds/visit-website-button-click.mp3', visitSound);
     }
 
-    function playHoverSound() {
-        if (hoverSound && hoverSound.buffer && !hoverSound.isPlaying) {
-             hoverSound.stop(); // Stop previous if any
-             hoverSound.play();
+    function playSound(sound) {
+        if (sound && sound.buffer) {
+            if (sound.isPlaying) sound.stop();
+            sound.play();
         }
     }
+
+    function playHoverSound() { playSound(hoverSound); }
+    function playBackSound() { playSound(backSound); }
+    function playClickSound() { playSound(clickSound); }
+    function playShiftSound() { playSound(shiftSound); }
+    function playVisitSound() { playSound(visitSound); }
 
     function createProjectsSystem() {
         const system = new THREE.Group();
@@ -752,7 +766,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
         document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
         document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
-        document.getElementById('project-link').href = project.liveUrl;
+
+        const linkBtn = document.getElementById('project-link');
+        linkBtn.href = project.liveUrl;
+        linkBtn.onclick = () => playVisitSound();
 
         // Reset View State
         projectSolutionContainer.style.display = 'none';
