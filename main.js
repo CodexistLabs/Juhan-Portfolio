@@ -155,12 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let composer, bloomPass;
     const DEFAULT_BLOOM_STRENGTH = 0.35;
     let particles = null;
+    let hoverSound = null;
 
     const labelsContainer = document.getElementById('labels-container');
+    const labelLinesSvg = document.getElementById('label-lines');
     const aboutPanel = document.getElementById('about-panel');
     const projectsPanel = document.getElementById('projects-panel');
     const projectChallengeContainer = document.getElementById('project-challenge-container');
     const projectSolutionContainer = document.getElementById('project-solution-container');
+    const projectOutcomeContainer = document.getElementById('project-outcome-container');
     const skillDetailView = document.getElementById('skill-detail-view');
     const loaderOverlay = document.getElementById('loader-overlay');
     const introOverlay = document.getElementById('star-wars-intro');
@@ -196,20 +199,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('back-to-project-btn').addEventListener('click', () => {
+    document.getElementById('view-outcome-btn').addEventListener('click', () => {
         gsap.to(projectSolutionContainer, {
-            duration: 0.3,
+            duration: 0.5,
             opacity: 0,
-            y: 20,
+            scale: 1.1,
+            filter: 'blur(10px)',
             ease: 'power2.in',
             onComplete: () => {
                 projectSolutionContainer.style.display = 'none';
-                projectChallengeContainer.style.display = 'block';
-                // Reset challenge container state
-                gsap.set(projectChallengeContainer, { opacity: 1, scale: 1, filter: 'blur(0px)' });
-                document.getElementById('view-solution-btn').focus();
+                projectOutcomeContainer.style.display = 'block';
+                gsap.fromTo(projectOutcomeContainer,
+                    { opacity: 0, y: 20 },
+                    { duration: 0.8, opacity: 1, y: 0, ease: 'power3.out' }
+                );
+                const header = document.getElementById('project-outcome-header');
+                if (header) header.focus();
             }
         });
+    });
+
+    document.getElementById('back-to-project-btn').addEventListener('click', () => {
+        backButton.click();
     });
 
     // Loading Manager setup
@@ -359,6 +370,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initialize() {
         createWorld();
+
+        // Initialize Audio
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+        hoverSound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load('assets/sounds/hover.wav', function(buffer) {
+            hoverSound.setBuffer(buffer);
+            hoverSound.setVolume(0.2);
+        }, undefined, function(err) {
+            console.warn('Hover sound not found, skipping audio.', err);
+        });
+    }
+
+    function playHoverSound() {
+        if (hoverSound && hoverSound.buffer && !hoverSound.isPlaying) {
+             hoverSound.stop(); // Stop previous if any
+             hoverSound.play();
+        }
     }
 
     function createProjectsSystem() {
@@ -725,6 +755,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset View State
         projectSolutionContainer.style.display = 'none';
         projectSolutionContainer.style.opacity = 0;
+        projectOutcomeContainer.style.display = 'none';
+        projectOutcomeContainer.style.opacity = 0;
         projectChallengeContainer.style.display = 'block';
         projectChallengeContainer.style.opacity = 1;
         projectChallengeContainer.style.transform = 'scale(1)';
@@ -1103,9 +1135,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
                  if (shouldBeVisible) {
                     const screenPosition = mesh.getWorldPosition(tempVec).project(camera);
-                    const x = (screenPosition.x + 1) * window.innerWidth / 2;
-                    const y = (-screenPosition.y + 1) * window.innerHeight / 2;
-                    label.style.transform = `translate(-50%, 150%) translate(${x}px, ${y}px)`;
+                    const sx = (screenPosition.x + 1) * window.innerWidth / 2;
+                    const sy = (-screenPosition.y + 1) * window.innerHeight / 2;
+
+                    // Futuristic Line Logic
+                    const offsetX = 60;
+                    const offsetY = -60;
+                    const elbowOffset = 20;
+
+                    const labelX = sx + offsetX;
+                    const labelY = sy + offsetY;
+
+                    // Update Label Position
+                    label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
+
+                    // Create Line if needed
+                    if (!item.lineElement) {
+                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        path.classList.add('label-connector');
+                        labelLinesSvg.appendChild(path);
+                        item.lineElement = path;
+                        path.style.strokeDasharray = "100";
+                        path.style.strokeDashoffset = "100";
+                        path.style.display = 'none';
+                    }
+
+                    // Update Line Path
+                    if (item.lineElement) {
+                        const p1 = `${sx},${sy}`;
+                        const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
+                        const p3 = `${labelX},${labelY}`;
+                        item.lineElement.setAttribute('d', `M ${p1} L ${p2} L ${p3}`);
+
+                        // If coming from hidden state
+                        if (item.lineElement.style.display === 'none' || item.isAnimatingOut) {
+                            item.isAnimatingOut = false;
+                            item.lineElement.style.display = 'block';
+                            gsap.killTweensOf(item.lineElement.style);
+                            gsap.killTweensOf(label);
+                            gsap.to(item.lineElement.style, { strokeDashoffset: 0, duration: 0.4, ease: "power2.out" });
+                            gsap.to(label, { opacity: 1, duration: 0.4, delay: 0.2 });
+                        }
+                    }
+
+                 } else {
+                     // Hide line and label with animation
+                     if (item.lineElement && item.lineElement.style.display !== 'none') {
+                         if (!gsap.isTweening(item.lineElement.style) && item.lineElement.style.strokeDashoffset === '0') {
+                             gsap.to(label, { opacity: 0, duration: 0.2 });
+                             gsap.to(item.lineElement.style, {
+                                 strokeDashoffset: 100,
+                                 duration: 0.3,
+                                 ease: "power2.in",
+                                 onComplete: () => {
+                                     item.lineElement.style.display = 'none';
+                                 }
+                             });
+                         } else if (item.lineElement.style.strokeDashoffset === '0') {
+                             // Force hide if stuck
+                             // item.lineElement.style.display = 'none';
+                         }
+                     }
                  }
             });
 
@@ -1155,6 +1245,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 hoveredParentObj = newHoveredParentObj;
 
                 if (hoveredParentObj) {
+                    playHoverSound(); // Trigger Sound
+
                     const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
                     const baseScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
                      if ( visual &&
