@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_BLOOM_STRENGTH = 0.35;
     let particles = null;
     let hoverSound = null;
+    let backSound = null, clickSound = null, shiftSound = null, visitSound = null;
 
     const labelsContainer = document.getElementById('labels-container');
     const labelLinesSvg = document.getElementById('label-lines');
@@ -374,24 +375,43 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize Audio
         const listener = new THREE.AudioListener();
         camera.add(listener);
+
         hoverSound = new THREE.Audio(listener);
+        backSound = new THREE.Audio(listener);
+        clickSound = new THREE.Audio(listener);
+        shiftSound = new THREE.Audio(listener);
+        visitSound = new THREE.Audio(listener);
+
         const audioLoader = new THREE.AudioLoader();
         
-        // FIXED: Resolved merge conflict - using mp3
-        audioLoader.load('assets/sounds/hover.mp3', function(buffer) {
-            hoverSound.setBuffer(buffer);
-            hoverSound.setVolume(0.5);
-        }, undefined, function(err) {
-            console.warn('Hover sound not found, skipping audio.', err);
-        });
+        const loadSound = (file, soundObj, volume = 0.5) => {
+            audioLoader.load(file, function(buffer) {
+                soundObj.setBuffer(buffer);
+                soundObj.setVolume(volume);
+            }, undefined, function(err) {
+                console.warn(`Sound ${file} not found.`, err);
+            });
+        };
+
+        loadSound('assets/sounds/hover.wav', hoverSound);
+        loadSound('assets/sounds/back-button-click.wav', backSound);
+        loadSound('assets/sounds/portfolio-link-click.wav', clickSound);
+        loadSound('assets/sounds/shift-nodes.wav', shiftSound);
+        loadSound('assets/sounds/visit-website-button-click.mp3', visitSound);
     }
 
-    function playHoverSound() {
-        if (hoverSound && hoverSound.buffer && !hoverSound.isPlaying) {
-             hoverSound.stop(); // Stop previous if any
-             hoverSound.play();
+    function playSound(sound) {
+        if (sound && sound.buffer) {
+            if (sound.isPlaying) sound.stop();
+            sound.play();
         }
     }
+
+    function playHoverSound() { playSound(hoverSound); }
+    function playBackSound() { playSound(backSound); }
+    function playClickSound() { playSound(clickSound); }
+    function playShiftSound() { playSound(shiftSound); }
+    function playVisitSound() { playSound(visitSound); }
 
     function createProjectsSystem() {
         const system = new THREE.Group();
@@ -752,7 +772,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
         document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
         document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
-        document.getElementById('project-link').href = project.liveUrl;
+
+        const linkBtn = document.getElementById('project-link');
+        linkBtn.href = project.liveUrl;
+        linkBtn.onclick = () => playVisitSound();
 
         // Reset View State
         projectSolutionContainer.style.display = 'none';
@@ -878,6 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (hoveredParentObj.mesh.name === 'About') {
+                    clearActiveLabels();
                     currentView = 'about';
                     announce("Opened About section.");
                     hoveredParentObj.visual.visible = false;
@@ -888,6 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         backButton.classList.add('visible');
                     }});
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
+                    clearActiveLabels();
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     announce("Entering " + hoveredParentObj.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
@@ -913,9 +938,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }});
                 }
             } else if (currentView === 'skills') {
-                if (hoveredParentObj) showSkillsDetail(hoveredParentObj);
+                if (hoveredParentObj) {
+                    clearActiveLabels();
+                    showSkillsDetail(hoveredParentObj);
+                }
             } else if (currentView === 'projects') {
-                if (hoveredParentObj) showProjectDetail(hoveredParentObj);
+                if (hoveredParentObj) {
+                    clearActiveLabels();
+                    showProjectDetail(hoveredParentObj);
+                }
             }
         }
     });
@@ -929,6 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (targetView === 'planet') {
             announce("Returning to Skills overview");
+            clearActiveLabels();
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
 
@@ -980,6 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else if (targetView === 'project') {
             announce("Returning to Projects overview");
+            clearActiveLabels();
             shouldRotateProject = false;
             activeProject = null;
 
@@ -992,6 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
              announce("Returning to main view");
+             clearActiveLabels();
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;
              projectsSystemGroup.visible = false;
@@ -1044,6 +1078,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Throttling frame counter
     let frameCount = 0;
+
+    const getActiveLabels = () => {
+        switch(currentView) {
+            case 'main': return nodeObjects;
+            case 'skills': return skillsPlanets;
+            case 'projects': return projectLogos;
+            case 'planet': return cachedPlanetLabels;
+            default: return [];
+        }
+    };
+
+    function clearActiveLabels() {
+        const labels = getActiveLabels();
+        labels.forEach(item => {
+            if (item.label) {
+                item.label.classList.add('hidden');
+                item.label.style.opacity = 0;
+            }
+            if (item.lineElement) {
+                item.lineElement.style.display = 'none';
+                item.lineElement.style.strokeDashoffset = '100';
+            }
+            item.isAnimatingOut = false;
+        });
+    }
 
     function animate() {
         requestAnimationFrame(animate);
@@ -1107,15 +1166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.update();
 
         if (appReady) {
-            const getActiveLabels = () => {
-                switch(currentView) {
-                    case 'main': return nodeObjects;
-                    case 'skills': return skillsPlanets;
-                    case 'projects': return projectLogos;
-                    case 'planet': return cachedPlanetLabels;
-                    default: return [];
-                }
-            };
             
             // Render Labels and Lines (Run every frame for smooth following)
             getActiveLabels().forEach(item => {
