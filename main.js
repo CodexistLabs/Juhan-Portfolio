@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             challenge: "Adora Jewels needed a brand-new e-commerce platform built from the ground up to serve two distinct markets: general public shoppers and wholesale retailers. Beyond standard sales, the business required a seamless way to bridge the gap between product sales and their service-based sister company, Modified Monkey. They also needed a simplified way for staff to manage inventory and track performance without navigating the technical complexities of the WordPress backend.",
             solution: "I developed a custom WordPress site using Bricks Builder to ensure high performance. The core innovation lies in the custom-coded solutions:<br><br><strong>Frontend Stock Management:</strong> I built a secure dashboard allowing Shop Managers to add, edit, and delete products entirely from the frontend. It includes real-time analytics on site visits, product performance, and sales data.<br><br><strong>Unified Booking Engine:</strong> I engineered a custom booking system that syncs a single database between Adora Jewels and Modified Monkey. This manages real-time slot availability and syncs directly to the user's personal calendar.<br><br><strong>Smart Cross-Promotion:</strong> I implemented logic where spending a specific threshold on Adora unlocks discounted bookings at the piercing studio, while paid bookings on Modified Monkey trigger exclusive jewellery discounts on Adora.",
             outcome: "The result is a powerful, interconnected digital ecosystem. The custom frontend tools reduced administrative training time and streamlined daily operations. The cross-site integration successfully drives revenue for both businesses, creating an automated sales loop that converts jewellery buyers into piercing clients and vice versa. Adora Jewels now operates efficiently for both B2B and B2C markets on a single, fast platform.",
-            imageUrl: "assets/thelionsraw.png", // Keeping placeholder image path as none was provided, but logic updated
+            imageUrl: "assets/thelionsraw.png", // Duplicate placeholder image
             liveUrl: 'https://adorajewels.co.za',
             modelUrl: 'assets/3dmodels/aj/aj.gltf'
         }
@@ -376,6 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
         camera.add(listener);
         hoverSound = new THREE.Audio(listener);
         const audioLoader = new THREE.AudioLoader();
+        
+        // FIXED: Resolved merge conflict - using mp3
         audioLoader.load('assets/sounds/hover.mp3', function(buffer) {
             hoverSound.setBuffer(buffer);
             hoverSound.setVolume(0.5);
@@ -772,11 +774,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!activePlanet.moonsGroup) {
-            // Check if moon model is loaded. If not, maybe use a placeholder or wait?
-            // Since we implemented fallback and error handling, let's just log if still missing.
-            // But importantly, DO NOT RETURN early if it means getting stuck.
-            // If moonModel is null, we should probably just not add moons, but still move camera.
-
             if (moonModel) {
                 const moonsGroup = new THREE.Group();
                 const skills = SKILLS_DATA[activePlanet.mesh.name].skills;
@@ -1045,8 +1042,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Throttling frame counter
+    let frameCount = 0;
+
     function animate() {
         requestAnimationFrame(animate);
+        
+        frameCount++;
         const delta = clock.getDelta();
         const elapsedTime = clock.getElapsedTime();
         const isMainView = currentView === 'main';
@@ -1114,13 +1116,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     default: return [];
                 }
             };
+            
+            // Render Labels and Lines (Run every frame for smooth following)
             getActiveLabels().forEach(item => {
                 const mesh = isMainView ? item.mesh : (item.mesh || item);
                 const label = item.label;
                  const isHovered = item === hoveredParentObj;
                  const isStaticLabel = (currentView === 'planet' && (item === activePlanet || (item.mesh && item.mesh.parent === activePlanet.moonsGroup)));
                  const shouldBeVisible = isStaticLabel || isHovered;
-
 
                  if (!mesh || !mesh.visible || mesh.scale.x === 0 || !label) {
                     if (label) label.classList.add('hidden');
@@ -1146,111 +1149,166 @@ document.addEventListener('DOMContentLoaded', () => {
                     const labelX = sx + offsetX;
                     const labelY = sy + offsetY;
 
-                    // Update Label Position (Adjust for label size to align nicely)
-                    // We remove the old hardcoded translate(-50%, 150%) in CSS, so we position absolutely here.
-                    // Let's center the label vertically on the line end, and place it to the right.
-                    label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`; // -10 to center roughly
+                    // --- MERGED & FIXED LABEL LOGIC ---
 
-                    // Draw Line
+                    // 1. Update Label Position
+                    // We offset Y by -10 to center the text vertically relative to the line end
+                    label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
+
+                    // 2. Create Line if needed
                     if (!item.lineElement) {
                         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                         path.classList.add('label-connector');
                         labelLinesSvg.appendChild(path);
                         item.lineElement = path;
-
-                        // Initial Animate In
+                        
+                        // Setup initial dash state for "drawing" animation
                         path.style.strokeDasharray = "100";
                         path.style.strokeDashoffset = "100";
-                        gsap.to(path.style, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" });
-                        gsap.fromTo(label, { opacity: 0 }, { opacity: 1, duration: 0.5, delay: 0.2 });
+                        path.style.display = 'none';
                     }
 
+                    // 3. Update Line Path Geometry
                     if (item.lineElement) {
-                        item.lineElement.style.display = 'block';
-                        // Path: Start -> Elbow -> End
+                        // Calculate Elbow Path: Start(Object) -> Elbow -> End(Label)
                         const p1 = `${sx},${sy}`;
                         const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
                         const p3 = `${labelX},${labelY}`;
                         item.lineElement.setAttribute('d', `M ${p1} L ${p2} L ${p3}`);
+
+                        // 4. Handle Animation IN (Show)
+                        // Checks if currently hidden OR if it was in the process of animating out
+                        if (item.lineElement.style.display === 'none' || item.isAnimatingOut) {
+                            item.isAnimatingOut = false;
+                            item.lineElement.style.display = 'block';
+                            
+                            // Kill existing tweens to prevent conflict if user hovers quickly
+                            gsap.killTweensOf(item.lineElement.style);
+                            gsap.killTweensOf(label);
+
+                            // Animate Line Draw
+                            gsap.to(item.lineElement.style, { 
+                                strokeDashoffset: 0, 
+                                duration: 0.4, 
+                                ease: "power2.out" 
+                            });
+                            
+                            // Fade in Label slightly after line starts
+                            gsap.to(label, { 
+                                opacity: 1, 
+                                duration: 0.4, 
+                                delay: 0.2 
+                            });
+                        }
                     }
 
-                 } else {
-                     // Hide line if label is hidden
-                     if (item.lineElement) {
-                         item.lineElement.style.display = 'none';
-                     }
-                 }
+                } else {
+                    // --- Handle Animation OUT (Hide) ---
+                    
+                    if (item.lineElement && item.lineElement.style.display !== 'none') {
+                        // Only animate out if we aren't already doing so
+                        if (!item.isAnimatingOut) {
+                            item.isAnimatingOut = true;
+
+                            // Fade out Label
+                            gsap.to(label, { opacity: 0, duration: 0.2 });
+
+                            // "Un-draw" the line
+                            gsap.to(item.lineElement.style, {
+                                strokeDashoffset: 100,
+                                duration: 0.3,
+                                ease: "power2.in",
+                                onComplete: () => {
+                                    // Only hide if we are still supposed to be hidden
+                                    // (Prevents hiding if user re-hovered during animation)
+                                    if (item.isAnimatingOut) {
+                                        item.lineElement.style.display = 'none';
+                                        item.isAnimatingOut = false; 
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
             });
 
-            raycaster.setFromCamera(mouse, camera);
+            // OPTIMIZED RAYCASTING: Only run every 3rd frame
+            if (frameCount % 3 === 0) {
+                raycaster.setFromCamera(mouse, camera);
 
-            let objectsToTest = [];
-            if (isMainView) {
-                objectsToTest = mainNodeMeshes;
-            } else if (currentView === 'skills') {
-                objectsToTest = skillMeshes;
-            } else if (currentView === 'projects') {
-                objectsToTest = projectMeshes;
-            } else if (currentView === 'planet') {
-                objectsToTest = cachedPlanetMeshes;
-            }
-
-            const intersects = raycaster.intersectObjects(objectsToTest, true);
-            let newHoveredParentObj = null;
-
-            if (intersects.length > 0) {
-                let intersectRoot = intersects[0].object;
-                 while (intersectRoot.parent && !intersectRoot.userData.parentObj && intersectRoot.parent.type !== 'Scene' && !nodeObjects.some(o => o.mesh === intersectRoot)) {
-                    intersectRoot = intersectRoot.parent;
-                 }
-                newHoveredParentObj = intersectRoot.userData.parentObj || nodeObjects.find(o => o.mesh === intersectRoot);
-
-            }
-
-            if (hoveredParentObj !== newHoveredParentObj) {
-                if (hoveredParentObj) {
-                    const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
-                    const originalScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
-                     if ( visual &&
-                         !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
-                         !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
-                        ) {
-                     }
-                    if (visual) setGlow(visual, false);
-                    if (isMainView) restoreNonHovered();
-
-
-                    if (hoveredParentObj.orbitRing) {
-                        hoveredParentObj.orbitRing.visible = false;
-                    }
+                let objectsToTest = [];
+                if (isMainView) {
+                    objectsToTest = mainNodeMeshes;
+                } else if (currentView === 'skills') {
+                    objectsToTest = skillMeshes;
+                } else if (currentView === 'projects') {
+                    objectsToTest = projectMeshes;
+                } else if (currentView === 'planet') {
+                    objectsToTest = cachedPlanetMeshes;
                 }
 
-                hoveredParentObj = newHoveredParentObj;
+                const intersects = raycaster.intersectObjects(objectsToTest, true);
+                let newHoveredParentObj = null;
 
-                if (hoveredParentObj) {
-                    playHoverSound(); // Trigger Sound
-
-                    const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
-                    const baseScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
-                     if ( visual &&
-                         !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
-                         !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
-                        ) {
-                         gsap.to(visual.scale, { duration: 0.3, x: baseScale.x * 1.2, y: baseScale.y * 1.2, z: baseScale.z * 1.2 });
+                if (intersects.length > 0) {
+                    let intersectRoot = intersects[0].object;
+                     while (intersectRoot.parent && !intersectRoot.userData.parentObj && intersectRoot.parent.type !== 'Scene' && !nodeObjects.some(o => o.mesh === intersectRoot)) {
+                        intersectRoot = intersectRoot.parent;
                      }
-                    if (visual) setGlow(visual, true);
-                    if (isMainView) dimNonHovered(hoveredParentObj.mesh);
-
-                    if (hoveredParentObj.orbitRing) {
-                        hoveredParentObj.orbitRing.visible = true;
-                    }
+                    newHoveredParentObj = intersectRoot.userData.parentObj || nodeObjects.find(o => o.mesh === intersectRoot);
                 }
 
-                 if (hoveredParentObj && isMainView && hoveredParentObj.visual) {
-                     if (bloomPass) gsap.to(bloomPass, { duration: 0.25, strength: HOVER_BLOOM_STRENGTH });
-                 } else {
-                     if (bloomPass) gsap.to(bloomPass, { duration: 0.25, strength: DEFAULT_BLOOM_STRENGTH });
-                 }
+                if (hoveredParentObj !== newHoveredParentObj) {
+                    // Clean up old hover
+                    if (hoveredParentObj) {
+                        const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
+                        const originalScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
+                        
+                        if (visual) setGlow(visual, false);
+                        if (isMainView) restoreNonHovered();
+
+                        if (hoveredParentObj.orbitRing) {
+                            hoveredParentObj.orbitRing.visible = false;
+                        }
+                        
+                        // Animate Scale Back (handled here so it doesn't run every frame)
+                        if (visual &&
+                            !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
+                            !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
+                        ) {
+                             gsap.to(visual.scale, { duration: 0.3, x: originalScale.x, y: originalScale.y, z: originalScale.z });
+                        }
+                    }
+
+                    hoveredParentObj = newHoveredParentObj;
+
+                    // Setup new hover
+                    if (hoveredParentObj) {
+                        playHoverSound();
+
+                        const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
+                        const baseScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
+                         
+                        if (visual &&
+                             !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
+                             !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
+                           ) {
+                            gsap.to(visual.scale, { duration: 0.3, x: baseScale.x * 1.2, y: baseScale.y * 1.2, z: baseScale.z * 1.2 });
+                         }
+                        if (visual) setGlow(visual, true);
+                        if (isMainView) dimNonHovered(hoveredParentObj.mesh);
+
+                        if (hoveredParentObj.orbitRing) {
+                            hoveredParentObj.orbitRing.visible = true;
+                        }
+                    }
+
+                     if (hoveredParentObj && isMainView && hoveredParentObj.visual) {
+                         if (bloomPass) gsap.to(bloomPass, { duration: 0.25, strength: HOVER_BLOOM_STRENGTH });
+                     } else {
+                         if (bloomPass) gsap.to(bloomPass, { duration: 0.25, strength: DEFAULT_BLOOM_STRENGTH });
+                     }
+                }
             }
         }
 
