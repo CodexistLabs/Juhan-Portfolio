@@ -9,6 +9,10 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Bolt: Cache window dimensions to avoid layout thrashing in the render loop
+    let windowHalfX = window.innerWidth / 2;
+    let windowHalfY = window.innerHeight / 2;
+
     function sanitizeHTML(str) {
         const temp = document.createElement('div');
         temp.innerHTML = str;
@@ -297,7 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
         nodeObjects.forEach(item => {
             if (item.mesh === targetMesh) return;
             if (item.visual) {
-                const materials = collectMaterials(item.visual);
+                // Bolt: Use cached materials to avoid scene graph traversal
+                const materials = item.cachedMaterials || collectMaterials(item.visual);
                 materials.forEach(mat => {
                     if (mat.color && !mat.userData.originalColor) {
                          mat.userData.originalColor = mat.color.clone();
@@ -311,7 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function restoreNonHovered() {
         nodeObjects.forEach(item => {
              if (item.visual) {
-                const materials = collectMaterials(item.visual);
+                // Bolt: Use cached materials to avoid scene graph traversal
+                const materials = item.cachedMaterials || collectMaterials(item.visual);
                 materials.forEach(mat => {
                     if (mat.color && mat.userData.originalColor) {
                         mat.color.copy(mat.userData.originalColor);
@@ -676,6 +682,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 nodeObj.visual = modelVisual;
+                // Bolt: Cache materials immediately after load
+                nodeObj.cachedMaterials = collectMaterials(modelVisual);
                 hitbox.userData.visuals = modelVisual;
 
             }, undefined, (error) => {
@@ -1049,6 +1057,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('resize', () => {
+        windowHalfX = window.innerWidth / 2;
+        windowHalfY = window.innerHeight / 2;
+
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1155,8 +1166,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                  if (shouldBeVisible) {
                     const screenPosition = mesh.getWorldPosition(tempVec).project(camera);
-                    const sx = (screenPosition.x + 1) * window.innerWidth / 2;
-                    const sy = (-screenPosition.y + 1) * window.innerHeight / 2;
+                    const sx = (screenPosition.x + 1) * windowHalfX;
+                    const sy = (-screenPosition.y + 1) * windowHalfY;
 
                     // Futuristic Line Logic
                     const offsetX = 60;
