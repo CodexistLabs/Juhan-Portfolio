@@ -172,7 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillDetailView = document.getElementById('skill-detail-view');
     const loaderOverlay = document.getElementById('loader-overlay');
     const introOverlay = document.getElementById('star-wars-intro');
-    const introCrawl = document.querySelector('.star-wars-overlay .crawl');
+    const introCrawl = document.querySelector('.crawl-content');
+    const skipBtn = document.getElementById('skip-btn');
+    const hyperspaceOverlay = document.getElementById('hyperspace-overlay');
+    const hyperspaceStars = document.querySelector('.hyperspace-stars');
     const backButton = document.getElementById('back-button');
     const announcer = document.getElementById('a11y-announcer');
 
@@ -238,26 +241,142 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const rgbeLoader = new RGBELoader(loadingManager);
 
-    loadingManager.onLoad = () => {
-        if (loaderOverlay) {
-            document.body.setAttribute('aria-busy', 'false');
-            announce("Loading complete. Entering 3D experience.");
-            loaderOverlay.classList.add('collapsing');
-            loaderOverlay.addEventListener('transitionend', () => {
-                loaderOverlay.style.display = 'none';
-                renderer.domElement.classList.add('visible');
-                if (introOverlay) {
-                    introOverlay.classList.add('visible');
-                    if (introCrawl) introCrawl.classList.add('crawl-active');
-                    introOverlay.addEventListener('animationend', finishIntro);
-                    introOverlay.addEventListener('click', finishIntro);
-                }
-                window.addEventListener('keydown', (e) => {
-                    if (['Escape', ' ', 'Enter'].includes(e.key)) finishIntro();
-                });
-            }, { once: true });
+    // --- UPDATED LOADING & INTRO LOGIC ---
+    let realLoadingFinished = false;
+    let timeLoadingFinished = false;
+    let introSkipped = false;
+
+    const progressBar = document.getElementById('progress-bar');
+    const percentText = document.getElementById('percentage-text');
+    const statusText = document.getElementById('loading-text');
+
+    const updates = [
+        "Spinning up the hyperdrive generator...",
+        "Calibrating R2 units...",
+        "Locking S-foils in attack position...",
+        "Calculating jump to lightspeed...",
+        "Deflector shields powering up...",
+        "Refueling the Millennium Falcon...",
+        "Removing sand from the server (it gets everywhere)...",
+        "Convincing the Wookiee to let you win...",
+        "Searching for the droids you are looking for...",
+        "Waiting for the Council to grant me the rank of Master...",
+        "Trying to hit the exhaust port (it's only 2 meters wide)...",
+        "Hiding the plans in an R2 unit...",
+        "Witnessing the firepower of this fully armed and operational portfolio...",
+        "Alterting the deal (pray I don't alter it further)...",
+        "Constructing the Death Star...",
+        "Reviewing troops on the landing deck..."
+    ];
+
+    // Start Timer for Min 30s
+    let progress = 0;
+    const totalMinTime = 30000; // 30s
+    const tickInterval = 100;
+    const ticks = totalMinTime / tickInterval;
+    const incrementPerTick = 100 / ticks;
+
+    const timerInterval = setInterval(() => {
+        progress += incrementPerTick;
+
+        // If we are artificially waiting, cap at 99%
+        if (progress > 99 && !realLoadingFinished) {
+            progress = 99;
+        } else if (progress >= 100 && realLoadingFinished) {
+            progress = 100;
+            clearInterval(timerInterval);
+            finishLoader();
         }
+
+        if (progressBar) progressBar.style.width = `${progress}%`;
+        if (percentText) percentText.innerText = `${Math.floor(progress)}%`;
+
+        // Update text randomly occasionally
+        if (Math.floor(progress) % 5 === 0 && progress < 99) {
+             const randomText = updates[Math.floor(Math.random() * updates.length)];
+             if(statusText) statusText.innerText = randomText;
+        }
+
+    }, tickInterval);
+
+
+    loadingManager.onLoad = () => {
+        console.log("Assets Loaded.");
+        realLoadingFinished = true;
     };
+
+    function finishLoader() {
+        // Snap-hiss sound if available, otherwise just proceed
+        // Using shiftSound as placeholder if user didn't provide specific one, or just visual.
+        // The user mentioned "distinct snap-hiss sound" but didn't provide file.
+        // We will just do the visual sequence.
+
+        if (statusText) statusText.innerText = "Hyperdrive Ready.";
+
+        setTimeout(() => {
+            if (loaderOverlay) {
+                document.body.setAttribute('aria-busy', 'false');
+                loaderOverlay.classList.add('collapsing');
+
+                loaderOverlay.addEventListener('transitionend', () => {
+                    loaderOverlay.style.display = 'none';
+                    // Launch Intro
+                    launchIntro();
+                }, { once: true });
+            }
+        }, 500);
+    }
+
+    function launchIntro() {
+        if (introOverlay) {
+            introOverlay.classList.add('visible');
+            if (introCrawl) {
+                 introCrawl.classList.add('animate-crawl');
+                 // Show Skip Button delayed
+                 setTimeout(() => {
+                    if(skipBtn) skipBtn.style.opacity = '1';
+                 }, 3000);
+
+                 // Auto-enter if animation finishes without skip
+                 introCrawl.addEventListener('animationend', () => {
+                    if(!introSkipped) enterMainSite();
+                 });
+            }
+        }
+    }
+
+    function enterMainSite() {
+        if(introSkipped) return;
+        introSkipped = true;
+
+        // 1. Reveal Hyperspace Overlay
+        if (hyperspaceOverlay) {
+            hyperspaceOverlay.style.display = 'flex'; // Ensure flex
+            // Force reflow
+            void hyperspaceOverlay.offsetWidth;
+            hyperspaceOverlay.style.opacity = '1';
+        }
+
+        // 2. Trigger CSS Animation
+        if (hyperspaceStars) hyperspaceStars.classList.add('engage-hyperdrive');
+
+        // 3. Wait for animation peak (approx 1.2s), then swap to real site
+        setTimeout(() => {
+            // Hide Intro & Hyperspace
+            if(introOverlay) introOverlay.style.display = 'none';
+            if(hyperspaceOverlay) hyperspaceOverlay.style.display = 'none';
+
+            // Show Real Site
+            finishIntro();
+        }, 1200);
+    }
+
+    if (skipBtn) {
+        skipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            enterMainSite();
+        });
+    }
 
     function initPostprocessing() {
         composer = new EffectComposer(renderer);
@@ -329,6 +448,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function forceHideAllLabels() {
+        const allCollections = [nodeObjects, skillsPlanets, projectLogos, cachedPlanetLabels];
+
+        allCollections.forEach(collection => {
+            if (!collection) return;
+            collection.forEach(item => {
+                // Handle DOM Label
+                if (item.label && !item.label.classList.contains('hidden')) {
+                    item.label.classList.add('hidden');
+                    item.label.style.opacity = '0';
+                }
+
+                // Handle SVG Line
+                if (item.lineElement) {
+                     item.lineElement.style.display = 'none';
+                     item.lineElement.style.strokeDashoffset = '100'; // Reset animation
+                     item.isAnimatingOut = false; // Reset state
+                }
+
+                // Handle Moons if this is a planet with moons (Extra safety)
+                if (item.moonsGroup) {
+                    item.moonsGroup.children.forEach(moon => {
+                        const moonObj = moon.userData.parentObj;
+                        if (moonObj) {
+                            if (moonObj.label) {
+                                moonObj.label.classList.add('hidden');
+                                moonObj.label.style.opacity = '0';
+                            }
+                            if (moonObj.lineElement) {
+                                moonObj.lineElement.style.display = 'none';
+                                moonObj.lineElement.style.strokeDashoffset = '100';
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    }
+
     const nodes = [ { name: 'About', position: new THREE.Vector3(0, 4, 0) }, { name: 'Projects', position: new THREE.Vector3(-5, -3, 0) }, { name: 'Skills', position: new THREE.Vector3(5, -3, 0) } ];
     const nodeObjects = [];
     let appReady = false;
@@ -395,6 +553,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn(`Sound ${file} not found.`, err);
             });
         };
+
+        backSound = new THREE.Audio(listener);
+        clickSound = new THREE.Audio(listener);
+        shiftSound = new THREE.Audio(listener);
+        visitSound = new THREE.Audio(listener);
 
         loadSound('assets/sounds/hover.wav', hoverSound);
         loadSound('assets/sounds/back-button-click.wav', backSound);
@@ -747,6 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showProjectDetail(projectObj) {
+        forceHideAllLabels();
         currentView = 'project';
         activeProject = projectObj;
         shouldRotateProject = true;
@@ -794,6 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showSkillsDetail(planetObj) {
+        forceHideAllLabels();
         currentView = 'planet';
         activePlanet = planetObj;
 
@@ -906,6 +1071,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (hoveredParentObj.mesh.name === 'About') {
+                    forceHideAllLabels();
                     currentView = 'about';
                     announce("Opened About section.");
                     hoveredParentObj.visual.visible = false;
@@ -916,6 +1082,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         backButton.classList.add('visible');
                     }});
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
+                    forceHideAllLabels();
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     announce("Entering " + hoveredParentObj.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
@@ -956,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         skillDetailView.classList.remove('visible');
 
         if (targetView === 'planet') {
+            forceHideAllLabels();
             announce("Returning to Skills overview");
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
@@ -1007,6 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else if (targetView === 'project') {
+            forceHideAllLabels();
             announce("Returning to Projects overview");
             shouldRotateProject = false;
             activeProject = null;
@@ -1019,6 +1188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentView = 'projects';
 
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
+             forceHideAllLabels();
              announce("Returning to main view");
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;

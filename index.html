@@ -58,9 +58,47 @@
 </head>
 <body aria-busy="true">
     <div id="loader-overlay" class="loader-overlay" role="alert" aria-live="assertive">
-        <div class="loader"><div class="cube-scene"><div class="cube" aria-hidden="true"><div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div></div><div class="orbit" aria-hidden="true"><div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div></div></div><div class="loader-text">Loading the Miniverse...</div><div class="loader-sub">Hang tight — assembling tiny worlds ✨</div></div>
+        <div class="loader-content">
+            <div class="loader">
+                <div class="cube-scene">
+                    <div class="cube" aria-hidden="true">
+                        <div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div>
+                    </div>
+                    <div class="orbit" aria-hidden="true">
+                        <div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lightsaber-container">
+                <div class="hilt">
+                    <div class="switch"></div>
+                </div>
+                <div class="plasma-blade" id="progress-bar"></div>
+            </div>
+            <p id="loading-text">Initializing hyperdrive...</p>
+            <div class="percentage" id="percentage-text">0%</div>
+        </div>
     </div>
-    <div id="star-wars-intro" class="star-wars-overlay"><div class="crawl"><p>Greetings. You have entered the digital coordinates of Juhan. Here, code meets creativity in a universe of infinite possibilities. Prepare to explore a galaxy of projects, skills, and digital experiences.</p></div></div>
+
+    <div id="star-wars-intro" class="star-wars-overlay">
+        <div class="crawl-container">
+            <div class="crawl-content">
+                <div class="title">
+                    <p>Episode 2026</p>
+                    <h1>A New Candidate</h1>
+                </div>
+                <p>It is a period of digital expansion. Across the galaxy, hiring managers and clients scour the internet in search of a developer who can bring balance to the codebase.</p>
+                <p>Striking from a hidden base in Randburg, South Africa - Juhan has emerged as a powerful ally. Armed with the ancient arts of clean syntax and modern frameworks, they prepare to showcase a portfolio of galactic proportions.</p>
+                <p>Pursued by deadlines and scope creep, he races to deliver high-performance solutions. Now, you must navigate this portfolio to discover the skills that will save your next project and restore peace to the deployment pipeline....</p>
+            </div>
+        </div>
+        <button id="skip-btn">SKIP INTRO >></button>
+    </div>
+
+    <div id="hyperspace-overlay">
+        <div class="hyperspace-stars"></div>
+    </div>
     <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <div id="labels-container"></div>
     <svg id="label-lines" xmlns="http://www.w3.org/2000/svg"></svg>
