@@ -240,6 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadingManager.onLoad = () => {
         if (loaderOverlay) {
+            document.body.setAttribute('aria-busy', 'false');
+            announce("Loading complete. Entering 3D experience.");
             loaderOverlay.classList.add('collapsing');
             loaderOverlay.addEventListener('transitionend', () => {
                 loaderOverlay.style.display = 'none';
@@ -376,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mixers = []; // Store animation mixers
 
     function initialize() {
+        announce("Loading 3D assets, please wait.");
         createWorld();
 
         // Initialize Audio
