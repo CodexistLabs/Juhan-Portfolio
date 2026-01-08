@@ -1008,6 +1008,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
              // Moons already exist, animate appearance
+             activePlanet.moonsGroup.visible = true;
+
+             // Restore visibility of labels and lines
+             activePlanet.moonsGroup.children.forEach(moon => {
+                 if (moon.userData.parentObj) {
+                     if (moon.userData.parentObj.label) {
+                         moon.userData.parentObj.label.classList.remove('hidden');
+                         // Reset opacity for fade-in effect if handled by animate loop,
+                         // but typically the animate loop handles it if not hidden.
+                         // Ensure it's ready for the loop to pick up.
+                     }
+                     if (moon.userData.parentObj.lineElement) {
+                         // Reset line state so it can animate in again
+                         moon.userData.parentObj.lineElement.style.display = 'none'; // Will be set to block by animate loop logic
+                         moon.userData.parentObj.lineElement.style.strokeDashoffset = '100';
+                         moon.userData.parentObj.isAnimatingOut = false;
+                     }
+                 }
+             });
+
              gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
 
@@ -1141,26 +1161,13 @@ document.addEventListener('DOMContentLoaded', () => {
                  groupToDestroy.children.forEach(moon => {
                     if (moon.userData.parentObj && moon.userData.parentObj.label) {
                         moon.userData.parentObj.label.classList.add('hidden');
+                        if (moon.userData.parentObj.lineElement) {
+                             moon.userData.parentObj.lineElement.style.display = 'none';
+                        }
                     }
                 });
                 gsap.to(groupToDestroy.scale, { duration: 0.5, x: 0, y: 0, z: 0, ease: 'power3.in', onComplete: () => {
-                    groupToDestroy.children.forEach(moon => {
-                        if (moon.userData.parentObj) {
-                            // Dispose of the ring
-                            if (moon.userData.parentObj.ring) {
-                                moon.userData.parentObj.ring.geometry.dispose();
-                                moon.userData.parentObj.ring.material.dispose();
-                            }
-                            // Remove label
-                            if (moon.userData.parentObj.label) {
-                                moon.userData.parentObj.label.remove();
-                            }
-                        }
-                    });
-                    if (planetToReset) {
-                        planetToReset.mesh.remove(groupToDestroy);
-                        planetToReset.moonsGroup = null;
-                    }
+                    groupToDestroy.visible = false;
                 }});
             }
 
