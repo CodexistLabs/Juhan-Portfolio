@@ -138,9 +138,9 @@
         </div>
     </div>
     <div id="skill-detail-view"><div id="skill-detail-content"><h2 id="skill-detail-title"></h2><p id="skill-detail-text"></p></div><div id="skill-detail-sidebar"></div></div>
-    <nav id="gallery-navigation" class="gallery-nav"></nav>
+    <nav id="gallery-navigation" class="gallery-nav" aria-label="Gallery"></nav>
 
-    <div class="bottom-left-menu">
+    <nav class="bottom-left-menu" aria-label="Main Navigation">
         <div class="menu-item">
             <button type="button" class="menu-button icon-button" aria-label="Help" aria-expanded="false" aria-controls="help-submenu">
                 <span style="font-family: serif; font-weight: bold; font-size: 24px;" aria-hidden="true">i</span>
@@ -193,10 +193,10 @@
                     <img src="assets/social-icons/linkedin-final.png" alt="">
                      <span class="tooltip">LinkedIn</span>
                 </a>
-                <a href="#" class="submenu-item icon-button" aria-label="Book a Meeting">
+                <button type="button" class="submenu-item icon-button" aria-label="Book a Meeting (Coming Soon)" disabled>
                     <img src="assets/social-icons/booking-final.png" alt="">
-                     <span class="tooltip">Book a Meeting</span>
-                </a>
+                     <span class="tooltip">Book a Meeting (Coming Soon)</span>
+                </button>
             </div>
         </div>
 
@@ -216,7 +216,7 @@
                 </a>
             </div>
         </div>
-    </div>
+    </nav>
 
     <script src="assets/js/menu.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
