@@ -6,12 +6,11 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com blob:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
     <title>Juhan Badenhorst - CV</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     
-    <!-- Libraries for Export -->
-    <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js" integrity="sha384-TtrQp5nveof/QP1+f/OLiEHL3GuOIRyl3IfsGxu5X45VO2vHeT4HRNmQuTR3Ea3w" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha384-PlRSzpewlarQuj5alIadXwjNUX+2eNMKwr0f07ShWYLy8B6TjEbm7ZlcN/ScSbwy" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
@@ -140,7 +139,6 @@
 
     <div class="grid-bg"></div>
 
-    <!-- Floating Action Buttons -->
     <div class="fixed bottom-6 right-6 no-print z-50 flex flex-col gap-3">
         <button onclick="downloadPdf()" class="bg-black border border-[#39ff14] text-[#39ff14] hover:bg-[#39ff14] hover:text-black font-mono font-bold py-3 px-6 shadow-[0_0_15px_rgba(57,255,20,0.3)] transition duration-300 flex items-center justify-center gap-2 uppercase tracking-wider text-sm w-48 cursor-pointer">
             <i class="fas fa-file-pdf"></i> Save as PDF
@@ -150,9 +148,7 @@
         </button>
     </div>
 
-    <!-- Content ID for cloning -->
     <div id="cv-content" class="page mx-auto neon-box rounded-xl">
-        <!-- Header -->
         <header class="mb-12 border-b border-gray-800 pb-8 md:flex md:justify-between md:items-center">
             <div>
                 <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter uppercase glitch-effect">
@@ -183,10 +179,8 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
             
-            <!-- Left Column (Main Content) -->
             <div class="md:col-span-2">
                 
-                <!-- About Me -->
                 <section class="mb-12">
                     <h2 class="text-xl neon-text mb-6 uppercase tracking-widest border-b border-gray-800 pb-2 flex items-center gap-2">
                         <i class="fas fa-user-astronaut text-sm"></i> System_Profile
@@ -204,13 +198,11 @@
                     </div>
                 </section>
 
-                <!-- Work Experience -->
                 <section class="mb-10">
                     <h2 class="text-xl neon-text mb-8 uppercase tracking-widest border-b border-gray-800 pb-2 flex items-center gap-2">
                         <i class="fas fa-code-branch text-sm"></i> Execution_Log
                     </h2>
 
-                    <!-- Job 1 -->
                     <div class="experience-item">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-lg text-white">Crowberry Media</h3>
@@ -225,7 +217,6 @@
                         </ul>
                     </div>
 
-                    <!-- Job 2 -->
                     <div class="experience-item">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-lg text-white">EMK Links Design Quarter</h3>
@@ -239,7 +230,6 @@
                         </ul>
                     </div>
 
-                    <!-- Job 3 -->
                     <div class="experience-item">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-lg text-white">Jacris SpraySafeSolutions</h3>
@@ -252,7 +242,6 @@
                         </ul>
                     </div>
 
-                    <!-- Job 4 -->
                     <div class="experience-item">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-lg text-white">Redman Art Lounge</h3>
@@ -267,10 +256,8 @@
                 </section>
             </div>
 
-            <!-- Right Column (Sidebar) -->
             <div class="md:col-span-1">
                 
-                <!-- Skills -->
                 <section class="mb-10 bg-gray-900/50 p-6 rounded-lg border border-gray-800">
                     <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
                         // Modules_Loaded
@@ -317,7 +304,6 @@
                     </div>
                 </section>
 
-                <!-- Education -->
                 <section class="mb-10">
                     <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
                         // Data_Download
@@ -335,7 +321,6 @@
                     </div>
                 </section>
 
-                <!-- Personal Details -->
                 <section class="mb-10">
                     <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
                         // User_Metadata
@@ -347,7 +332,6 @@
                     </ul>
                 </section>
 
-                <!-- Portfolio -->
                 <section>
                     <h2 class="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono border-b border-gray-800 pb-2">
                         // Hyperlinks
@@ -412,7 +396,7 @@
             allElements.forEach(el => {
                 // Reset text colors (remove Tailwind dark classes by overriding with inline style)
                 if (el.classList.contains('text-gray-300') || el.classList.contains('text-gray-400') || el.classList.contains('text-white')) {
-                     el.style.color = '#374151'; // Dark gray
+                      el.style.color = '#374151'; // Dark gray
                 }
                 
                 // Fix Headers
@@ -423,8 +407,8 @@
 
                 // Fix Neon Text -> Dark Blue for professional print
                 if (el.classList.contains('neon-text') || el.classList.contains('text-[#39ff14]')) {
-                     el.style.color = '#2563eb'; // Blue-600
-                     el.style.textShadow = 'none';
+                      el.style.color = '#2563eb'; // Blue-600
+                      el.style.textShadow = 'none';
                 }
                 
                 // Fix Neon Borders -> Light Gray
