@@ -9,3 +9,6 @@
 ## 2024-05-24 - [Phantom Interactivity]
 **Learning:** Elements with `cursor: pointer` or hover transforms that perform no action (like static list items in a menu) create "Phantom Interactivity," confusing users who expect a click to do something.
 **Action:** Always ensure static elements explicitly use `cursor: default` and do not have hover lift/scale effects unless they are actionable. For purely informational lists inside menus, rely on tooltips or static layouts without interaction cues.
+## 2024-05-25 - [Skip to Main Content]
+**Learning:** For heavy interactive applications like 3D portfolios, keyboard users often get stuck tabbing through intro elements or navigation menus before reaching the core experience. A "Skip to Main Content" link is critical for bypassing these barriers.
+**Action:** Always include a `.skip-link` as the first focusable element in the body that anchors directly to the main canvas or interaction container.

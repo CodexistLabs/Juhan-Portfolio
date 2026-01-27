@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.toneMappingExposure = 1.0;
     // Fix color space for textures
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.id = 'main-canvas';
     renderer.domElement.tabIndex = 0;
     renderer.domElement.ariaLabel = "Interactive 3D Scene";
     document.body.appendChild(renderer.domElement);
