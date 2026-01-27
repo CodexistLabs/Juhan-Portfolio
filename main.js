@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.toneMappingExposure = 1.0;
     // Fix color space for textures
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.id = 'main-canvas';
     renderer.domElement.tabIndex = 0;
     renderer.domElement.ariaLabel = "Interactive 3D Scene";
     document.body.appendChild(renderer.domElement);
@@ -1359,9 +1360,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // --- MERGED & FIXED LABEL LOGIC ---
 
-                    // 1. Update Label Position
-                    // We offset Y by -10 to center the text vertically relative to the line end
-                    label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
+                    // Bolt: Optimization - Only update DOM if position changed > 0.1px
+                    const hasChanged = item.lastSx === undefined || Math.abs(sx - item.lastSx) > 0.1 || Math.abs(sy - item.lastSy) > 0.1;
+
+                    if (hasChanged) {
+                        item.lastSx = sx;
+                        item.lastSy = sy;
+                        // 1. Update Label Position
+                        // We offset Y by -10 to center the text vertically relative to the line end
+                        label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
+                    }
 
                     // 2. Create Line if needed
                     if (!item.lineElement) {
@@ -1378,11 +1386,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // 3. Update Line Path Geometry
                     if (item.lineElement) {
-                        // Calculate Elbow Path: Start(Object) -> Elbow -> End(Label)
-                        const p1 = `${sx},${sy}`;
-                        const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
-                        const p3 = `${labelX},${labelY}`;
-                        item.lineElement.setAttribute('d', `M ${p1} L ${p2} L ${p3}`);
+                        if (hasChanged || !item.lineElement.hasAttribute('d')) {
+                            // Calculate Elbow Path: Start(Object) -> Elbow -> End(Label)
+                            const p1 = `${sx},${sy}`;
+                            const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
+                            const p3 = `${labelX},${labelY}`;
+                            item.lineElement.setAttribute('d', `M ${p1} L ${p2} L ${p3}`);
+                        }
 
                         // 4. Handle Animation IN (Show)
                         // Checks if currently hidden OR if it was in the process of animating out
