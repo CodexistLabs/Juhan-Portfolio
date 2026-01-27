@@ -1262,16 +1262,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMainView = currentView === 'main';
 
         if (mixers.length > 0) {
-            mixers.forEach(mixer => mixer.update(delta));
+            // Bolt: Only update animations for visible objects
+            mixers.forEach(mixer => {
+                const root = mixer.getRoot();
+                if (root.visible) mixer.update(delta);
+            });
         }
 
         if(particles) particles.rotation.y = elapsedTime * 0.05;
 
-        const shaderTime = elapsedTime * 1000.0;
-        skillsPlanets.forEach(p => {
-            p.material.uniforms.u_time.value = shaderTime;
-            p.mesh.rotation.y += 0.001;
-        });
+        // Bolt: Only update skills planets when visible
+        if (skillsSystemGroup && skillsSystemGroup.visible) {
+            const shaderTime = elapsedTime * 1000.0;
+            skillsPlanets.forEach(p => {
+                p.material.uniforms.u_time.value = shaderTime;
+                p.mesh.rotation.y += 0.001;
+            });
+        }
 
         if (currentView === 'main') {
              nodeObjects.forEach(item => {
