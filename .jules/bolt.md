@@ -9,3 +9,11 @@
 ## 2024-12-17 - [Conditional Updates in Animate Loop]
 **Learning:** Unconditional updates of uniforms and animations for invisible objects (like `skillsPlanets` or hidden mixers) consume CPU cycles in the `animate` loop.
 **Action:** Wrap update logic for distinct groups of objects in visibility checks (e.g., `if (group.visible)`) to skip processing for hidden elements.
+
+## 2024-12-17 - [Pre-sanitize Data for UI Transitions]
+**Learning:** Performing expensive DOM manipulations, such as parsing HTML via `sanitizeHTML` which creates a temporary DOM element, during visual transitions (e.g., when clicking a node to fly the camera) can cause significant frame drops and stuttering in the animation.
+**Action:** Pre-process and sanitize all static string data immediately after initialization rather than computing it on-the-fly inside click handlers that trigger heavy GSAP transitions.
+
+## 2024-12-17 - [Function Allocation in Render Loop]
+**Learning:** Defining functions inline within the `animate` loop (e.g., `const getActiveLabels = () => {...}`) allocates a new function object on every frame, generating unnecessary Garbage Collection overhead and impacting framerate stability.
+**Action:** Lift function definitions out of the render loop or refactor them into simple inline conditionals/switches to avoid per-frame allocations.

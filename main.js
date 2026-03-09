@@ -59,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return temp.innerHTML;
     }
 
+    // Bolt: Pre-sanitize project data to avoid runtime overhead during animations
+    // Done immediately after sanitizeHTML definition.
     const PROJECT_DATA = [
         {
             title: "The Lions Raw",
@@ -97,6 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
             modelUrl: 'assets/3dmodels/aj/aj.gltf'
         }
     ];
+
+    // Bolt: Pre-sanitize project data to avoid runtime overhead during animations
+    PROJECT_DATA.forEach(project => {
+        project.challenge = sanitizeHTML(project.challenge);
+        project.solution = sanitizeHTML(project.solution);
+        project.outcome = sanitizeHTML(project.outcome);
+    });
 
     const SKILLS_DATA = {
         "Web Design": {
@@ -939,9 +948,10 @@ document.addEventListener('DOMContentLoaded', () => {
         announce("Showing project details for " + project.title);
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
-        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
-        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
+        // Bolt: Data is pre-sanitized on init to avoid frame drops during transition
+        document.getElementById('project-challenge').innerHTML = project.challenge;
+        document.getElementById('project-solution').innerHTML = project.solution;
+        document.getElementById('project-outcome').innerHTML = project.outcome;
 
         const linkBtn = document.getElementById('project-link');
         linkBtn.href = project.liveUrl;
@@ -1323,18 +1333,17 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.update();
 
         if (appReady) {
-            const getActiveLabels = () => {
-                switch(currentView) {
-                    case 'main': return nodeObjects;
-                    case 'skills': return skillsPlanets;
-                    case 'projects': return projectLogos;
-                    case 'planet': return cachedPlanetLabels;
-                    default: return [];
-                }
-            };
+            // Bolt: Avoid function allocation in render loop
+            let activeLabels = [];
+            switch(currentView) {
+                case 'main': activeLabels = nodeObjects; break;
+                case 'skills': activeLabels = skillsPlanets; break;
+                case 'projects': activeLabels = projectLogos; break;
+                case 'planet': activeLabels = cachedPlanetLabels; break;
+            }
             
             // Render Labels and Lines (Run every frame for smooth following)
-            getActiveLabels().forEach(item => {
+            activeLabels.forEach(item => {
                 const mesh = isMainView ? item.mesh : (item.mesh || item);
                 const label = item.label;
                  const isHovered = item === hoveredParentObj;
