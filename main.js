@@ -9,6 +9,10 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Bolt: Cache window dimensions to avoid layout thrashing in the render loop
+    let windowHalfX = window.innerWidth / 2;
+    let windowHalfY = window.innerHeight / 2;
+
     function sanitizeHTML(str) {
         const temp = document.createElement('div');
         temp.innerHTML = str;
@@ -143,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.toneMappingExposure = 1.0;
     // Fix color space for textures
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.id = 'main-canvas';
     renderer.domElement.tabIndex = 0;
     renderer.domElement.ariaLabel = "Interactive 3D Scene";
     document.body.appendChild(renderer.domElement);
@@ -156,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_BLOOM_STRENGTH = 0.35;
     let particles = null;
     let hoverSound = null;
+    let backSound = null, clickSound = null, shiftSound = null, visitSound = null;
 
     const labelsContainer = document.getElementById('labels-container');
     const labelLinesSvg = document.getElementById('label-lines');
@@ -167,7 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillDetailView = document.getElementById('skill-detail-view');
     const loaderOverlay = document.getElementById('loader-overlay');
     const introOverlay = document.getElementById('star-wars-intro');
-    const introCrawl = document.querySelector('.star-wars-overlay .crawl');
+    const introCrawl = document.querySelector('.crawl-content');
+    const skipBtn = document.getElementById('skip-btn');
+    const hyperspaceOverlay = document.getElementById('hyperspace-overlay');
+    const hyperspaceStars = document.querySelector('.hyperspace-stars');
     const backButton = document.getElementById('back-button');
     const announcer = document.getElementById('a11y-announcer');
 
@@ -233,24 +242,142 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const rgbeLoader = new RGBELoader(loadingManager);
 
-    loadingManager.onLoad = () => {
-        if (loaderOverlay) {
-            loaderOverlay.classList.add('collapsing');
-            loaderOverlay.addEventListener('transitionend', () => {
-                loaderOverlay.style.display = 'none';
-                renderer.domElement.classList.add('visible');
-                if (introOverlay) {
-                    introOverlay.classList.add('visible');
-                    if (introCrawl) introCrawl.classList.add('crawl-active');
-                    introOverlay.addEventListener('animationend', finishIntro);
-                    introOverlay.addEventListener('click', finishIntro);
-                }
-                window.addEventListener('keydown', (e) => {
-                    if (['Escape', ' ', 'Enter'].includes(e.key)) finishIntro();
-                });
-            }, { once: true });
+    // --- UPDATED LOADING & INTRO LOGIC ---
+    let realLoadingFinished = false;
+    let timeLoadingFinished = false;
+    let introSkipped = false;
+
+    const progressBar = document.getElementById('progress-bar');
+    const percentText = document.getElementById('percentage-text');
+    const statusText = document.getElementById('loading-text');
+
+    const updates = [
+        "Spinning up the hyperdrive generator...",
+        "Calibrating R2 units...",
+        "Locking S-foils in attack position...",
+        "Calculating jump to lightspeed...",
+        "Deflector shields powering up...",
+        "Refueling the Millennium Falcon...",
+        "Removing sand from the server (it gets everywhere)...",
+        "Convincing the Wookiee to let you win...",
+        "Searching for the droids you are looking for...",
+        "Waiting for the Council to grant me the rank of Master...",
+        "Trying to hit the exhaust port (it's only 2 meters wide)...",
+        "Hiding the plans in an R2 unit...",
+        "Witnessing the firepower of this fully armed and operational portfolio...",
+        "Alterting the deal (pray I don't alter it further)...",
+        "Constructing the Death Star...",
+        "Reviewing troops on the landing deck..."
+    ];
+
+    // Start Timer for Min 30s
+    let progress = 0;
+    const totalMinTime = 30000; // 30s
+    const tickInterval = 100;
+    const ticks = totalMinTime / tickInterval;
+    const incrementPerTick = 100 / ticks;
+
+    const timerInterval = setInterval(() => {
+        progress += incrementPerTick;
+
+        // If we are artificially waiting, cap at 99%
+        if (progress > 99 && !realLoadingFinished) {
+            progress = 99;
+        } else if (progress >= 100 && realLoadingFinished) {
+            progress = 100;
+            clearInterval(timerInterval);
+            finishLoader();
         }
+
+        if (progressBar) progressBar.style.width = `${progress}%`;
+        if (percentText) percentText.innerText = `${Math.floor(progress)}%`;
+
+        // Update text randomly occasionally
+        if (Math.floor(progress) % 5 === 0 && progress < 99) {
+             const randomText = updates[Math.floor(Math.random() * updates.length)];
+             if(statusText) statusText.innerText = randomText;
+        }
+
+    }, tickInterval);
+
+
+    loadingManager.onLoad = () => {
+        console.log("Assets Loaded.");
+        realLoadingFinished = true;
     };
+
+    function finishLoader() {
+        // Snap-hiss sound if available, otherwise just proceed
+        // Using shiftSound as placeholder if user didn't provide specific one, or just visual.
+        // The user mentioned "distinct snap-hiss sound" but didn't provide file.
+        // We will just do the visual sequence.
+
+        if (statusText) statusText.innerText = "Hyperdrive Ready.";
+
+        setTimeout(() => {
+            if (loaderOverlay) {
+                document.body.setAttribute('aria-busy', 'false');
+                loaderOverlay.classList.add('collapsing');
+
+                loaderOverlay.addEventListener('transitionend', () => {
+                    loaderOverlay.style.display = 'none';
+                    // Launch Intro
+                    launchIntro();
+                }, { once: true });
+            }
+        }, 500);
+    }
+
+    function launchIntro() {
+        if (introOverlay) {
+            introOverlay.classList.add('visible');
+            if (introCrawl) {
+                 introCrawl.classList.add('animate-crawl');
+                 // Show Skip Button delayed
+                 setTimeout(() => {
+                    if(skipBtn) skipBtn.style.opacity = '1';
+                 }, 3000);
+
+                 // Auto-enter if animation finishes without skip
+                 introCrawl.addEventListener('animationend', () => {
+                    if(!introSkipped) enterMainSite();
+                 });
+            }
+        }
+    }
+
+    function enterMainSite() {
+        if(introSkipped) return;
+        introSkipped = true;
+
+        // 1. Reveal Hyperspace Overlay
+        if (hyperspaceOverlay) {
+            hyperspaceOverlay.style.display = 'flex'; // Ensure flex
+            // Force reflow
+            void hyperspaceOverlay.offsetWidth;
+            hyperspaceOverlay.style.opacity = '1';
+        }
+
+        // 2. Trigger CSS Animation
+        if (hyperspaceStars) hyperspaceStars.classList.add('engage-hyperdrive');
+
+        // 3. Wait for animation peak (approx 1.2s), then swap to real site
+        setTimeout(() => {
+            // Hide Intro & Hyperspace
+            if(introOverlay) introOverlay.style.display = 'none';
+            if(hyperspaceOverlay) hyperspaceOverlay.style.display = 'none';
+
+            // Show Real Site
+            finishIntro();
+        }, 1200);
+    }
+
+    if (skipBtn) {
+        skipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            enterMainSite();
+        });
+    }
 
     function initPostprocessing() {
         composer = new EffectComposer(renderer);
@@ -296,7 +423,8 @@ document.addEventListener('DOMContentLoaded', () => {
         nodeObjects.forEach(item => {
             if (item.mesh === targetMesh) return;
             if (item.visual) {
-                const materials = collectMaterials(item.visual);
+                // Bolt: Use cached materials to avoid scene graph traversal
+                const materials = item.cachedMaterials || collectMaterials(item.visual);
                 materials.forEach(mat => {
                     if (mat.color && !mat.userData.originalColor) {
                          mat.userData.originalColor = mat.color.clone();
@@ -310,13 +438,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function restoreNonHovered() {
         nodeObjects.forEach(item => {
              if (item.visual) {
-                const materials = collectMaterials(item.visual);
+                // Bolt: Use cached materials to avoid scene graph traversal
+                const materials = item.cachedMaterials || collectMaterials(item.visual);
                 materials.forEach(mat => {
                     if (mat.color && mat.userData.originalColor) {
                         mat.color.copy(mat.userData.originalColor);
                     }
                 });
              }
+        });
+    }
+
+    function forceHideAllLabels() {
+        const allCollections = [nodeObjects, skillsPlanets, projectLogos, cachedPlanetLabels];
+
+        allCollections.forEach(collection => {
+            if (!collection) return;
+            collection.forEach(item => {
+                // Handle DOM Label
+                if (item.label && !item.label.classList.contains('hidden')) {
+                    item.label.classList.add('hidden');
+                    item.label.style.opacity = '0';
+                }
+
+                // Handle SVG Line
+                if (item.lineElement) {
+                     item.lineElement.style.display = 'none';
+                     item.lineElement.style.strokeDashoffset = '100'; // Reset animation
+                     item.isAnimatingOut = false; // Reset state
+                }
+
+                // Handle Moons if this is a planet with moons (Extra safety)
+                if (item.moonsGroup) {
+                    item.moonsGroup.children.forEach(moon => {
+                        const moonObj = moon.userData.parentObj;
+                        if (moonObj) {
+                            if (moonObj.label) {
+                                moonObj.label.classList.add('hidden');
+                                moonObj.label.style.opacity = '0';
+                            }
+                            if (moonObj.lineElement) {
+                                moonObj.lineElement.style.display = 'none';
+                                moonObj.lineElement.style.strokeDashoffset = '100';
+                            }
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -369,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mixers = []; // Store animation mixers
 
     function initialize() {
+        announce("Loading 3D assets, please wait.");
         createWorld();
 
         // Initialize Audio
@@ -377,21 +546,39 @@ document.addEventListener('DOMContentLoaded', () => {
         hoverSound = new THREE.Audio(listener);
         const audioLoader = new THREE.AudioLoader();
         
-        // FIXED: Resolved merge conflict - using mp3
-        audioLoader.load('assets/sounds/hover.mp3', function(buffer) {
-            hoverSound.setBuffer(buffer);
-            hoverSound.setVolume(0.5);
-        }, undefined, function(err) {
-            console.warn('Hover sound not found, skipping audio.', err);
-        });
+        const loadSound = (file, soundObj, volume = 0.5) => {
+            audioLoader.load(file, function(buffer) {
+                soundObj.setBuffer(buffer);
+                soundObj.setVolume(volume);
+            }, undefined, function(err) {
+                console.warn(`Sound ${file} not found.`, err);
+            });
+        };
+
+        backSound = new THREE.Audio(listener);
+        clickSound = new THREE.Audio(listener);
+        shiftSound = new THREE.Audio(listener);
+        visitSound = new THREE.Audio(listener);
+
+        loadSound('assets/sounds/hover.wav', hoverSound);
+        loadSound('assets/sounds/back-button-click.wav', backSound);
+        loadSound('assets/sounds/portfolio-link-click.wav', clickSound);
+        loadSound('assets/sounds/shift-nodes.wav', shiftSound);
+        loadSound('assets/sounds/visit-website-button-click.mp3', visitSound);
     }
 
-    function playHoverSound() {
-        if (hoverSound && hoverSound.buffer && !hoverSound.isPlaying) {
-             hoverSound.stop(); // Stop previous if any
-             hoverSound.play();
+    function playSound(sound) {
+        if (sound && sound.buffer) {
+            if (sound.isPlaying) sound.stop();
+            sound.play();
         }
     }
+
+    function playHoverSound() { playSound(hoverSound); }
+    function playBackSound() { playSound(backSound); }
+    function playClickSound() { playSound(clickSound); }
+    function playShiftSound() { playSound(shiftSound); }
+    function playVisitSound() { playSound(visitSound); }
 
     function createProjectsSystem() {
         const system = new THREE.Group();
@@ -662,6 +849,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 nodeObj.visual = modelVisual;
+                // Bolt: Cache materials immediately after load
+                nodeObj.cachedMaterials = collectMaterials(modelVisual);
                 hitbox.userData.visuals = modelVisual;
 
             }, undefined, (error) => {
@@ -722,6 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showProjectDetail(projectObj) {
+        forceHideAllLabels();
         currentView = 'project';
         activeProject = projectObj;
         shouldRotateProject = true;
@@ -752,7 +942,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
         document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
         document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
-        document.getElementById('project-link').href = project.liveUrl;
+
+        const linkBtn = document.getElementById('project-link');
+        linkBtn.href = project.liveUrl;
+        linkBtn.onclick = () => playVisitSound();
 
         // Reset View State
         projectSolutionContainer.style.display = 'none';
@@ -766,6 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showSkillsDetail(planetObj) {
+        forceHideAllLabels();
         currentView = 'planet';
         activePlanet = planetObj;
 
@@ -815,6 +1009,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
              // Moons already exist, animate appearance
+             activePlanet.moonsGroup.visible = true;
+
+             // Restore visibility of labels and lines
+             activePlanet.moonsGroup.children.forEach(moon => {
+                 if (moon.userData.parentObj) {
+                     if (moon.userData.parentObj.label) {
+                         moon.userData.parentObj.label.classList.remove('hidden');
+                         // Reset opacity for fade-in effect if handled by animate loop,
+                         // but typically the animate loop handles it if not hidden.
+                         // Ensure it's ready for the loop to pick up.
+                     }
+                     if (moon.userData.parentObj.lineElement) {
+                         // Reset line state so it can animate in again
+                         moon.userData.parentObj.lineElement.style.display = 'none'; // Will be set to block by animate loop logic
+                         moon.userData.parentObj.lineElement.style.strokeDashoffset = '100';
+                         moon.userData.parentObj.isAnimatingOut = false;
+                     }
+                 }
+             });
+
              gsap.to(activePlanet.moonsGroup.scale, { duration: 0.5, x: 1, y: 1, z: 1, ease: 'power3.out', delay: 0.5 });
         }
 
@@ -878,6 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (hoveredParentObj.mesh.name === 'About') {
+                    forceHideAllLabels();
                     currentView = 'about';
                     announce("Opened About section.");
                     hoveredParentObj.visual.visible = false;
@@ -888,6 +1103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         backButton.classList.add('visible');
                     }});
                 } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
+                    forceHideAllLabels();
                     const isSkills = hoveredParentObj.mesh.name === 'Skills';
                     announce("Entering " + hoveredParentObj.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
@@ -928,6 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         skillDetailView.classList.remove('visible');
 
         if (targetView === 'planet') {
+            forceHideAllLabels();
             announce("Returning to Skills overview");
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
             const planetToReset = activePlanet;
@@ -945,26 +1162,13 @@ document.addEventListener('DOMContentLoaded', () => {
                  groupToDestroy.children.forEach(moon => {
                     if (moon.userData.parentObj && moon.userData.parentObj.label) {
                         moon.userData.parentObj.label.classList.add('hidden');
+                        if (moon.userData.parentObj.lineElement) {
+                             moon.userData.parentObj.lineElement.style.display = 'none';
+                        }
                     }
                 });
                 gsap.to(groupToDestroy.scale, { duration: 0.5, x: 0, y: 0, z: 0, ease: 'power3.in', onComplete: () => {
-                    groupToDestroy.children.forEach(moon => {
-                        if (moon.userData.parentObj) {
-                            // Dispose of the ring
-                            if (moon.userData.parentObj.ring) {
-                                moon.userData.parentObj.ring.geometry.dispose();
-                                moon.userData.parentObj.ring.material.dispose();
-                            }
-                            // Remove label
-                            if (moon.userData.parentObj.label) {
-                                moon.userData.parentObj.label.remove();
-                            }
-                        }
-                    });
-                    if (planetToReset) {
-                        planetToReset.mesh.remove(groupToDestroy);
-                        planetToReset.moonsGroup = null;
-                    }
+                    groupToDestroy.visible = false;
                 }});
             }
 
@@ -979,6 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } else if (targetView === 'project') {
+            forceHideAllLabels();
             announce("Returning to Projects overview");
             shouldRotateProject = false;
             activeProject = null;
@@ -991,6 +1196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentView = 'projects';
 
         } else if (['skills', 'projects', 'about'].includes(targetView)) {
+             forceHideAllLabels();
              announce("Returning to main view");
              backButton.classList.remove('visible');
              skillsSystemGroup.visible = false;
@@ -1032,6 +1238,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('resize', () => {
+        windowHalfX = window.innerWidth / 2;
+        windowHalfY = window.innerHeight / 2;
+
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1054,16 +1263,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMainView = currentView === 'main';
 
         if (mixers.length > 0) {
-            mixers.forEach(mixer => mixer.update(delta));
+            // Bolt: Only update animations for visible objects
+            mixers.forEach(mixer => {
+                const root = mixer.getRoot();
+                if (root.visible) mixer.update(delta);
+            });
         }
 
         if(particles) particles.rotation.y = elapsedTime * 0.05;
 
-        const shaderTime = elapsedTime * 1000.0;
-        skillsPlanets.forEach(p => {
-            p.material.uniforms.u_time.value = shaderTime;
-            p.mesh.rotation.y += 0.001;
-        });
+        // Bolt: Only update skills planets when visible
+        if (skillsSystemGroup && skillsSystemGroup.visible) {
+            const shaderTime = elapsedTime * 1000.0;
+            skillsPlanets.forEach(p => {
+                p.material.uniforms.u_time.value = shaderTime;
+                p.mesh.rotation.y += 0.001;
+            });
+        }
 
         if (currentView === 'main') {
              nodeObjects.forEach(item => {
@@ -1138,8 +1354,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                  if (shouldBeVisible) {
                     const screenPosition = mesh.getWorldPosition(tempVec).project(camera);
-                    const sx = (screenPosition.x + 1) * window.innerWidth / 2;
-                    const sy = (-screenPosition.y + 1) * window.innerHeight / 2;
+                    const sx = (screenPosition.x + 1) * windowHalfX;
+                    const sy = (-screenPosition.y + 1) * windowHalfY;
 
                     // Futuristic Line Logic
                     const offsetX = 60;
@@ -1151,9 +1367,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // --- MERGED & FIXED LABEL LOGIC ---
 
-                    // 1. Update Label Position
-                    // We offset Y by -10 to center the text vertically relative to the line end
-                    label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
+                    // Bolt: Optimization - Only update DOM if position changed > 0.1px
+                    const hasChanged = item.lastSx === undefined || Math.abs(sx - item.lastSx) > 0.1 || Math.abs(sy - item.lastSy) > 0.1;
+
+                    if (hasChanged) {
+                        item.lastSx = sx;
+                        item.lastSy = sy;
+                        // 1. Update Label Position
+                        // We offset Y by -10 to center the text vertically relative to the line end
+                        label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
+                    }
 
                     // 2. Create Line if needed
                     if (!item.lineElement) {
@@ -1170,11 +1393,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // 3. Update Line Path Geometry
                     if (item.lineElement) {
-                        // Calculate Elbow Path: Start(Object) -> Elbow -> End(Label)
-                        const p1 = `${sx},${sy}`;
-                        const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
-                        const p3 = `${labelX},${labelY}`;
-                        item.lineElement.setAttribute('d', `M ${p1} L ${p2} L ${p3}`);
+                        if (hasChanged || !item.lineElement.hasAttribute('d')) {
+                            // Calculate Elbow Path: Start(Object) -> Elbow -> End(Label)
+                            const p1 = `${sx},${sy}`;
+                            const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
+                            const p3 = `${labelX},${labelY}`;
+                            item.lineElement.setAttribute('d', `M ${p1} L ${p2} L ${p3}`);
+                        }
 
                         // 4. Handle Animation IN (Show)
                         // Checks if currently hidden OR if it was in the process of animating out

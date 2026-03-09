@@ -1,4 +1,4 @@
-## 2024-05-23 - Introduced HTML Sanitization for Dynamic Content
-**Vulnerability:** Usage of `innerHTML` with `PROJECT_DATA` creates a potential XSS sink if data becomes tainted or externalized. While currently hardcoded, this pattern was insecure for future scalability.
-**Learning:** Even static sites can benefit from defense-in-depth. `innerHTML` is often used for convenience (preserving bold tags etc), but requires strict sanitization.
-**Prevention:** Implemented a client-side `sanitizeHTML` utility that uses `DOMParser` to parse and reconstruct the HTML using an allowlist of tags (`BR`, `STRONG`, `P`, etc.) and stripping all attributes. This ensures that even if malicious scripts are injected into the data source, they will not execute.
+## 2026-01-21 - Supply Chain Security for Legacy JS
+**Vulnerability:** External dependencies in `cv/index.html` were loaded from CDNs without version pinning or Subresource Integrity (SRI) hashes, and no Content Security Policy (CSP) was present.
+**Learning:** Even simple static pages can be vectors for supply chain attacks if they blindly trust external scripts (e.g., via `@latest` redirectors or compromised CDNs). `html-docx-js` was being loaded from `unpkg.com` without a version, defaulting to latest.
+**Prevention:** Always pin versions (e.g., `html-docx-js@0.3.1`) and use SRI hashes (`integrity="..."`) for all external scripts and styles. Implement a strict CSP to block unauthorized resource loading.

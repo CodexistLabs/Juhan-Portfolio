@@ -8,8 +8,6 @@
     <title>Juhan's 3D Portfolio</title>
     <link rel="stylesheet" href="style.css">
 
-    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
     <script type="x-shader/x-vertex" id="vertexShader">
     varying vec2 vUv;
     void main() {
@@ -58,12 +56,51 @@
     }
     </script>
 </head>
-<body>
-    <div id="loader-overlay" class="loader-overlay">
-        <div class="loader"><div class="cube-scene"><div class="cube" aria-hidden="true"><div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div></div><div class="orbit" aria-hidden="true"><div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div></div></div><div class="loader-text">Loading the Miniverse...</div><div class="loader-sub">Hang tight — assembling tiny worlds ✨</div></div>
+<body aria-busy="true">
+    <a href="#main-canvas" class="skip-link">Skip to Main Content</a>
+    <div id="loader-overlay" class="loader-overlay" role="alert" aria-live="assertive">
+        <div class="loader-content">
+            <div class="loader">
+                <div class="cube-scene">
+                    <div class="cube" aria-hidden="true">
+                        <div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div>
+                    </div>
+                    <div class="orbit" aria-hidden="true">
+                        <div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lightsaber-container">
+                <div class="hilt">
+                    <div class="switch"></div>
+                </div>
+                <div class="plasma-blade" id="progress-bar"></div>
+            </div>
+            <p id="loading-text">Initializing hyperdrive...</p>
+            <div class="percentage" id="percentage-text">0%</div>
+        </div>
     </div>
-    <div id="star-wars-intro" class="star-wars-overlay"><div class="crawl"><p>Greetings. You have entered the digital coordinates of Juhan. Here, code meets creativity in a universe of infinite possibilities. Prepare to explore a galaxy of projects, skills, and digital experiences.</p></div></div>
-    <div id="a11y-announcer" class="sr-only" aria-live="polite"></div>
+
+    <div id="star-wars-intro" class="star-wars-overlay">
+        <div class="crawl-container">
+            <div class="crawl-content">
+                <div class="title">
+                    <p>Episode 2026</p>
+                    <h1>A New Candidate</h1>
+                </div>
+                <p>It is a period of digital expansion. Across the galaxy, hiring managers and clients scour the internet in search of a developer who can bring balance to the codebase.</p>
+                <p>Striking from a hidden base in Randburg, South Africa - Juhan has emerged as a powerful ally. Armed with the ancient arts of clean syntax and modern frameworks, they prepare to showcase a portfolio of galactic proportions.</p>
+                <p>Pursued by deadlines and scope creep, he races to deliver high-performance solutions. Now, you must navigate this portfolio to discover the skills that will save your next project and restore peace to the deployment pipeline....</p>
+            </div>
+        </div>
+        <button id="skip-btn">SKIP INTRO >></button>
+    </div>
+
+    <div id="hyperspace-overlay">
+        <div class="hyperspace-stars"></div>
+    </div>
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <div id="labels-container"></div>
     <svg id="label-lines" xmlns="http://www.w3.org/2000/svg"></svg>
     <button id="back-button" class="back-button">← Return to Overview</button>
@@ -102,9 +139,9 @@
         </div>
     </div>
     <div id="skill-detail-view"><div id="skill-detail-content"><h2 id="skill-detail-title"></h2><p id="skill-detail-text"></p></div><div id="skill-detail-sidebar"></div></div>
-    <nav id="gallery-navigation" class="gallery-nav"></nav>
+    <nav id="gallery-navigation" class="gallery-nav" aria-label="Gallery"></nav>
 
-    <div class="bottom-left-menu">
+    <nav class="bottom-left-menu" aria-label="Main Navigation">
         <div class="menu-item">
             <button type="button" class="menu-button icon-button" aria-label="Help" aria-expanded="false" aria-controls="help-submenu">
                 <span style="font-family: serif; font-weight: bold; font-size: 24px;" aria-hidden="true">i</span>
@@ -124,18 +161,18 @@
                  <span class="tooltip">Portfolios</span>
             </button>
             <div id="portfolios-submenu" class="submenu">
-                <div class="submenu-item icon-button" role="img" aria-label="SEO">
+                <a href="portfolio/seo-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="SEO Portfolio">
                     <img src="assets/social-icons/portfolio-final.png" alt="">
                      <span class="tooltip">SEO</span>
-                </div>
-                <div class="submenu-item icon-button" role="img" aria-label="Paid Marketing">
+                </a>
+                <a href="portfolio/paid-marketing-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Paid Marketing Portfolio">
                     <img src="assets/social-icons/portfolio-final.png" alt="">
                      <span class="tooltip">Paid Marketing</span>
-                </div>
-                <div class="submenu-item icon-button" role="img" aria-label="Graphic Design">
+                </a>
+                <a href="portfolio/graphic-design-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Graphic Design Portfolio">
                     <img src="assets/social-icons/portfolio-final.png" alt="">
                      <span class="tooltip">Graphic Design</span>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -153,14 +190,14 @@
                     <img src="assets/social-icons/email-final.png" alt="">
                      <span class="tooltip">Email</span>
                 </a>
-                <a href="https://www.linkedin.com/in/juhanbadenhorst/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="LinkedIn">
+                <a href="https://linkedin.com/in/juhanbadenhorst/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="LinkedIn">
                     <img src="assets/social-icons/linkedin-final.png" alt="">
                      <span class="tooltip">LinkedIn</span>
                 </a>
-                <a href="#" class="submenu-item icon-button" aria-label="Book a Meeting">
+                <button type="button" class="submenu-item icon-button" aria-label="Book a Meeting (Coming Soon)" disabled>
                     <img src="assets/social-icons/booking-final.png" alt="">
-                     <span class="tooltip">Book a Meeting</span>
-                </a>
+                     <span class="tooltip">Book a Meeting (Coming Soon)</span>
+                </button>
             </div>
         </div>
 
@@ -180,7 +217,7 @@
                 </a>
             </div>
         </div>
-    </div>
+    </nav>
 
     <script src="assets/js/menu.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
