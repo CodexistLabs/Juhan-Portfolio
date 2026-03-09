@@ -59,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return temp.innerHTML;
     }
 
+    // Bolt: Pre-sanitize project data to avoid runtime overhead during animations
+    // Done immediately after sanitizeHTML definition.
     const PROJECT_DATA = [
         {
             title: "The Lions Raw",
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: "Modified Monkey",
             challenge: "Modified Monkey required a website that balanced the raw, rebellious energy of body modification with the professional trust required for clinical procedures. The site needed to be visually striking and \"urban\" without compromising usability or confusing the user journey.",
             solution: "I implemented a high-contrast design featuring gritty textures and vibrant yellow accents to capture an industrial, edgy vibe. Despite the bold aesthetic, the UI was engineered to be clean and professional, guiding users intuitively toward the appointment booking funnel.",
-            outcome: "The new design perfectly encapsulates the studio’s unique culture. This strong, on-brand online presence not only solidified their market identity but led to a significant surge in direct online bookings and reduced administrative overhead.",
+            outcome: "The new design perfectly encapsulates the studio's unique culture. This strong, on-brand online presence not only solidified their market identity but led to a significant surge in direct online bookings and reduced administrative overhead.",
             imageUrl: "assets/modifiedmonkey.png",
             liveUrl: 'https://modifiedmonkey.co.za',
             modelUrl: 'assets/3dmodels/mm.glb'
@@ -98,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // Bolt Optimization: Pre-sanitize content to avoid parsing delay on click
+    // Bolt: Pre-sanitize project data to avoid runtime overhead during animations
     PROJECT_DATA.forEach(project => {
         project.challenge = sanitizeHTML(project.challenge);
         project.solution = sanitizeHTML(project.solution);
@@ -314,11 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function finishLoader() {
-        // Snap-hiss sound if available, otherwise just proceed
-        // Using shiftSound as placeholder if user didn't provide specific one, or just visual.
-        // The user mentioned "distinct snap-hiss sound" but didn't provide file.
-        // We will just do the visual sequence.
-
         if (statusText) statusText.innerText = "Hyperdrive Ready.";
 
         setTimeout(() => {
@@ -346,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  }, 3000);
 
                  // Auto-enter if animation finishes without skip
-                 introCrawl.addEventListener('animationend', () => {
+                 intraCrawl.addEventListener('animationend', () => {
                     if(!introSkipped) enterMainSite();
                  });
             }
@@ -758,10 +755,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'assets/3dmodels/moon.gltf',
             (gltf) => {
                 moonModel = gltf.scene;
-                // Fix for color/material issues if any
                 moonModel.traverse((child) => {
                     if (child.isMesh && child.material) {
-                         // Ensure maps use SRGB encoding
                          if (child.material.map) child.material.map.colorSpace = THREE.SRGBColorSpace;
                          if (child.material.emissiveMap) child.material.emissiveMap.colorSpace = THREE.SRGBColorSpace;
                     }
@@ -770,7 +765,6 @@ document.addEventListener('DOMContentLoaded', () => {
             undefined,
             (err) => {
                  console.error('Error loading moon.gltf, falling back to moon.glb if available or handling error', err);
-                 // Fallback attempt or robust handling
                  gltfLoader.load('assets/3dmodels/moon.glb', (gltf) => {
                      moonModel = gltf.scene;
                  }, undefined, (e) => console.error('Fallback moon.glb also failed', e));
@@ -828,7 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gltfLoader.load(modelPath, (gltf) => {
                 const modelVisual = gltf.scene;
 
-                // Fix for color/material issues - Projects node specifically mentioned
                 modelVisual.traverse((child) => {
                     if (child.isMesh && child.material) {
                          if (child.material.map) child.material.map.colorSpace = THREE.SRGBColorSpace;
@@ -939,13 +932,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         gsap.to(controls.target, { duration: 1.5, x: targetPos.x, y: targetPos.y, z: targetPos.z, ease: 'power3.inOut' });
 
-
         projectsPanel.classList.add('visible');
         const project = PROJECT_DATA[activeProject.projectIndex];
         document.getElementById('project-title').textContent = project.title;
         announce("Showing project details for " + project.title);
 
-        // Populate content
+        // Bolt: Data is pre-sanitized on init to avoid frame drops during transition
         document.getElementById('project-challenge').innerHTML = project.challenge;
         document.getElementById('project-solution').innerHTML = project.solution;
         document.getElementById('project-outcome').innerHTML = project.outcome;
@@ -1018,18 +1010,13 @@ document.addEventListener('DOMContentLoaded', () => {
              // Moons already exist, animate appearance
              activePlanet.moonsGroup.visible = true;
 
-             // Restore visibility of labels and lines
              activePlanet.moonsGroup.children.forEach(moon => {
                  if (moon.userData.parentObj) {
                      if (moon.userData.parentObj.label) {
                          moon.userData.parentObj.label.classList.remove('hidden');
-                         // Reset opacity for fade-in effect if handled by animate loop,
-                         // but typically the animate loop handles it if not hidden.
-                         // Ensure it's ready for the loop to pick up.
                      }
                      if (moon.userData.parentObj.lineElement) {
-                         // Reset line state so it can animate in again
-                         moon.userData.parentObj.lineElement.style.display = 'none'; // Will be set to block by animate loop logic
+                         moon.userData.parentObj.lineElement.style.display = 'none';
                          moon.userData.parentObj.lineElement.style.strokeDashoffset = '100';
                          moon.userData.parentObj.isAnimatingOut = false;
                      }
@@ -1330,18 +1317,17 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.update();
 
         if (appReady) {
-            const getActiveLabels = () => {
-                switch(currentView) {
-                    case 'main': return nodeObjects;
-                    case 'skills': return skillsPlanets;
-                    case 'projects': return projectLogos;
-                    case 'planet': return cachedPlanetLabels;
-                    default: return [];
-                }
-            };
+            // Bolt: Avoid function allocation in render loop
+            let activeLabels = [];
+            switch(currentView) {
+                case 'main': activeLabels = nodeObjects; break;
+                case 'skills': activeLabels = skillsPlanets; break;
+                case 'projects': activeLabels = projectLogos; break;
+                case 'planet': activeLabels = cachedPlanetLabels; break;
+            }
             
             // Render Labels and Lines (Run every frame for smooth following)
-            getActiveLabels().forEach(item => {
+            activeLabels.forEach(item => {
                 const mesh = isMainView ? item.mesh : (item.mesh || item);
                 const label = item.label;
                  const isHovered = item === hoveredParentObj;
@@ -1372,16 +1358,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const labelX = sx + offsetX;
                     const labelY = sy + offsetY;
 
-                    // --- MERGED & FIXED LABEL LOGIC ---
-
                     // Bolt: Optimization - Only update DOM if position changed > 0.1px
                     const hasChanged = item.lastSx === undefined || Math.abs(sx - item.lastSx) > 0.1 || Math.abs(sy - item.lastSy) > 0.1;
 
                     if (hasChanged) {
                         item.lastSx = sx;
                         item.lastSy = sy;
-                        // 1. Update Label Position
-                        // We offset Y by -10 to center the text vertically relative to the line end
                         label.style.transform = `translate(${labelX}px, ${labelY - 10}px)`;
                     }
 
@@ -1401,7 +1383,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 3. Update Line Path Geometry
                     if (item.lineElement) {
                         if (hasChanged || !item.lineElement.hasAttribute('d')) {
-                            // Calculate Elbow Path: Start(Object) -> Elbow -> End(Label)
                             const p1 = `${sx},${sy}`;
                             const p2 = `${sx + elbowOffset},${sy - elbowOffset}`;
                             const p3 = `${labelX},${labelY}`;
@@ -1409,23 +1390,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         // 4. Handle Animation IN (Show)
-                        // Checks if currently hidden OR if it was in the process of animating out
                         if (item.lineElement.style.display === 'none' || item.isAnimatingOut) {
                             item.isAnimatingOut = false;
                             item.lineElement.style.display = 'block';
                             
-                            // Kill existing tweens to prevent conflict if user hovers quickly
                             gsap.killTweensOf(item.lineElement.style);
                             gsap.killTweensOf(label);
 
-                            // Animate Line Draw
                             gsap.to(item.lineElement.style, { 
                                 strokeDashoffset: 0, 
                                 duration: 0.4, 
                                 ease: "power2.out" 
                             });
                             
-                            // Fade in Label slightly after line starts
                             gsap.to(label, { 
                                 opacity: 1, 
                                 duration: 0.4, 
@@ -1438,21 +1415,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     // --- Handle Animation OUT (Hide) ---
                     
                     if (item.lineElement && item.lineElement.style.display !== 'none') {
-                        // Only animate out if we aren't already doing so
                         if (!item.isAnimatingOut) {
                             item.isAnimatingOut = true;
 
-                            // Fade out Label
                             gsap.to(label, { opacity: 0, duration: 0.2 });
 
-                            // "Un-draw" the line
                             gsap.to(item.lineElement.style, {
                                 strokeDashoffset: 100,
                                 duration: 0.3,
                                 ease: "power2.in",
                                 onComplete: () => {
-                                    // Only hide if we are still supposed to be hidden
-                                    // (Prevents hiding if user re-hovered during animation)
                                     if (item.isAnimatingOut) {
                                         item.lineElement.style.display = 'none';
                                         item.isAnimatingOut = false; 
@@ -1503,7 +1475,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             hoveredParentObj.orbitRing.visible = false;
                         }
                         
-                        // Animate Scale Back (handled here so it doesn't run every frame)
                         if (visual &&
                             !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
                             !(currentView === 'planet' && hoveredParentObj.mesh.parent === activePlanet.moonsGroup)
