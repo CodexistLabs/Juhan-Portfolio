@@ -96,7 +96,7 @@
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden p-2 text-zinc-300 hover:text-green-400">
+                <button id="mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden p-2 text-zinc-300 hover:text-green-400 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-green-400 rounded">
                     <i data-lucide="menu"></i>
                 </button>
             </div>
@@ -457,8 +457,9 @@
         const mobileLinks = document.querySelectorAll('.mobile-link');
 
         mobileBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            const icon = mobileMenu.classList.contains('hidden') ? 'menu' : 'x';
+            const isHidden = mobileMenu.classList.toggle('hidden');
+            mobileBtn.setAttribute('aria-expanded', !isHidden);
+            const icon = isHidden ? 'menu' : 'x';
             // Re-render icon
             mobileBtn.innerHTML = `<i data-lucide="${icon}"></i>`;
             lucide.createIcons();

@@ -1,3 +1,7 @@
 ## 2024-05-23 - Interactive Elements Must Be Interactive
 **Learning:** I discovered `div` elements with `role="img"` in a navigation submenu that were intended to be links to other portfolios. This pattern (likely a copy-paste error or unfinished placeholder) is dangerous because it visually mimics navigation but fails completely for keyboard users and screen readers, and even mouse users if no click handler is attached.
 **Action:** Always verify that elements looking like buttons or links are actually implemented as `<button>` or `<a>` tags. If `div`s are used for layout, ensure they don't masquerade as interactive elements without proper `tabindex` and event handlers, but prefer semantic HTML.
+
+## 2026-03-04 - Accessible Mobile Menu Buttons in Portfolios
+**Learning:** Across the `portfolio/*` templates, the mobile menu buttons (`#mobile-menu-btn`) were implemented without accessible ARIA labels or keyboard focus indicators. Since they rely solely on SVG icons for visual meaning, they were completely invisible to screen readers and difficult to interact with for keyboard users.
+**Action:** Always add `aria-label`, `aria-expanded`, and `aria-controls` to icon-only toggle buttons. Ensure that inline JavaScript managing the menu state dynamically updates the `aria-expanded` attribute. Finally, provide visible focus indicators (e.g., using Tailwind `focus-visible` classes) to support keyboard navigation.
