@@ -98,6 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    // Bolt Optimization: Pre-sanitize content to avoid parsing delay on click
+    PROJECT_DATA.forEach(project => {
+        project.challenge = sanitizeHTML(project.challenge);
+        project.solution = sanitizeHTML(project.solution);
+        project.outcome = sanitizeHTML(project.outcome);
+    });
+
     const SKILLS_DATA = {
         "Web Design": {
             skills: [ { name: "Responsive Design", level: 1.0 }, { name: "UI / UX Design", level: 0.90 }, { name: "HTML / CSS Proficiency", level: 0.98 }, { name: "JavaScript Frameworks", level: 0.85 }, { name: "Content Management Systems (CMS)", level: 0.90 } ],
@@ -939,9 +946,9 @@ document.addEventListener('DOMContentLoaded', () => {
         announce("Showing project details for " + project.title);
 
         // Populate content
-        document.getElementById('project-challenge').innerHTML = sanitizeHTML(project.challenge);
-        document.getElementById('project-solution').innerHTML = sanitizeHTML(project.solution);
-        document.getElementById('project-outcome').innerHTML = sanitizeHTML(project.outcome);
+        document.getElementById('project-challenge').innerHTML = project.challenge;
+        document.getElementById('project-solution').innerHTML = project.solution;
+        document.getElementById('project-outcome').innerHTML = project.outcome;
 
         const linkBtn = document.getElementById('project-link');
         linkBtn.href = project.liveUrl;
