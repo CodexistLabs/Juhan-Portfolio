@@ -866,6 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
         announce("Intro complete. Main 3D view active. Use arrow keys to rotate.");
         gsap.to(introOverlay, { duration: 1.5, opacity: 0, onComplete: () => { if (introOverlay.parentNode) introOverlay.parentNode.removeChild(introOverlay); } });
 
+        renderer.domElement.classList.add('visible');
         renderer.domElement.focus();
         announce("Intro finished. Main scene loaded. Use arrow keys to navigate the 3D space, or tab to access the menu.");
 
@@ -1347,8 +1348,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                  if (shouldBeVisible && label.classList.contains('hidden')) {
                      label.classList.remove('hidden');
-                 } else if (!shouldBeVisible && !label.classList.contains('hidden')) {
-                     label.classList.add('hidden');
                  }
 
                  if (shouldBeVisible) {
@@ -1433,11 +1432,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 onComplete: () => {
                                     if (item.isAnimatingOut) {
                                         item.lineElement.style.display = 'none';
+                                        label.classList.add('hidden');
                                         item.isAnimatingOut = false; 
                                     }
                                 }
                             });
                         }
+                    } else if (!label.classList.contains('hidden') && !item.isAnimatingOut) {
+                        label.classList.add('hidden');
                     }
                 }
             });
