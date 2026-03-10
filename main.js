@@ -949,8 +949,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset View State
         projectSolutionContainer.style.display = 'none';
         projectSolutionContainer.style.opacity = 0;
+        projectSolutionContainer.style.transform = 'scale(1)';
+        projectSolutionContainer.style.filter = 'blur(0px)';
+
         projectOutcomeContainer.style.display = 'none';
         projectOutcomeContainer.style.opacity = 0;
+        projectOutcomeContainer.style.transform = 'scale(1)';
+        projectOutcomeContainer.style.filter = 'blur(0px)';
+
         projectChallengeContainer.style.display = 'block';
         projectChallengeContainer.style.opacity = 1;
         projectChallengeContainer.style.transform = 'scale(1)';
