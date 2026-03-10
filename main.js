@@ -279,40 +279,27 @@ document.addEventListener('DOMContentLoaded', () => {
         "Reviewing troops on the landing deck..."
     ];
 
-    // Start Timer for Min 30s
-    let progress = 0;
-    const totalMinTime = 30000; // 30s
-    const tickInterval = 100;
-    const ticks = totalMinTime / tickInterval;
-    const incrementPerTick = 100 / ticks;
+    // Tie progress directly to asset loading
+    loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+        let loadProgress = (itemsLoaded / itemsTotal) * 100;
+        if (progressBar) progressBar.style.width = `${loadProgress}%`;
+        if (percentText) percentText.innerText = `${Math.floor(loadProgress)}%`;
 
-    const timerInterval = setInterval(() => {
-        progress += incrementPerTick;
-
-        // If we are artificially waiting, cap at 99%
-        if (progress > 99 && !realLoadingFinished) {
-            progress = 99;
-        } else if (progress >= 100 && realLoadingFinished) {
-            progress = 100;
-            clearInterval(timerInterval);
-            finishLoader();
+        if (Math.floor(loadProgress) % 10 === 0 && loadProgress < 100) {
+            const randomText = updates[Math.floor(Math.random() * updates.length)];
+            if(statusText) statusText.innerText = randomText;
         }
-
-        if (progressBar) progressBar.style.width = `${progress}%`;
-        if (percentText) percentText.innerText = `${Math.floor(progress)}%`;
-
-        // Update text randomly occasionally
-        if (Math.floor(progress) % 5 === 0 && progress < 99) {
-             const randomText = updates[Math.floor(Math.random() * updates.length)];
-             if(statusText) statusText.innerText = randomText;
-        }
-
-    }, tickInterval);
-
+    };
 
     loadingManager.onLoad = () => {
         console.log("Assets Loaded.");
-        realLoadingFinished = true;
+        if (progressBar) progressBar.style.width = `100%`;
+        if (percentText) percentText.innerText = `100%`;
+
+        // Wait 3 seconds on top of data load before finishing
+        setTimeout(() => {
+            finishLoader();
+        }, 3000);
     };
 
     function finishLoader() {
