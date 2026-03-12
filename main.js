@@ -908,6 +908,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mouse = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
     const tempVec = new THREE.Vector3();
+    // Bolt: Optimization - Pre-allocate default scale Vector3 to avoid GC pressure in raycast loop
+    const defaultScale = new THREE.Vector3(1, 1, 1);
 
     window.addEventListener('mousemove', e => {
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -1476,7 +1478,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Clean up old hover
                     if (hoveredParentObj) {
                         const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
-                        const originalScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
+                        const originalScale = (visual && visual.userData.originalScale) || defaultScale;
                         
                         if (visual) setGlow(visual, false);
                         if (isMainView) restoreNonHovered();
@@ -1500,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         playHoverSound();
 
                         const visual = isMainView ? hoveredParentObj.visual : hoveredParentObj.mesh;
-                        const baseScale = (visual && visual.userData.originalScale) || new THREE.Vector3(1, 1, 1);
+                        const baseScale = (visual && visual.userData.originalScale) || defaultScale;
                          
                         if (visual &&
                              !(currentView === 'skills' && hoveredParentObj.material instanceof THREE.ShaderMaterial) &&
