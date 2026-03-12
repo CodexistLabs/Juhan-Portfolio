@@ -14,8 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let windowHalfY = window.innerHeight / 2;
 
     function sanitizeHTML(str) {
-        const temp = document.createElement('div');
-        temp.innerHTML = str;
+        // Sentinel: Prevent DOM-based XSS by using DOMParser instead of innerHTML
+        // innerHTML executes scripts in some contexts (like error handlers in imgs) during parsing
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(str, 'text/html');
+        const temp = doc.body;
 
         function robustSanitize(root) {
             const children = Array.from(root.childNodes);
