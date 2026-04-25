@@ -7,7 +7,7 @@
     <!-- Tailwind CSS (via CDN for instant usage) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.562.0" integrity="sha384-FmRlymRnpgjuKyAnwH4DftRjl+RqHOlfcw9k4xcpPyovclg/2RZRrvw7qe1koVCP" crossorigin="anonymous"></script>
     <!-- Custom Config for Tailwind colors -->
     <script>
         tailwind.config = {
@@ -74,7 +74,7 @@
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
-                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2">
+                    <button id="mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobile-menu" class="text-slate-300 hover:text-white p-2 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-emerald-500 rounded">
                         <i data-lucide="menu" class="w-7 h-7"></i>
                     </button>
                 </div>
@@ -512,7 +512,8 @@
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
         btn.addEventListener('click', () => {
-            menu.classList.toggle('hidden');
+            const isHidden = menu.classList.toggle('hidden');
+            btn.setAttribute('aria-expanded', !isHidden);
         });
 
         // Case Study Filtering

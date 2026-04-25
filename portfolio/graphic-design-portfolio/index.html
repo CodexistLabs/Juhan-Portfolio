@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juhan Badenhorst - Graphic Design Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.562.0" integrity="sha384-FmRlymRnpgjuKyAnwH4DftRjl+RqHOlfcw9k4xcpPyovclg/2RZRrvw7qe1koVCP" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -94,7 +94,7 @@
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden p-2 text-zinc-300 hover:text-violet-400">
+                <button id="mobile-menu-btn" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobile-menu" class="md:hidden p-2 text-zinc-300 hover:text-violet-400 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-violet-400 rounded">
                     <i data-lucide="menu"></i>
                 </button>
             </div>
@@ -324,10 +324,8 @@
                 <div class="glass-card rounded-xl overflow-hidden group cursor-pointer">
                     <div class="h-48 bg-zinc-800 relative overflow-hidden">
                         <!-- Placeholder Image -->
-                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-900 to-zinc-800 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="image" class="w-12 h-12 text-zinc-600"></i>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1541462608143-67571c6738dd?q=80&w=800&auto=format&fit=crop" alt="Branding design" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-900/40 to-zinc-800/40 z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold text-violet-400 uppercase tracking-wider">Branding</span>
@@ -339,10 +337,8 @@
                 <!-- Work Item 2 -->
                 <div class="glass-card rounded-xl overflow-hidden group cursor-pointer">
                     <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-fuchsia-900 to-zinc-800 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="image" class="w-12 h-12 text-zinc-600"></i>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800&auto=format&fit=crop" alt="Print design" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-fuchsia-900/40 to-zinc-800/40 z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold text-violet-400 uppercase tracking-wider">Print Design</span>
@@ -354,10 +350,8 @@
                 <!-- Work Item 3 -->
                 <div class="glass-card rounded-xl overflow-hidden group cursor-pointer">
                     <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900 to-zinc-800 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="image" class="w-12 h-12 text-zinc-600"></i>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop" alt="UI Design" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/40 to-zinc-800/40 z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold text-violet-400 uppercase tracking-wider">UI / Web</span>
@@ -369,10 +363,8 @@
                  <!-- Work Item 4 -->
                  <div class="glass-card rounded-xl overflow-hidden group cursor-pointer">
                     <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-purple-900 to-zinc-800 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="image" class="w-12 h-12 text-zinc-600"></i>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop" alt="Social Media campaign" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-purple-900/40 to-zinc-800/40 z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold text-violet-400 uppercase tracking-wider">Social Media</span>
@@ -384,10 +376,8 @@
                  <!-- Work Item 5 -->
                  <div class="glass-card rounded-xl overflow-hidden group cursor-pointer">
                     <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-pink-900 to-zinc-800 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="image" class="w-12 h-12 text-zinc-600"></i>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=800&auto=format&fit=crop" alt="Packaging design" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-pink-900/40 to-zinc-800/40 z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold text-violet-400 uppercase tracking-wider">Packaging</span>
@@ -399,10 +389,8 @@
                  <!-- Work Item 6 -->
                  <div class="glass-card rounded-xl overflow-hidden group cursor-pointer">
                     <div class="h-48 bg-zinc-800 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-900 to-zinc-800 group-hover:scale-105 transition-transform duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="image" class="w-12 h-12 text-zinc-600"></i>
-                        </div>
+                        <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop" alt="Illustration" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-500 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-violet-900/40 to-zinc-800/40 z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold text-violet-400 uppercase tracking-wider">Illustration</span>
@@ -472,8 +460,9 @@
         const mobileLinks = document.querySelectorAll('.mobile-link');
 
         mobileBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            const icon = mobileMenu.classList.contains('hidden') ? 'menu' : 'x';
+            const isHidden = mobileMenu.classList.toggle('hidden');
+            mobileBtn.setAttribute('aria-expanded', !isHidden);
+            const icon = isHidden ? 'menu' : 'x';
             // Re-render icon
             mobileBtn.innerHTML = `<i data-lucide="${icon}"></i>`;
             lucide.createIcons();

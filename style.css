@@ -4,6 +4,25 @@ canvas { display: block; opacity: 0; transition: opacity 1s ease-in; }
 canvas.visible { opacity: 1; }
 canvas:focus-visible { outline: 2px solid #6fdd7a; outline-offset: 4px; }
 
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 10px;
+    background: #000;
+    color: #6fdd7a;
+    padding: 10px;
+    z-index: 9999;
+    font-family: monospace;
+    text-decoration: none;
+    border: 1px solid #6fdd7a;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 10px;
+}
+
 /* UPDATED: Label transform to position it below the object */
 .label {
     position: absolute; top: 0; left: 0;
