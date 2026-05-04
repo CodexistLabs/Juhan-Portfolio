@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://dl.polyhaven.org https://www.gstatic.com blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://dl.polyhaven.org https://www.gstatic.com blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Juhan's 3D Portfolio</title>
     <link rel="stylesheet" href="style.css">
@@ -172,7 +172,7 @@
                     <img src="assets/social-icons/portfolio-final.png" alt="" aria-hidden="true">
                      <span class="tooltip">Paid Marketing</span>
                 </a>
-                <a href="https://juhan.codexist.co.za/portfolio/graphic-design-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Graphic Design Portfolio">
+                <a href="https://juhan.codexist.co.za/portfolio/graphic-design-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Graphic Design Portfolio" style="display: none;">
                     <img src="assets/social-icons/portfolio-final.png" alt="" aria-hidden="true">
                      <span class="tooltip">Graphic Design</span>
                 </a>
@@ -222,12 +222,6 @@
         </div>
     </nav>
 
-    <script src="assets/js/menu.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
-    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js" integrity="sha384-c1WSdrtrvLWoZQC5zBcuCBhTpWvCcKFvUPFkF9wsEestdGUyCxZPiVXzYCZEPRzJ" crossorigin="anonymous">
-    <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/" } }
-    </script>
     <script type="module" src="main.js"></script>
 </body>
 </html>

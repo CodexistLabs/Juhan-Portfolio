@@ -6,6 +6,8 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { gsap } from 'gsap';
+import './assets/js/menu.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -99,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             outcome: "The result is a powerful, interconnected digital ecosystem. The custom frontend tools reduced administrative training time and streamlined daily operations. The cross-site integration successfully drives revenue for both businesses, creating an automated sales loop that converts jewellery buyers into piercing clients and vice versa. Adora Jewels now operates efficiently for both B2B and B2C markets on a single, fast platform.",
             imageUrl: "assets/thelionsraw.png", // Duplicate placeholder image
             liveUrl: 'https://adorajewels.co.za',
-            modelUrl: 'assets/3dmodels/aj/aj.gltf'
+            modelUrl: 'assets/3dmodels/aj/aj.glb'
         }
     ];
 
@@ -244,13 +246,17 @@ document.addEventListener('DOMContentLoaded', () => {
         backButton.click();
     });
 
-    // Loading Manager setup
+    // Loading Manager setup — only tracks CRITICAL assets (3 main node models + HDR)
     const loadingManager = new THREE.LoadingManager();
     const gltfLoader = new GLTFLoader(loadingManager);
 
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
     gltfLoader.setDRACOLoader(dracoLoader);
+
+    // Lazy loader — NOT tracked by loadingManager; used for non-critical assets
+    const lazyGltfLoader = new GLTFLoader();
+    lazyGltfLoader.setDRACOLoader(dracoLoader);
 
     const rgbeLoader = new RGBELoader(loadingManager);
 
@@ -295,14 +301,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loadingManager.onLoad = () => {
-        console.log("Assets Loaded.");
+        console.log("Critical assets loaded.");
         if (progressBar) progressBar.style.width = `100%`;
         if (percentText) percentText.innerText = `100%`;
 
-        // Wait 3 seconds on top of data load before finishing
+        // Reduced from 3s to 1s — assets load much faster now
         setTimeout(() => {
             finishLoader();
-        }, 3000);
+        }, 1000);
     };
 
     function finishLoader() {
@@ -333,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  }, 3000);
 
                  // Auto-enter if animation finishes without skip
-                 intraCrawl.addEventListener('animationend', () => {
+                 introCrawl.addEventListener('animationend', () => {
                     if(!introSkipped) enterMainSite();
                  });
             }
@@ -579,20 +585,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const planetRadius = 7;
         const angleStep = (Math.PI * 2) / PROJECT_DATA.length;
 
-        gltfLoader.load('assets/3dmodels/sun.glb', (gltf) => {
+        lazyGltfLoader.load('assets/3dmodels/sun.glb', (gltf) => {
             const sunModel = gltf.scene;
             sunModel.scale.set(0.2, 0.2, 0.2);
             sunModel.position.set(0, 0, 0);
-
             sunModel.traverse((child) => {
                 if (child.isMesh && child.material) {
                     const oldMaterial = child.material;
-                    child.material = new THREE.MeshBasicMaterial({
-                        map: oldMaterial.map,
-                    });
+                    child.material = new THREE.MeshBasicMaterial({ map: oldMaterial.map });
                 }
             });
-
             system.add(sunModel);
         },
         undefined,
@@ -604,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const x = planetRadius * Math.cos(angle);
             const z = planetRadius * Math.sin(angle);
 
-            gltfLoader.load(project.modelUrl, (gltf) => {
+            lazyGltfLoader.load(project.modelUrl, (gltf) => {
                 const model = gltf.scene;
 
                 const box = new THREE.Box3().setFromObject(model);
@@ -640,17 +642,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const system = new THREE.Group();
         const categories = Object.keys(SKILLS_DATA);
 
-        gltfLoader.load('assets/3dmodels/sun.glb', (gltf) => {
+        lazyGltfLoader.load('assets/3dmodels/sun.glb', (gltf) => {
             const sunModel = gltf.scene;
             sunModel.scale.set(0.2, 0.2, 0.2);
             sunModel.position.set(0, 0, 0);
-
             sunModel.traverse((child) => {
                 if (child.isMesh && child.material) {
                     const oldMaterial = child.material;
-                    child.material = new THREE.MeshBasicMaterial({
-                        map: oldMaterial.map,
-                    });
+                    child.material = new THREE.MeshBasicMaterial({ map: oldMaterial.map });
                 }
             });
             system.add(sunModel);
@@ -741,8 +740,9 @@ document.addEventListener('DOMContentLoaded', () => {
             scene.environment = texture;
         });
 
-        gltfLoader.load(
-            'assets/3dmodels/moon.gltf',
+        // Moon loads lazily — it's only needed once user drills into Skills
+        lazyGltfLoader.load(
+            'assets/3dmodels/moon.glb',
             (gltf) => {
                 moonModel = gltf.scene;
                 moonModel.traverse((child) => {
@@ -753,12 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             },
             undefined,
-            (err) => {
-                 console.error('Error loading moon.gltf, falling back to moon.glb if available or handling error', err);
-                 gltfLoader.load('assets/3dmodels/moon.glb', (gltf) => {
-                     moonModel = gltf.scene;
-                 }, undefined, (e) => console.error('Fallback moon.glb also failed', e));
-            }
+            (err) => { console.error('Error loading moon.glb:', err); }
         );
 
         const particlesGeometry = new THREE.BufferGeometry();
@@ -799,13 +794,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let scaleFactor = 1.0;
 
             if (nodeInfo.name === 'About') {
-                modelPath = 'assets/3dmodels/about/scene.gltf';
+                modelPath = 'assets/3dmodels/about/scene.glb';
                 scaleFactor = 1.0;
             } else if (nodeInfo.name === 'Projects') {
-                modelPath = 'assets/3dmodels/projects/scene.gltf';
+                modelPath = 'assets/3dmodels/projects/scene.glb';
                 scaleFactor = 1.0;
             } else {
-                modelPath = 'assets/3dmodels/skills/scene.gltf';
+                modelPath = 'assets/3dmodels/skills/scene.glb';
                 scaleFactor = 1.0;
             }
 
@@ -1080,28 +1075,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 nodeObjects.forEach(item => { if(item.mesh !== hoveredParentObj.mesh) item.visual.visible = false; });
 
-                if (hoveredParentObj.label) {
-                    hoveredParentObj.label.classList.add('hidden');
+                // Clear hover state immediately so the animate loop stops showing the label
+                const clickedNode = hoveredParentObj;
+                if (clickedNode.label) {
+                    gsap.killTweensOf(clickedNode.label);
+                    clickedNode.label.classList.add('hidden');
+                    clickedNode.label.style.opacity = '0';
                 }
+                if (clickedNode.lineElement) {
+                    gsap.killTweensOf(clickedNode.lineElement.style);
+                    clickedNode.lineElement.style.display = 'none';
+                    clickedNode.isAnimatingOut = false;
+                }
+                hoveredParentObj = null;
 
-                if (hoveredParentObj.mesh.name === 'About') {
+                if (clickedNode.mesh.name === 'About') {
                     forceHideAllLabels();
                     currentView = 'about';
                     announce("Opened About section.");
-                    hoveredParentObj.visual.visible = false;
+                    clickedNode.visual.visible = false;
                     announce("Entering About section");
-                    gsap.to(camera.position, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z + 5, ease: 'power3.inOut'});
-                    gsap.to(controls.target, { duration: 1.6, x: hoveredParentObj.mesh.position.x, y: hoveredParentObj.mesh.position.y, z: hoveredParentObj.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
+                    gsap.to(camera.position, { duration: 1.6, x: clickedNode.mesh.position.x, y: clickedNode.mesh.position.y, z: clickedNode.mesh.position.z + 5, ease: 'power3.inOut'});
+                    gsap.to(controls.target, { duration: 1.6, x: clickedNode.mesh.position.x, y: clickedNode.mesh.position.y, z: clickedNode.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
                         aboutPanel.classList.add('visible');
                         backButton.classList.add('visible');
                     }});
-                } else if (hoveredParentObj.mesh.name === 'Skills' || hoveredParentObj.mesh.name === 'Projects') {
+                } else if (clickedNode.mesh.name === 'Skills' || clickedNode.mesh.name === 'Projects') {
                     forceHideAllLabels();
-                    const isSkills = hoveredParentObj.mesh.name === 'Skills';
-                    announce("Entering " + hoveredParentObj.mesh.name + " view.");
+                    const isSkills = clickedNode.mesh.name === 'Skills';
+                    announce("Entering " + clickedNode.mesh.name + " view.");
                     currentView = isSkills ? 'skills' : 'projects';
                     announce(isSkills ? "Entering Skills system" : "Entering Projects system");
-                    const systemNode = hoveredParentObj.visual;
+                    const systemNode = clickedNode.visual;
                     systemNode.visible = false;
 
                     gsap.to(controls.target, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
@@ -1415,6 +1420,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!item.isAnimatingOut) {
                             item.isAnimatingOut = true;
 
+                            gsap.killTweensOf(label);
                             gsap.to(label, { opacity: 0, duration: 0.2 });
 
                             gsap.to(item.lineElement.style, {
@@ -1431,7 +1437,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                         }
                     } else if (!label.classList.contains('hidden') && !item.isAnimatingOut) {
+                        gsap.killTweensOf(label);
                         label.classList.add('hidden');
+                        label.style.opacity = '0';
                     }
                 }
             });
