@@ -261,8 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const rgbeLoader = new RGBELoader(loadingManager);
 
     // --- UPDATED LOADING & INTRO LOGIC ---
-    let realLoadingFinished = false;
-    let timeLoadingFinished = false;
     let introSkipped = false;
 
     const progressBar = document.getElementById('progress-bar');
@@ -866,12 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  visual.position.x += (Math.random() - 0.5) * 10;
                  visual.scale.set(0, 0, 0);
 
-                 let initialScale = 1.0;
-                 if (mesh.name === 'About') initialScale = 1.0;
-                 else if (mesh.name === 'Projects') initialScale = 1.0;
-                 else if (mesh.name === 'Skills') initialScale = 1.0;
-
-                 gsap.to(visual.scale, { duration: 1.5, x: initialScale, y: initialScale, z: initialScale, ease: 'back.out(1.7)', delay });
+                 gsap.to(visual.scale, { duration: 1.5, x: 1, y: 1, z: 1, ease: 'back.out(1.7)', delay });
                  gsap.to(visual.position, {
                      duration: 2.5, x: finalPos.x, y: finalPos.y, z: finalPos.z, ease: 'power3.out', delay,
                      onComplete: () => {
@@ -1145,16 +1138,12 @@ document.addEventListener('DOMContentLoaded', () => {
             forceHideAllLabels();
             announce("Returning to Skills overview");
             const groupToDestroy = activePlanet ? activePlanet.moonsGroup : null;
-            const planetToReset = activePlanet;
 
-            // Clear cache
             cachedPlanetMeshes = [];
             cachedPlanetLabels = [];
 
             currentView = 'skills';
             activePlanet = null;
-            cachedPlanetMeshes = [];
-            cachedPlanetLabels = [];
 
             if (groupToDestroy) {
                  groupToDestroy.children.forEach(moon => {
