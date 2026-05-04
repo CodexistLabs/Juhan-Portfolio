@@ -454,13 +454,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!collection) return;
             collection.forEach(item => {
                 // Handle DOM Label
-                if (item.label && !item.label.classList.contains('hidden')) {
+                if (item.label) {
+                    gsap.killTweensOf(item.label);
                     item.label.classList.add('hidden');
                     item.label.style.opacity = '0';
                 }
 
                 // Handle SVG Line
                 if (item.lineElement) {
+                     gsap.killTweensOf(item.lineElement.style);
                      item.lineElement.style.display = 'none';
                      item.lineElement.style.strokeDashoffset = '100'; // Reset animation
                      item.isAnimatingOut = false; // Reset state
@@ -472,12 +474,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         const moonObj = moon.userData.parentObj;
                         if (moonObj) {
                             if (moonObj.label) {
+                                gsap.killTweensOf(moonObj.label);
                                 moonObj.label.classList.add('hidden');
                                 moonObj.label.style.opacity = '0';
                             }
                             if (moonObj.lineElement) {
+                                gsap.killTweensOf(moonObj.lineElement.style);
                                 moonObj.lineElement.style.display = 'none';
                                 moonObj.lineElement.style.strokeDashoffset = '100';
+                                moonObj.isAnimatingOut = false;
                             }
                         }
                     });
@@ -1064,23 +1069,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!appReady || gsap.isTweening(camera.position)) return;
 
         if (hoveredParentObj) {
+            // ALWAYS clear hover state immediately so the animate loop stops showing the label
+            const clickedNode = hoveredParentObj;
+            if (clickedNode.label) {
+                gsap.killTweensOf(clickedNode.label);
+                clickedNode.label.classList.add('hidden');
+                clickedNode.label.style.opacity = '0';
+            }
+            if (clickedNode.lineElement) {
+                gsap.killTweensOf(clickedNode.lineElement.style);
+                clickedNode.lineElement.style.display = 'none';
+                clickedNode.isAnimatingOut = false;
+            }
+            hoveredParentObj = null;
+
             if (currentView === 'main') {
-
-                nodeObjects.forEach(item => { if(item.mesh !== hoveredParentObj.mesh) item.visual.visible = false; });
-
-                // Clear hover state immediately so the animate loop stops showing the label
-                const clickedNode = hoveredParentObj;
-                if (clickedNode.label) {
-                    gsap.killTweensOf(clickedNode.label);
-                    clickedNode.label.classList.add('hidden');
-                    clickedNode.label.style.opacity = '0';
-                }
-                if (clickedNode.lineElement) {
-                    gsap.killTweensOf(clickedNode.lineElement.style);
-                    clickedNode.lineElement.style.display = 'none';
-                    clickedNode.isAnimatingOut = false;
-                }
-                hoveredParentObj = null;
+                nodeObjects.forEach(item => { if(item.mesh !== clickedNode.mesh) item.visual.visible = false; });
 
                 if (clickedNode.mesh.name === 'About') {
                     forceHideAllLabels();
@@ -1120,9 +1124,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }});
                 }
             } else if (currentView === 'skills') {
-                if (hoveredParentObj) showSkillsDetail(hoveredParentObj);
+                showSkillsDetail(clickedNode);
             } else if (currentView === 'projects') {
-                if (hoveredParentObj) showProjectDetail(hoveredParentObj);
+                showProjectDetail(clickedNode);
             }
         }
     });
