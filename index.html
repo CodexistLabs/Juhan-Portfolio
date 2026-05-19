@@ -5,7 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.unsplash.com https://www.gstatic.com; connect-src 'self' https://dl.polyhaven.org https://www.gstatic.com blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>Juhan's 3D Portfolio</title>
+    <title>Juhan Badenhorst - Technical SEO Specialist & Full Stack Developer</title>
+    <meta name="description" content="Juhan Badenhorst - Technical SEO Specialist & Full Stack Developer. SEO audits, WordPress development, and digital marketing expertise from South Africa.">
+
+    <!-- Canonical Tag -->
+    <link rel="canonical" href="https://juhan.codexist.co.za/">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Juhan Badenhorst - Technical SEO Specialist">
+    <meta property="og:description" content="Juhan Badenhorst - Technical SEO Specialist & Full Stack Developer. Building fast, SEO-optimized WordPress solutions.">
+    <meta property="og:image" content="https://juhan.codexist.co.za/assets/Juhan-Profile.png">
+    <meta property="og:url" content="https://juhan.codexist.co.za/">
+    <meta property="og:site_name" content="Juhan Badenhorst Portfolio">
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Juhan Badenhorst - Technical SEO Specialist">
+    <meta name="twitter:description" content="Technical SEO Specialist & Full Stack Developer. Building fast, SEO-optimized WordPress solutions.">
+    <meta name="twitter:image" content="https://juhan.codexist.co.za/assets/Juhan-Profile.png">
+    <meta name="twitter:creator" content="@juhanbadenhorst">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+
+    <!-- Preconnect Directives -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com">
+
     <link rel="stylesheet" href="style.css">
 
     <script type="x-shader/x-vertex" id="vertexShader">
@@ -53,6 +82,34 @@
         vec3 rgb = baseColor * (0.5 + 0.5*cos(3.0 + 0.15*m + vec3(0.0, 0.6, 2.)));
 
         gl_FragColor = vec4(rgb, 1.0);
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Juhan Badenhorst",
+        "jobTitle": "Technical SEO Specialist & Full Stack Developer",
+        "url": "https://juhan.codexist.co.za",
+        "sameAs": [
+            "https://linkedin.com/in/juhanbadenhorst/",
+            "https://github.com/CodexistLabs"
+        ],
+        "image": "https://juhan.codexist.co.za/assets/Juhan-Profile.png",
+        "description": "Technical SEO Specialist & Full Stack Developer specializing in WordPress, Bricks Builder, and high-performance web solutions",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "ZA",
+            "addressLocality": "South Africa"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Professional Inquiry",
+            "email": "juhan@codexist.co.za",
+            "telephone": "+27-823-605-374"
+        }
     }
     </script>
 </head>

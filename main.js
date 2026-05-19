@@ -1,15 +1,62 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { gsap } from 'gsap';
 import './assets/js/menu.js';
 
+// Lazy load Three.js only when needed
+let THREE = null;
+let OrbitControls = null;
+let EffectComposer = null;
+let RenderPass = null;
+let UnrealBloomPass = null;
+let GLTFLoader = null;
+let DRACOLoader = null;
+let RGBELoader = null;
+
+async function loadThreeLibrary() {
+    if (THREE) return; // Already loaded
+
+    const threeModule = await import('three');
+    THREE = threeModule.default || threeModule;
+
+    const orbitModule = await import('three/addons/controls/OrbitControls.js');
+    OrbitControls = orbitModule.OrbitControls;
+
+    const effectModule = await import('three/addons/postprocessing/EffectComposer.js');
+    EffectComposer = effectModule.EffectComposer;
+
+    const renderModule = await import('three/addons/postprocessing/RenderPass.js');
+    RenderPass = renderModule.RenderPass;
+
+    const bloomModule = await import('three/addons/postprocessing/UnrealBloomPass.js');
+    UnrealBloomPass = bloomModule.UnrealBloomPass;
+
+    const gltfModule = await import('three/addons/loaders/GLTFLoader.js');
+    GLTFLoader = gltfModule.GLTFLoader;
+
+    const dracoModule = await import('three/addons/loaders/DRACOLoader.js');
+    DRACOLoader = dracoModule.DRACOLoader;
+
+    const rgbeModule = await import('three/addons/loaders/RGBELoader.js');
+    RGBELoader = rgbeModule.RGBELoader;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Defer Three.js loading until page is interactive
+    // Use requestIdleCallback if available, otherwise use setTimeout
+    const loadThreeWhenReady = () => {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => loadThreeLibrary().then(initThreeScene));
+        } else {
+            setTimeout(() => {
+                loadThreeLibrary().then(initThreeScene);
+            }, 100);
+        }
+    };
+
+    // Start loading immediately but don't block critical rendering
+    loadThreeWhenReady();
+});
+
+async function initThreeScene() {
 
     // Bolt: Cache window dimensions to avoid layout thrashing in the render loop
     let windowHalfX = window.innerWidth / 2;
@@ -1520,5 +1567,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initialize();
+}
 
 });

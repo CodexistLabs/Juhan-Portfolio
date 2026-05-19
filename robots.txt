@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /node_modules/
+Disallow: /*.json$
+Disallow: /dist/
+Disallow: /.git/
+
+Sitemap: https://juhan.codexist.co.za/sitemap.xml
