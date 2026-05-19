@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import './assets/js/menu.js';
 
-// Lazy load Three.js only when needed
+// Three.js modules - lazy loaded
 let THREE = null;
 let OrbitControls = null;
 let EffectComposer = null;
