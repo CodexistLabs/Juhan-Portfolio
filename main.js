@@ -1,40 +1,25 @@
+// Import Three.js libraries using import map
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+
+// GSAP is loaded as a global via script tag
+const gsap = window.gsap;
+
 // Load menu.js
 const menuScript = document.createElement('script');
 menuScript.src = './assets/js/menu.js';
 document.head.appendChild(menuScript);
 
-// Wait for CDN libraries to load, then initialize 3D scene
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if Three and GSAP are loaded via CDN
-    let checkInterval = setInterval(() => {
-        if (window.THREE && window.gsap) {
-            clearInterval(checkInterval);
-            initThreeScene();
-        }
-    }, 100);
-
-    // Failsafe timeout after 5 seconds
-    setTimeout(() => {
-        clearInterval(checkInterval);
-        if (window.THREE && window.gsap) {
-            initThreeScene();
-        } else {
-            console.error('Failed to load required libraries (Three.js or GSAP)');
-        }
-    }, 5000);
-});
+// Initialize 3D scene when DOM is ready
+document.addEventListener('DOMContentLoaded', initThreeScene);
 
 function initThreeScene() {
-    // Get globals from CDN
-    const THREE = window.THREE;
-    const gsap = window.gsap;
-    const OrbitControls = window.OrbitControls;
-    const EffectComposer = window.EffectComposer;
-    const RenderPass = window.RenderPass;
-    const UnrealBloomPass = window.UnrealBloomPass;
-    const GLTFLoader = window.GLTFLoader;
-    const DRACOLoader = window.DRACOLoader;
-    const RGBELoader = window.RGBELoader;
 
     // Bolt: Cache window dimensions to avoid layout thrashing in the render loop
     let windowHalfX = window.innerWidth / 2;
