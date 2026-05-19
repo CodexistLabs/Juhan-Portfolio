@@ -1568,5 +1568,3 @@ async function initThreeScene() {
 
     initialize();
 }
-
-});
