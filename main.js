@@ -6,6 +6,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 // GSAP is loaded as a global via script tag
 const gsap = window.gsap;
@@ -266,6 +267,8 @@ function initThreeScene() {
     // Lazy loader — NOT tracked by loadingManager; used for non-critical assets
     const lazyGltfLoader = new GLTFLoader();
     lazyGltfLoader.setDRACOLoader(dracoLoader);
+
+    const rgbeLoader = new RGBELoader(loadingManager);
 
     // --- UPDATED LOADING & INTRO LOGIC ---
     let introSkipped = false;
@@ -745,6 +748,11 @@ function initThreeScene() {
     function createWorld() {
         initPostprocessing();
 
+        rgbeLoader.load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_03_1k.hdr', (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.environment = texture;
+        });
+
         // Moon loads lazily — it's only needed once user drills into Skills
         lazyGltfLoader.load(
             'assets/3dmodels/moon.glb',
@@ -1047,6 +1055,9 @@ function initThreeScene() {
 
         const sidebarEl = document.getElementById('skill-detail-sidebar');
         sidebarEl.innerHTML = '';
+
+        // Batch DOM operations with DocumentFragment for better performance
+        const fragment = document.createDocumentFragment();
         skillData.tools.forEach(toolName => {
             const tool = TOOLKIT_DATA.find(t => t.name === toolName);
             if (tool) {
@@ -1055,14 +1066,17 @@ function initThreeScene() {
                 const img = document.createElement('img');
                 img.src = tool.iconUrl;
                 img.title = tool.name;
+                img.alt = tool.name;
+                img.loading = 'lazy';
                 const label = document.createElement('span');
                 label.className = 'tool-label';
                 label.textContent = tool.name;
                 toolItem.appendChild(img);
                 toolItem.appendChild(label);
-                sidebarEl.appendChild(toolItem);
+                fragment.appendChild(toolItem);
             }
         });
+        sidebarEl.appendChild(fragment);
 
         skillDetailView.classList.add('visible');
     }
