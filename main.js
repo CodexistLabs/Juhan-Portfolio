@@ -1,62 +1,40 @@
-import { gsap } from 'gsap';
-import './assets/js/menu.js';
+// Load menu.js
+const menuScript = document.createElement('script');
+menuScript.src = './assets/js/menu.js';
+document.head.appendChild(menuScript);
 
-// Three.js modules - lazy loaded
-let THREE = null;
-let OrbitControls = null;
-let EffectComposer = null;
-let RenderPass = null;
-let UnrealBloomPass = null;
-let GLTFLoader = null;
-let DRACOLoader = null;
-let RGBELoader = null;
-
-async function loadThreeLibrary() {
-    if (THREE) return; // Already loaded
-
-    const threeModule = await import('three');
-    THREE = threeModule.default || threeModule;
-
-    const orbitModule = await import('three/addons/controls/OrbitControls.js');
-    OrbitControls = orbitModule.OrbitControls;
-
-    const effectModule = await import('three/addons/postprocessing/EffectComposer.js');
-    EffectComposer = effectModule.EffectComposer;
-
-    const renderModule = await import('three/addons/postprocessing/RenderPass.js');
-    RenderPass = renderModule.RenderPass;
-
-    const bloomModule = await import('three/addons/postprocessing/UnrealBloomPass.js');
-    UnrealBloomPass = bloomModule.UnrealBloomPass;
-
-    const gltfModule = await import('three/addons/loaders/GLTFLoader.js');
-    GLTFLoader = gltfModule.GLTFLoader;
-
-    const dracoModule = await import('three/addons/loaders/DRACOLoader.js');
-    DRACOLoader = dracoModule.DRACOLoader;
-
-    const rgbeModule = await import('three/addons/loaders/RGBELoader.js');
-    RGBELoader = rgbeModule.RGBELoader;
-}
-
+// Wait for CDN libraries to load, then initialize 3D scene
 document.addEventListener('DOMContentLoaded', () => {
-    // Defer Three.js loading until page is interactive
-    // Use requestIdleCallback if available, otherwise use setTimeout
-    const loadThreeWhenReady = () => {
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => loadThreeLibrary().then(initThreeScene));
-        } else {
-            setTimeout(() => {
-                loadThreeLibrary().then(initThreeScene);
-            }, 100);
+    // Check if Three and GSAP are loaded via CDN
+    let checkInterval = setInterval(() => {
+        if (window.THREE && window.gsap) {
+            clearInterval(checkInterval);
+            initThreeScene();
         }
-    };
+    }, 100);
 
-    // Start loading immediately but don't block critical rendering
-    loadThreeWhenReady();
+    // Failsafe timeout after 5 seconds
+    setTimeout(() => {
+        clearInterval(checkInterval);
+        if (window.THREE && window.gsap) {
+            initThreeScene();
+        } else {
+            console.error('Failed to load required libraries (Three.js or GSAP)');
+        }
+    }, 5000);
 });
 
-async function initThreeScene() {
+function initThreeScene() {
+    // Get globals from CDN
+    const THREE = window.THREE;
+    const gsap = window.gsap;
+    const OrbitControls = window.OrbitControls;
+    const EffectComposer = window.EffectComposer;
+    const RenderPass = window.RenderPass;
+    const UnrealBloomPass = window.UnrealBloomPass;
+    const GLTFLoader = window.GLTFLoader;
+    const DRACOLoader = window.DRACOLoader;
+    const RGBELoader = window.RGBELoader;
 
     // Bolt: Cache window dimensions to avoid layout thrashing in the render loop
     let windowHalfX = window.innerWidth / 2;
@@ -1568,3 +1546,6 @@ async function initThreeScene() {
 
     initialize();
 }
+
+// Expose for global use if needed
+window.initThreeScene = initThreeScene;
