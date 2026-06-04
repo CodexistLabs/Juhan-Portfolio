@@ -35,6 +35,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com">
 
+    <!-- Google Fonts: Add Cormorant Garamond for premium serif headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 
     <script type="x-shader/x-vertex" id="vertexShader">
@@ -126,6 +129,11 @@
 </head>
 <body aria-busy="true">
     <a href="#main-canvas" class="skip-link">Skip to Main Content</a>
+    <!-- Cursor elements -->
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <!-- Spore particle canvas -->
+    <canvas id="spore-canvas"></canvas>
     <div id="loader-overlay" class="loader-overlay" role="alert" aria-live="assertive">
         <div class="loader-content">
             <div class="loader">
@@ -303,6 +311,109 @@
     }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Cursor & Particle Effects -->
+    <script>
+    // Custom cursor tracking
+    const cursor = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mx = -100, my = -100, rx = -100, ry = -100;
+
+    document.addEventListener('mousemove', (e) => {
+      mx = e.clientX;
+      my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    // Smooth ring following
+    (function trackRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      cursorRing.style.left = rx + 'px';
+      cursorRing.style.top = ry + 'px';
+      requestAnimationFrame(trackRing);
+    })();
+
+    // Scale cursor on interactive elements
+    document.querySelectorAll('a, button, [role="button"]').forEach((el) => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1.8)';
+        cursorRing.style.transform = 'translate(-50%,-50%) scale(1.5)';
+        cursorRing.style.borderColor = 'rgba(77, 208, 225, 0.5)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        cursorRing.style.transform = 'translate(-50%,-50%) scale(1)';
+        cursorRing.style.borderColor = 'rgba(77, 208, 225, 0.25)';
+      });
+    });
+
+    // Spore particle system
+    const sporeCanvas = document.getElementById('spore-canvas');
+    const sCtx = sporeCanvas.getContext('2d');
+    let spores = [];
+    let W, H;
+
+    function resizeSpore() {
+      W = sporeCanvas.width = window.innerWidth;
+      H = sporeCanvas.height = window.innerHeight;
+    }
+    resizeSpore();
+    window.addEventListener('resize', resizeSpore);
+
+    class Spore {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.life = 1;
+        this.decay = 0.012 + Math.random() * 0.018;
+        this.r = 1.2 + Math.random() * 2;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = -0.25 - Math.random() * 0.4;
+        this.cyan = Math.random() > 0.3;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy *= 0.99;
+        this.life -= this.decay;
+      }
+
+      draw(ctx) {
+        const alpha = this.life * 0.5;
+        const color = this.cyan
+          ? `rgba(77, 208, 225, ${alpha})`
+          : `rgba(82, 183, 136, ${alpha})`;
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = this.cyan ? 'rgba(77, 208, 225, 0.3)' : 'rgba(82, 183, 136, 0.3)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.6) return;
+      spores.push(new Spore(e.clientX, e.clientY));
+      if (spores.length > 100) spores.shift();
+    });
+
+    function animateSpores() {
+      sCtx.clearRect(0, 0, W, H);
+      spores = spores.filter((s) => s.life > 0);
+      spores.forEach((s) => {
+        s.update();
+        s.draw(sCtx);
+      });
+      requestAnimationFrame(animateSpores);
+    }
+    animateSpores();
+    </script>
 
     <script type="module" src="main.js"></script>
 </body>
