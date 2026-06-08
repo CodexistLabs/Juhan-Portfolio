@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://www.gstatic.com; connect-src 'self' https://dl.polyhaven.org https://www.gstatic.com blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Juhan Badenhorst - Technical SEO Specialist & Full Stack Developer</title>
+    <meta name="description" content="Juhan Badenhorst - Technical SEO Specialist & Full Stack Developer. SEO audits, WordPress development, and digital marketing expertise from South Africa.">
+
+    <!-- Canonical Tag -->
+    <link rel="canonical" href="https://juhan.codexist.co.za/">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Juhan Badenhorst - Technical SEO Specialist">
+    <meta property="og:description" content="Juhan Badenhorst - Technical SEO Specialist & Full Stack Developer. Building fast, SEO-optimized WordPress solutions.">
+    <meta property="og:image" content="https://juhan.codexist.co.za/assets/Juhan-Profile.png">
+    <meta property="og:url" content="https://juhan.codexist.co.za/">
+    <meta property="og:site_name" content="Juhan Badenhorst Portfolio">
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Juhan Badenhorst - Technical SEO Specialist">
+    <meta name="twitter:description" content="Technical SEO Specialist & Full Stack Developer. Building fast, SEO-optimized WordPress solutions.">
+    <meta name="twitter:image" content="https://juhan.codexist.co.za/assets/Juhan-Profile.png">
+    <meta name="twitter:creator" content="@juhanbadenhorst">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+    />
+
+    <!-- Preconnect Directives -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com">
+
+    <!-- Google Fonts: Add Cormorant Garamond for premium serif headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+
+
+    <script type="x-shader/x-vertex" id="vertexShader">
+    varying vec2 vUv;
+    void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+    varying vec2 vUv;
+    uniform float u_time;
+    uniform vec3 u_color;
+
+    float julia(vec2 z, vec2 c) {
+        // ... (julia function remains the same) ...
+        for(float i = 0.0; i < 1e2; i++) {
+            float xx = z.x*z.x, yy = z.y*z.y, zz = xx + yy;
+            if (zz > 10.0){return 100.0;}
+            float re = c.x*z.x + c.y*z.y + xx*xx - yy*yy ;
+            float im = c.y*z.x - c.x*z.y + 2.0*z.x*z.y*zz ;
+            z = vec2(re, im)/zz;
+        }
+        return 0.0 ;
+    }
+
+    void main() {
+        float pi = 3.14159265359;
+        float elevation = (vUv.y-0.5)*pi;
+        float azimuth = vUv.x*2.0*pi;
+        float Z = sin(elevation);
+        float cosel = cos(elevation);
+        float X = cosel*cos(azimuth);
+        float Y = cosel*sin(azimuth);
+        vec2 coord = vec2(X/(1.-Z),Y/(1.-Z));
+
+        coord = sqrt(0.1)*coord;
+        vec2 c = vec2(-0.01, -0.1);
+        float cycle = mod(u_time/1000.,2.*pi);
+        c = c + vec2(cos(cycle),sin(cycle))*.01;
+        float m = julia(coord, c);
+
+        vec3 baseColor = u_color;
+        vec3 rgb = baseColor * (0.5 + 0.5*cos(3.0 + 0.15*m + vec3(0.0, 0.6, 2.)));
+
+        gl_FragColor = vec4(rgb, 1.0);
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Juhan Badenhorst",
+        "jobTitle": "Technical SEO Specialist & Full Stack Developer",
+        "url": "https://juhan.codexist.co.za",
+        "sameAs": [
+            "https://linkedin.com/in/juhanbadenhorst/",
+            "https://github.com/CodexistLabs"
+        ],
+        "image": "https://juhan.codexist.co.za/assets/Juhan-Profile.png",
+        "description": "Technical SEO Specialist & Full Stack Developer specializing in WordPress, Bricks Builder, and high-performance web solutions",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "ZA",
+            "addressLocality": "South Africa"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Professional Inquiry",
+            "email": "juhan@codexist.co.za",
+            "telephone": "+27-823-605-374"
+        }
+    }
+    </script>
+
+  <script type="module" crossorigin src="./assets/index-BwFh-Odx.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/gsap-B7OIkDZn.js">
+  <link rel="modulepreload" crossorigin href="./assets/three-DCgOJd6z.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-AiIq3jMh.css">
+</head>
+<body aria-busy="true">
+    <a href="#main-canvas" class="skip-link">Skip to Main Content</a>
+    <!-- Cursor elements -->
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+    <!-- Spore particle canvas -->
+    <canvas id="spore-canvas"></canvas>
+    <div id="loader-overlay" class="loader-overlay" role="alert" aria-live="assertive">
+        <div class="loader-content">
+            <div class="loader">
+                <div class="cube-scene">
+                    <div class="cube" aria-hidden="true">
+                        <div class="cube-face face-front"></div> <div class="cube-face face-back"></div> <div class="cube-face face-right"></div><div class="cube-face face-left"></div> <div class="cube-face face-top"></div> <div class="cube-face face-bottom"></div>
+                    </div>
+                    <div class="orbit" aria-hidden="true">
+                        <div class="dot d1"></div> <div class="dot d2"></div> <div class="dot d3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lightsaber-container">
+                <div class="hilt">
+                    <div class="switch"></div>
+                </div>
+                <div class="plasma-blade" id="progress-bar"></div>
+            </div>
+            <p id="loading-text">Initializing hyperdrive...</p>
+            <div class="percentage" id="percentage-text">0%</div>
+        </div>
+    </div>
+
+    <div id="star-wars-intro" class="star-wars-overlay">
+        <div class="crawl-container">
+            <div class="crawl-content">
+                <div class="title">
+                    <p>Episode 2026</p>
+                    <h1>A New Candidate</h1>
+                </div>
+                <p>It is a period of digital expansion. Across the galaxy, hiring managers and clients scour the internet in search of a developer who can bring balance to the codebase.</p>
+                <p>Striking from a hidden base in Randburg, South Africa - Juhan has emerged as a powerful ally. Armed with the ancient arts of clean syntax and modern frameworks, they prepare to showcase a portfolio of galactic proportions.</p>
+                <p>Pursued by deadlines and scope creep, he races to deliver high-performance solutions. Now, you must navigate this portfolio to discover the skills that will save your next project and restore peace to the deployment pipeline....</p>
+            </div>
+        </div>
+        <button id="skip-btn">SKIP INTRO >></button>
+    </div>
+
+    <div id="hyperspace-overlay">
+        <div class="hyperspace-stars"></div>
+    </div>
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="labels-container"></div>
+    <svg id="label-lines" xmlns="http://www.w3.org/2000/svg"></svg>
+    <button id="back-button" class="back-button">← Return to Overview</button>
+
+    <div id="about-panel" class="content-panel">
+        <h2>Code Over Clutter – Building What Plugins Can’t</h2>
+        <p>I’m Juhan, a Digital Alchemist and Google Certified Internet Ninja based in South Africa. While other developers are busy shopping for expensive premium plugins to fix their problems, I’m usually busy writing the code to replace them—mostly because I appreciate the performance, but partly because I just really hate paying for things I can build myself.</p>
+        <p>I specialize in Bricks Builder and high-octane WordPress development. I don’t just drag-and-drop; I engineer ecosystems. Whether I’m stitching together two separate businesses into a single booking database or building a custom dashboard that makes inventory management easier than making toast, I operate on a strict "Zero Bloat" policy.</p>
+        <p>My philosophy is simple: I treat a 3-second load time like a personal insult. I build lean, mean, SEO-optimized machines that keep Google happy and your competitors nervous. If you’re looking for someone to install 50 plugins and hope for the best, I’m not your guy. But if you want a web experience that’s custom-coded to perfection and runs faster than a cheetah on espresso, we should talk.</p>
+        <p style="margin-top: 1.5em; font-weight: bold;">Got a project idea that scares other developers?</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a id="about-cta" href="mailto:juhan@codexist.co.za" class="cta-button">[ Challenge Me ]</a>
+            <a href="https://juhan.codexist.co.za/cv" class="cta-button secondary" style="border-color: #39ff14; color: #39ff14;">[ View my CV ]</a>
+        </div>
+    </div>
+
+    <div id="projects-panel" class="content-panel">
+        <h2 id="project-title"></h2>
+
+        <div id="project-challenge-container">
+            <h3>The Challenge</h3>
+            <p id="project-challenge"></p>
+            <button id="view-solution-btn" class="cta-button">See Solution</button>
+        </div>
+
+        <div id="project-solution-container" style="display: none; opacity: 0;">
+            <h3 id="project-solution-header" tabindex="-1">The Solution</h3>
+            <p id="project-solution"></p>
+            <button id="view-outcome-btn" class="cta-button">View Outcome</button>
+        </div>
+
+        <div id="project-outcome-container" style="display: none; opacity: 0;">
+            <h3 id="project-outcome-header" tabindex="-1">The Outcome</h3>
+            <p id="project-outcome"></p>
+            <div class="project-actions">
+                <a id="project-link" href="#" target="_blank" rel="noopener noreferrer" class="cta-button">Visit Website</a>
+                <button id="back-to-project-btn" class="cta-button secondary">Back to Projects</button>
+            </div>
+        </div>
+    </div>
+    <div id="skill-detail-view"><div id="skill-detail-content"><h2 id="skill-detail-title"></h2><p id="skill-detail-text"></p></div><div id="skill-detail-sidebar"></div></div>
+    <nav id="gallery-navigation" class="gallery-nav" aria-label="Gallery"></nav>
+
+    <nav class="bottom-left-menu" aria-label="Main Navigation">
+        <div class="menu-item">
+            <button type="button" class="menu-button icon-button" aria-label="Help" aria-expanded="false" aria-controls="help-submenu">
+                <span style="font-family: serif; font-weight: bold; font-size: 24px;" aria-hidden="true">i</span>
+                 <span class="tooltip">Help</span>
+            </button>
+            <div id="help-submenu" class="submenu legend-content">
+                <p>Rotate: <span>Left Click + Drag</span></p>
+                <p>Pan: <span>Right Click + Drag</span></p>
+                <p>Zoom: <span>Scroll Wheel</span></p>
+                <p>Keyboard: <span>Arrow Keys</span></p>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button type="button" class="menu-button icon-button" aria-label="Portfolios" aria-expanded="false" aria-controls="portfolios-submenu">
+                <img src="./assets/portfolio-final-DlbKbO49.png" alt="" aria-hidden="true">
+                 <span class="tooltip">Portfolios</span>
+            </button>
+            <div id="portfolios-submenu" class="submenu">
+                <a href="https://juhan.codexist.co.za/portfolio/seo-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="SEO Portfolio">
+                    <img src="./assets/portfolio-final-DlbKbO49.png" alt="" aria-hidden="true">
+                     <span class="tooltip">SEO</span>
+                </a>
+                <a href="https://juhan.codexist.co.za/portfolio/paid-marketing-portfolio/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Paid Marketing Portfolio">
+                    <img src="./assets/portfolio-final-DlbKbO49.png" alt="" aria-hidden="true">
+                     <span class="tooltip">Paid Marketing</span>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button type="button" class="menu-button icon-button" aria-label="Contact" aria-expanded="false" aria-controls="contact-submenu">
+                <img src="./assets/mobile-final-Bh1OcPn-.png" alt="" aria-hidden="true">
+                 <span class="tooltip">Contact</span>
+            </button>
+            <div id="contact-submenu" class="submenu">
+                <a href="https://wa.me/27823605374" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="WhatsApp">
+                    <img src="./assets/whatsapp-final-DBrWpSC_.png" alt="" aria-hidden="true">
+                    <span class="tooltip">WhatsApp</span>
+                </a>
+                <a href="mailto:info@codexist.co.za" class="submenu-item icon-button" aria-label="Email">
+                    <img src="./assets/email-final-CR5hYinJ.png" alt="" aria-hidden="true">
+                     <span class="tooltip">Email</span>
+                </a>
+                <a href="https://linkedin.com/in/juhanbadenhorst/" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="LinkedIn">
+                    <img src="./assets/linkedin-final-DJ0FHWhY.png" alt="" aria-hidden="true">
+                     <span class="tooltip">LinkedIn</span>
+                </a>
+                <button type="button" class="submenu-item icon-button" aria-label="Book a Meeting (Coming Soon)" disabled>
+                    <img src="./assets/booking-final-BiAcKJKp.png" alt="" aria-hidden="true">
+                     <span class="tooltip">Book a Meeting (Coming Soon)</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <button type="button" class="menu-button icon-button" aria-label="Websites" aria-expanded="false" aria-controls="websites-submenu">
+                <img src="./assets/website-final-BnKQ7RQs.png" alt="" aria-hidden="true">
+                <span class="tooltip">Websites</span>
+            </button>
+            <div id="websites-submenu" class="submenu">
+                <a href="https://codexist.co.za" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Codexist">
+                    <img src="./assets/url-final-Cg3EKhqn.png" alt="" aria-hidden="true">
+                    <span class="tooltip">Codexist</span>
+                </a>
+                <a href="https://factorlab.co.za" target="_blank" rel="noopener noreferrer" class="submenu-item icon-button" aria-label="Factor Lab">
+                    <img src="./assets/url-final-Cg3EKhqn.png" alt="" aria-hidden="true">
+                    <span class="tooltip">Factor Lab</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cursor & Particle Effects -->
+    <script>
+    // Custom cursor tracking
+    const cursor = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursor-ring');
+    let mx = -100, my = -100, rx = -100, ry = -100;
+
+    document.addEventListener('mousemove', (e) => {
+      mx = e.clientX;
+      my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    // Smooth ring following
+    (function trackRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      cursorRing.style.left = rx + 'px';
+      cursorRing.style.top = ry + 'px';
+      requestAnimationFrame(trackRing);
+    })();
+
+    // Scale cursor on interactive elements
+    document.querySelectorAll('a, button, [role="button"]').forEach((el) => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1.8)';
+        cursorRing.style.transform = 'translate(-50%,-50%) scale(1.5)';
+        cursorRing.style.borderColor = 'rgba(77, 208, 225, 0.5)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        cursorRing.style.transform = 'translate(-50%,-50%) scale(1)';
+        cursorRing.style.borderColor = 'rgba(77, 208, 225, 0.25)';
+      });
+    });
+
+    // Spore particle system
+    const sporeCanvas = document.getElementById('spore-canvas');
+    const sCtx = sporeCanvas.getContext('2d');
+    let spores = [];
+    let W, H;
+
+    function resizeSpore() {
+      W = sporeCanvas.width = window.innerWidth;
+      H = sporeCanvas.height = window.innerHeight;
+    }
+    resizeSpore();
+    window.addEventListener('resize', resizeSpore);
+
+    class Spore {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.life = 1;
+        this.decay = 0.012 + Math.random() * 0.018;
+        this.r = 1.2 + Math.random() * 2;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = -0.25 - Math.random() * 0.4;
+        this.cyan = Math.random() > 0.3;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy *= 0.99;
+        this.life -= this.decay;
+      }
+
+      draw(ctx) {
+        const alpha = this.life * 0.5;
+        const color = this.cyan
+          ? `rgba(77, 208, 225, ${alpha})`
+          : `rgba(82, 183, 136, ${alpha})`;
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = this.cyan ? 'rgba(77, 208, 225, 0.3)' : 'rgba(82, 183, 136, 0.3)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.6) return;
+      spores.push(new Spore(e.clientX, e.clientY));
+      if (spores.length > 100) spores.shift();
+    });
+
+    function animateSpores() {
+      sCtx.clearRect(0, 0, W, H);
+      spores = spores.filter((s) => s.life > 0);
+      spores.forEach((s) => {
+        s.update();
+        s.draw(sCtx);
+      });
+      requestAnimationFrame(animateSpores);
+    }
+    animateSpores();
+    </script>
+
+</body>
+</html>
