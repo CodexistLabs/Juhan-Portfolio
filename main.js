@@ -318,7 +318,7 @@ function initThreeScene() {
         setTimeout(() => {
             if (loaderOverlay) {
                 document.body.setAttribute('aria-busy', 'false');
-                loaderOverlay.classList.add('collapsing');
+                loaderOverlay.classList.add('hidden');
 
                 loaderOverlay.addEventListener('transitionend', () => {
                     loaderOverlay.style.display = 'none';
