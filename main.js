@@ -872,12 +872,12 @@ function initThreeScene() {
                  visual.position.x += (Math.random() - 0.5) * 10;
                  visual.scale.set(0, 0, 0);
 
+                 // Make hitbox visible immediately — it's transparent so it has no visual impact,
+                 // but delaying via onComplete on a THREE.Vector3 tween is unreliable.
+                 mesh.visible = true;
                  gsap.to(visual.scale, { duration: 1.5, x: 1, y: 1, z: 1, ease: 'back.out(1.7)', delay });
                  gsap.to(visual.position, {
-                     duration: 2.5, x: finalPos.x, y: finalPos.y, z: finalPos.z, ease: 'power3.out', delay,
-                     onComplete: () => {
-                         mesh.visible = true;
-                     }
+                     duration: 2.5, x: finalPos.x, y: finalPos.y, z: finalPos.z, ease: 'power3.out', delay
                  });
             } else {
                  console.warn(`Visual for node ${item.mesh.name} not loaded yet.`);
@@ -1102,10 +1102,12 @@ function initThreeScene() {
                     clickedNode.visual.visible = false;
                     announce("Entering About section");
                     gsap.to(camera.position, { duration: 1.6, x: clickedNode.mesh.position.x, y: clickedNode.mesh.position.y, z: clickedNode.mesh.position.z + 5, ease: 'power3.inOut'});
-                    gsap.to(controls.target, { duration: 1.6, x: clickedNode.mesh.position.x, y: clickedNode.mesh.position.y, z: clickedNode.mesh.position.z, ease: 'power3.inOut', onComplete: () => {
+                    gsap.to(controls.target, { duration: 1.6, x: clickedNode.mesh.position.x, y: clickedNode.mesh.position.y, z: clickedNode.mesh.position.z, ease: 'power3.inOut' });
+                    // Use delayedCall instead of onComplete on a THREE.Vector3 tween — more reliable
+                    gsap.delayedCall(1.6, () => {
                         aboutPanel.classList.add('visible');
                         backButton.classList.add('visible');
-                    }});
+                    });
                 } else if (clickedNode.mesh.name === 'Skills' || clickedNode.mesh.name === 'Projects') {
                     forceHideAllLabels();
                     const isSkills = clickedNode.mesh.name === 'Skills';
@@ -1123,14 +1125,16 @@ function initThreeScene() {
                         gsap.to(camera.position, { duration: 1.6, x: 0, y: 8, z: 9, ease: 'power3.inOut' });
                     }
 
-                    gsap.to(systemNode.position, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut', onComplete: () => {
+                    gsap.to(systemNode.position, { duration: 1.6, x: 0, y: 0, z: 0, ease: 'power3.inOut' });
+                    // Use delayedCall instead of onComplete on a THREE.Vector3 tween — more reliable
+                    gsap.delayedCall(1.6, () => {
                          backButton.classList.add('visible');
                          if (isSkills) {
                             skillsSystemGroup.visible = true;
                          } else {
                             projectsSystemGroup.visible = true;
                          }
-                    }});
+                    });
                 }
             } else if (currentView === 'skills') {
                 showSkillsDetail(clickedNode);
@@ -1167,9 +1171,8 @@ function initThreeScene() {
                         }
                     }
                 });
-                gsap.to(groupToDestroy.scale, { duration: 0.5, x: 0, y: 0, z: 0, ease: 'power3.in', onComplete: () => {
-                    groupToDestroy.visible = false;
-                }});
+                gsap.to(groupToDestroy.scale, { duration: 0.5, x: 0, y: 0, z: 0, ease: 'power3.in' });
+                gsap.delayedCall(0.5, () => { groupToDestroy.visible = false; });
             }
 
             // Clear cached planet meshes/labels to free memory
