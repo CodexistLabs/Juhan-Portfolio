@@ -427,7 +427,7 @@ canvas:focus-visible {
   user-select: none;
   text-align: center;
   opacity: 1;
-  transition: opacity 0.5s;
+  /* No CSS transition — GSAP handles all label fade animations to avoid conflicts */
   z-index: 10;
   text-transform: uppercase;
   letter-spacing: 1px;

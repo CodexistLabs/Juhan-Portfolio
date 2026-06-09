@@ -1400,20 +1400,24 @@ function initThreeScene() {
                         if (item.lineElement.style.display === 'none' || item.isAnimatingOut) {
                             item.isAnimatingOut = false;
                             item.lineElement.style.display = 'block';
-                            
+
                             gsap.killTweensOf(item.lineElement.style);
                             gsap.killTweensOf(label);
 
-                            gsap.to(item.lineElement.style, { 
-                                strokeDashoffset: 0, 
-                                duration: 0.4, 
-                                ease: "power2.out" 
+                            // Explicitly start from 0 so GSAP always fades in cleanly
+                            // (CSS transition was removed — GSAP owns all label opacity now)
+                            label.style.opacity = '0';
+
+                            gsap.to(item.lineElement.style, {
+                                strokeDashoffset: 0,
+                                duration: 0.4,
+                                ease: "power2.out"
                             });
-                            
-                            gsap.to(label, { 
-                                opacity: 1, 
-                                duration: 0.4, 
-                                delay: 0.2 
+
+                            gsap.to(label, {
+                                opacity: 1,
+                                duration: 0.4,
+                                delay: 0.2
                             });
                         }
                     }
