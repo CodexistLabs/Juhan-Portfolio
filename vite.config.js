@@ -7,6 +7,14 @@ export default defineConfig({
         outDir: 'dist',
         assetsDir: 'assets',
         rollupOptions: {
+            input: {
+                main: 'index.html',
+                cv: 'cv/index.html',
+                portfolio: 'portfolio/index.html',
+                'portfolio/seo-portfolio': 'portfolio/seo-portfolio/index.html',
+                'portfolio/paid-marketing-portfolio': 'portfolio/paid-marketing-portfolio/index.html',
+                'portfolio/graphic-design-portfolio': 'portfolio/graphic-design-portfolio/index.html'
+            },
             output: {
                 // Function form required for Vite 8 / Rolldown
                 manualChunks(id) {

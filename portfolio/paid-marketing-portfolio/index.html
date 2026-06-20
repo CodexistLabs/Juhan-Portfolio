@@ -525,16 +525,16 @@
                 <p class="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
                     I only work with a limited number of clients to ensure maximum attention to your campaigns.
                 </p>
-                <form class="max-w-md mx-auto space-y-4 text-left">
+                <form id="contact-form" class="max-w-md mx-auto space-y-4 text-left">
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Email</label>
-                        <input type="email" placeholder="you@company.com" class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white placeholder-slate-600 outline-none transition-all">
+                        <label for="contact-email" class="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                        <input type="email" id="contact-email" name="email" required placeholder="you@company.com" class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white placeholder-slate-600 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Website</label>
-                        <input type="text" placeholder="https://" class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white placeholder-slate-600 outline-none transition-all">
+                        <label for="contact-website" class="block text-sm font-medium text-slate-400 mb-1">Website</label>
+                        <input type="text" id="contact-website" name="website" required placeholder="https://" class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white placeholder-slate-600 outline-none transition-all">
                     </div>
-                    <button class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5">
+                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-emerald-500/25 transition-all transform hover:-translate-y-0.5">
                         Request Strategy Session
                     </button>
                 </form>
@@ -604,6 +604,75 @@
                     }
                 }
             }
+        }
+
+        // Form Handling
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const emailInput = document.getElementById('contact-email');
+                const websiteInput = document.getElementById('contact-website');
+                const submitBtn = contactForm.querySelector('button');
+                
+                if (!emailInput.value || !websiteInput.value) {
+                    alert('Please fill out all fields.');
+                    return;
+                }
+                
+                // Visual feedback: Loading state
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <span class="inline-flex items-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing Request...
+                    </span>
+                `;
+                
+                // Simulate network request
+                setTimeout(() => {
+                    const container = contactForm.parentElement;
+                    
+                    contactForm.style.transition = 'opacity 0.3s ease';
+                    contactForm.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        contactForm.classList.add('hidden');
+                        
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'max-w-md mx-auto py-8 text-center space-y-4';
+                        successDiv.style.opacity = '0';
+                        successDiv.style.transition = 'opacity 0.3s ease';
+                        successDiv.innerHTML = `
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-500 mb-4 animate-bounce">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white">Strategy Session Requested!</h3>
+                            <p class="text-slate-400">
+                                Thank you for your inquiry. Juhan will review your website and campaign requirements and reach out to you at <strong class="text-white">${escapeHtml(emailInput.value)}</strong> within 24 hours.
+                            </p>
+                            <button onclick="window.location.reload()" class="mt-6 inline-flex items-center px-4 py-2 border border-slate-700 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:border-slate-500 transition-colors">
+                                Send another message
+                            </button>
+                        `;
+                        
+                        container.appendChild(successDiv);
+                        successDiv.offsetHeight; // force reflow
+                        successDiv.style.opacity = '1';
+                    }, 300);
+                }, 1500);
+            });
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
