@@ -769,27 +769,11 @@ canvas:focus-visible {
   transition: all 0.5s ease;
 }
 
-#project-solution-container {
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-}
-
-#project-solution-container.visible {
-  opacity: 1;
-  max-height: 1000px;
-}
-
-#project-outcome-container {
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-}
-
-#project-outcome-container.visible {
-  opacity: 1;
-  max-height: 1000px;
-}
+/* Bolt: Visibility for these panels is fully owned by GSAP in main.js
+   (display/opacity/scale/filter via the See Solution / View Outcome
+   click handlers). The old max-height/.visible CSS gate below was a
+   leftover from a pre-GSAP implementation and was clamping these panels
+   to 0 height even after GSAP faded them in, making the text invisible. */
 
 /* ===== ACCESSIBILITY ===== */
 .sr-only {
